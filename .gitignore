@@ -1,0 +1,60 @@
+# ─── Credenciales y certificados digitales ───────────────────────────────────
+*.pfx
+*.p12
+*.pem
+*.key
+*.crt
+*.cer
+*.env
+.env.*
+!.env.example
+
+# ─── Dependencias ─────────────────────────────────────────────────────────────
+node_modules/
+vendor/
+.venv/
+__pycache__/
+*.pyc
+
+# ─── Instaladores y paquetes binarios ─────────────────────────────────────────
+*.msi
+*.apk
+*.ipa
+*.exe
+*.dmg
+*.deb
+*.rpm
+*.zip
+*.tar.gz
+*.jar
+*.war
+*.ear
+
+# ─── Salidas de compilación ───────────────────────────────────────────────────
+dist/
+build/
+out/
+target/
+*.class
+
+# ─── IDEs y editores ──────────────────────────────────────────────────────────
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+.DS_Store
+Thumbs.db
+
+# ─── Logs y temporales ────────────────────────────────────────────────────────
+*.log
+*.tmp
+*.bak
+*.cache
+coverage/
+.nyc_output/
+
+# ─── Documentos generados automáticamente ────────────────────────────────────
+docs/generated/

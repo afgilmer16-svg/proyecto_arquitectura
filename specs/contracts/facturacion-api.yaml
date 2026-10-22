@@ -1,0 +1,15 @@
+# Contrato OpenAPI 3.1 — Facturación Electrónica SUNAT
+# Archivo de sincronización con specs/03-api/openapi.yaml
+# Ver documentación detallada en specs/03-api/README.md
+
+openapi: "3.1.0"
+info:
+  title: "API de Facturación Electrónica SUNAT — ABC Software Corp"
+  version: "1.0.0"
+  description: |
+    API RESTful de facturación electrónica conforme a la RS N° 097-2012/SUNAT y OASIS UBL 2.1.
+    Versión espejo de specs/03-api/openapi.yaml.
+paths:
+  $ref: "../03-api/openapi.yaml#/paths"
+components:
+  $ref: "../03-api/openapi.yaml#/components"
