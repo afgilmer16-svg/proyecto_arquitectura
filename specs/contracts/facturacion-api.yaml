@@ -1,15 +1,3076 @@
-# Contrato OpenAPI 3.1 — Facturación Electrónica SUNAT
-# Archivo de sincronización con specs/03-api/openapi.yaml
-# Ver documentación detallada en specs/03-api/README.md
-
 openapi: "3.1.0"
 info:
   title: "API de Facturación Electrónica SUNAT — ABC Software Corp"
   version: "1.0.0"
   description: |
-    API RESTful de facturación electrónica conforme a la RS N° 097-2012/SUNAT y OASIS UBL 2.1.
-    Versión espejo de specs/03-api/openapi.yaml.
+    API RESTful de facturación electrónica conforme a la **RS N° 097-2012/SUNAT**, **RS N° 234-2006/SUNAT** y el estándar **OASIS UBL 2.1**.
+    Diseñada para la emisión, consulta y gestión fiscal de comprobantes de pago (Facturas, Boletas de Venta, Notas de Crédito, Notas de Débito, Comunicaciones de Baja y Resúmenes Diarios) para la empresa de abarrotes ABC Software Corp.
+    
+    Cada operación documenta su trazabilidad directa con el Caso de Uso del Dominio (**CU-xx**).
+  contact:
+    name: "Equipo de Arquitectura Grupo A — UNAS-FIIS"
+    email: "arquitectura@abcsoftwarecorp.pe"
+  license:
+    name: "Uso académico — UNAS-FIIS"
+    url: "https://www.unas.edu.pe"
+servers:
+  - url: "https://api.facturacion.abcsoftwarecorp.pe/v1"
+    description: "Servidor Principal de Producción"
+  - url: "https://api-homologacion.facturacion.abcsoftwarecorp.pe/v1"
+    description: "Ambiente de Pruebas y Homologación OSE/SUNAT"
+  - url: "http://localhost:8080/v1"
+    description: "Entorno de Desarrollo Local"
+
+security:
+  - bearerAuth: []
+
+tags:
+  - name: "Libros Electrónicos"
+    description: "Registro de Ventas (PLE 14.1) y Registro de Inventario Permanente (PLE 12.1)"
+  - name: "Comprobantes"
+    description: "Emisión y consulta de Facturas Electrónicas (01) y Boletas de Venta (03)"
+  - name: "Artefactos"
+    description: "Descarga de documentos electrónicos: XML UBL 2.1 firmado, PDF (Representación Impresa) y CDR"
+  - name: "Notas Modificatorias"
+    description: "Emisión de Notas de Crédito (07) y Notas de Débito (08)"
+  - name: "Comunicaciones y Resúmenes"
+    description: "Comunicaciones de Baja (Anulaciones) y Resúmenes Diarios de Boletas"
+  - name: "Contribuyentes"
+    description: "Validación de RUC ante padrones oficiales de SUNAT"
+  - name: "Clientes"
+    description: "Mantenimiento CRUD del maestro de clientes y adquirentes"
+  - name: "Productos"
+    description: "Mantenimiento CRUD del catálogo de productos y precios de abarrotes"
+  - name: "Series"
+    description: "Configuración y control secuencial de series y correlativos"
+  - name: "Catálogos"
+    description: "Consulta de tablas normativas oficiales del Anexo 8 de SUNAT"
+  - name: "Migración"
+    description: "Importación masiva y conciliación de ventas históricas del sistema legado"
+
 paths:
-  $ref: "../03-api/openapi.yaml#/paths"
+  /comprobantes:
+    post:
+      tags:
+        - "Comprobantes"
+      summary: "Emitir Factura o Boleta de Venta Electrónica"
+      operationId: "emitirComprobante"
+      description: |
+        **Caso de Uso**: `CU-01` (Emitir Factura) / `CU-02` (Emitir Boleta).
+        
+        Calcula (el cliente no envía montos de impuestos ni totales) la base imponible e impuestos (IGV 18%, ISC, ICBPER), valida el RUC del receptor ante SUNAT, genera el XML en formato OASIS UBL 2.1, estampa la firma digital XMLDSig con certificado X.509, remite el paquete al Operador de Servicios Electrónicos (OSE) o SUNAT, procesa el CDR y almacena el comprobante.
+      parameters:
+        - name: "Idempotency-Key"
+          in: "header"
+          required: false
+          schema:
+            type: "string"
+            format: "uuid"
+          description: "UUID generado por el cliente para el comando. Si el servidor ya procesó ese UUID, devuelve el resultado original sin crear un segundo comprobante (modo sin conexión, ADR-003)."
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EmitirComprobanteRequest"
+            examples:
+              factura_abarrotes:
+                summary: "Ejemplo válido de Factura Electrónica (Sector Abarrotes con IGV e ICBPER)"
+                value:
+                  tipo_comprobante: "01"
+                  serie: "F001"
+                  fecha_emision: "2026-10-22"
+                  hora_emision: "10:30:00"
+                  moneda: "PEN"
+                  forma_pago:
+                    tipo: "Contado"
+                  emisor:
+                    ruc: "20601234567"
+                    razon_social: "ABC SOFTWARE CORP S.A.C."
+                    nombre_comercial: "DISTRIBUIDORA DE ABARROTES ABC"
+                    direccion: "Av. Universitaria 123, Tingo María, Huánuco"
+                    ubigeo: "100601"
+                  receptor:
+                    tipo_documento: "6"
+                    numero_documento: "20555555551"
+                    razon_social: "COMERCIALIZADORA SAN JUAN S.A.C."
+                    direccion: "Jr. Comercio 456, Rupa Rupa, Leoncio Prado"
+                    email: "facturacion@sanjuan.pe"
+                  items:
+                    - numero_linea: 1
+                      codigo_producto: "PROD-ARR-01"
+                      descripcion: "Arroz Extra Costeño Saco 50 kg"
+                      unidad_medida: "SA"
+                      cantidad: "10"
+                      valor_unitario: "140.00"
+                      tipo_afectacion_igv: "10"
+                    - numero_linea: 2
+                      codigo_producto: "PROD-ACE-02"
+                      descripcion: "Aceite Vegetal Primor Botella 1 Litro (Caja x 12 unidades)"
+                      unidad_medida: "BX"
+                      cantidad: "5"
+                      valor_unitario: "80.00"
+                      tipo_afectacion_igv: "10"
+                    - numero_linea: 3
+                      codigo_producto: "PROD-BOL-03"
+                      descripcion: "Bolsa Plástica 50x70 cm (afecta a ICBPER)"
+                      unidad_medida: "NIU"
+                      cantidad: "10"
+                      valor_unitario: "0.10"
+                      tipo_afectacion_igv: "10"
+                      cantidad_bolsas: 10
+      responses:
+        "201":
+          description: "Comprobante emitido, firmado y aceptado por el OSE/SUNAT."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ComprobanteResponse"
+              example:
+                id: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11"
+                tipo_comprobante: "01"
+                serie: "F001"
+                correlativo: 42
+                fecha_emision: "2026-10-22"
+                moneda: "PEN"
+                importe_total: "2130.18"
+                estado: "ACEPTADO"
+                items:
+                  - {numero_linea: 1, codigo_producto: "PROD-ARR-01", descripcion: "Arroz Extra Costeño Saco 50 kg", unidad_medida: "SA", cantidad: "10", valor_unitario: "140.00", precio_unitario: "165.20", tipo_afectacion_igv: "10", valor_total: "1400.00", monto_isc: "0.00", monto_igv: "252.00", monto_icbper: "0.00"}
+                  - {numero_linea: 2, codigo_producto: "PROD-ACE-02", descripcion: "Aceite Vegetal Primor Botella 1 Litro (Caja x 12 unidades)", unidad_medida: "BX", cantidad: "5", valor_unitario: "80.00", precio_unitario: "94.40", tipo_afectacion_igv: "10", valor_total: "400.00", monto_isc: "0.00", monto_igv: "72.00", monto_icbper: "0.00"}
+                  - {numero_linea: 3, codigo_producto: "PROD-BOL-03", descripcion: "Bolsa Plástica 50x70 cm (afecta a ICBPER)", unidad_medida: "NIU", cantidad: "10", valor_unitario: "0.10", precio_unitario: "0.118", tipo_afectacion_igv: "10", valor_total: "1.00", monto_isc: "0.00", monto_igv: "0.18", monto_icbper: "5.00"}
+                totales: {total_valor_venta: "1801.00", total_operaciones_gravadas: "1801.00", total_operaciones_inafectas: "0.00", total_operaciones_exoneradas: "0.00", total_igv: "324.18", total_isc: "0.00", total_icbper: "5.00", total_impuestos: "329.18", total_precio_venta: "2130.18", total_descuentos: "0.00", total_cargos: "0.00", importe_total: "2130.18"}
+                hash_sha256: "4v8K+qK20yD...SHA256HASH=="
+                cdr: {codigo_respuesta: "0", descripcion_respuesta: "La Factura número F001-00000042 ha sido ACEPTADA.", observaciones: [], fecha_recepcion: "2026-10-22T10:30:12Z"}
+                fecha_registro: "2026-10-22T10:30:15Z"
+        "400":
+          description: "Solicitud mal formada, campos obligatorios ausentes o tipos inválidos."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: "No autenticado. Token JWT ausente, inválido o expirado."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: "No autorizado. El usuario autenticado no tiene permiso para emitir comprobantes."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "409":
+          description: "Conflicto: serie y correlativo ya emitidos previamente."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "422":
+          description: "Error de validación fiscal: RUC inexistente, serie no configurada para el tipo de comprobante indicado, o reglas de SUNAT no cumplidas."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "502":
+          description: "Fallo de comunicación o timeout con el servicio web del OSE / SUNAT."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+    get:
+      tags:
+        - "Comprobantes"
+      summary: "Listar comprobantes emitidos con filtros"
+      operationId: "listarComprobantes"
+      description: |
+        **Caso de Uso**: `CU-05` (Consultar Comprobantes).
+        
+        Permite buscar y filtrar comprobantes por rango de fechas, tipo de documento, estado tributario y RUC del receptor.
+      parameters:
+        - name: "fecha_desde"
+          in: "query"
+          required: false
+          schema:
+            type: "string"
+            format: "date"
+          description: "Fecha de inicio del rango de emisión (AAAA-MM-DD)"
+        - name: "fecha_hasta"
+          in: "query"
+          required: false
+          schema:
+            type: "string"
+            format: "date"
+          description: "Fecha final del rango de emisión (AAAA-MM-DD)"
+        - name: "tipo_comprobante"
+          in: "query"
+          required: false
+          schema:
+            $ref: "#/components/schemas/TipoComprobanteEnum"
+          description: "Código de catálogo 01: '01' Factura, '03' Boleta, '07' NC, '08' ND"
+        - name: "estado"
+          in: "query"
+          required: false
+          schema:
+            $ref: "#/components/schemas/EstadoComprobanteEnum"
+          description: "Estado del comprobante: EMITIDO, ACEPTADO, RECHAZADO, DE_BAJA"
+        - name: "ruc_receptor"
+          in: "query"
+          required: false
+          schema:
+            type: "string"
+            pattern: "^[0-9]{11}$"
+          description: "Filtrar por RUC del cliente"
+        - name: "page"
+          in: "query"
+          required: false
+          schema:
+            type: "integer"
+            default: 1
+            minimum: 1
+          description: "Número de página para paginación"
+        - name: "page_size"
+          in: "query"
+          required: false
+          schema:
+            type: "integer"
+            default: 20
+            maximum: 100
+          description: "Cantidad de registros por página"
+      responses:
+        "401":
+          $ref: "#/components/responses/NoAutenticado"
+        "403":
+          $ref: "#/components/responses/NoAutorizado"
+        "200":
+          description: "Lista paginada de comprobantes encontrados."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ComprobanteListResponse"
+        "400":
+          description: "Parámetros de consulta inválidos."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /comprobantes/{id}:
+    get:
+      tags:
+        - "Comprobantes"
+      summary: "Obtener detalle de comprobante por ID"
+      operationId: "obtenerComprobantePorId"
+      description: |
+        **Caso de Uso**: `CU-05` (Consultar Estado Comprobante).
+        
+        Recupera el estado actual, datos completos, desglose de impuestos y constancia CDR del comprobante especificado por su UUID o identificador único.
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "string"
+            format: "uuid"
+          description: "Identificador único (UUID) del comprobante"
+      responses:
+        "401":
+          $ref: "#/components/responses/NoAutenticado"
+        "403":
+          $ref: "#/components/responses/NoAutorizado"
+        "200":
+          description: "Comprobante encontrado con estado y CDR asociado."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ComprobanteResponse"
+        "404":
+          description: "El comprobante solicitado no existe."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /comprobantes/{id}/xml:
+    get:
+      tags:
+        - "Artefactos"
+      summary: "Descargar archivo XML UBL 2.1 firmado"
+      operationId: "descargarXmlComprobante"
+      description: |
+        **Caso de Uso**: `CU-06` (Descargar Artefactos Electrónicos).
+        
+        Descarga el archivo XML oficial conforme al estándar OASIS UBL 2.1 con la firma digital estampada en el nodo `ext:UBLExtensions`.
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "string"
+            format: "uuid"
+          description: "UUID del comprobante"
+      responses:
+        "401":
+          $ref: "#/components/responses/NoAutenticado"
+        "403":
+          $ref: "#/components/responses/NoAutorizado"
+        "200":
+          description: "Archivo XML UBL 2.1 firmado descargado con éxito."
+          content:
+            application/xml:
+              schema:
+                type: "string"
+                format: "binary"
+        "404":
+          description: "Comprobante o archivo XML no encontrado."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /comprobantes/{id}/pdf:
+    get:
+      tags:
+        - "Artefactos"
+      summary: "Descargar Representación Impresa (PDF)"
+      operationId: "descargarPdfComprobante"
+      description: |
+        **Caso de Uso**: `CU-06` (Descargar Artefactos Electrónicos).
+        
+        Genera y descarga la representación impresa en formato PDF que incluye el código de barras bidimensional QR reglamentario de SUNAT y el valor resumen hash SHA-256.
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "string"
+            format: "uuid"
+          description: "UUID del comprobante"
+      responses:
+        "401":
+          $ref: "#/components/responses/NoAutenticado"
+        "403":
+          $ref: "#/components/responses/NoAutorizado"
+        "200":
+          description: "Documento PDF generado correctamente."
+          content:
+            application/pdf:
+              schema:
+                type: "string"
+                format: "binary"
+        "404":
+          description: "Comprobante no encontrado."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /comprobantes/{id}/cdr:
+    get:
+      tags:
+        - "Artefactos"
+      summary: "Descargar Constancia de Recepción (CDR) de SUNAT/OSE"
+      operationId: "descargarCdrComprobante"
+      description: |
+        **Caso de Uso**: `CU-06` (Descargar Artefactos Electrónicos).
+        
+        Descarga el archivo XML de la Constancia de Recepción (CDR) emitido y firmado por el OSE o SUNAT, certificando la validez tributaria.
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "string"
+            format: "uuid"
+          description: "UUID del comprobante"
+      responses:
+        "401":
+          $ref: "#/components/responses/NoAutenticado"
+        "403":
+          $ref: "#/components/responses/NoAutorizado"
+        "200":
+          description: "Constancia de Recepción XML obtenida."
+          content:
+            application/xml:
+              schema:
+                type: "string"
+                format: "binary"
+        "404":
+          description: "El comprobante no posee CDR (aún en procesamiento o no existe)."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /notas-credito:
+    post:
+      tags:
+        - "Notas Modificatorias"
+      summary: "Emitir Nota de Crédito Electrónica (07)"
+      operationId: "emitirNotaCredito"
+      description: |
+        **Caso de Uso**: `CU-03` (Emitir Nota de Crédito).
+        
+        Emite una nota de crédito vinculada a una Factura o Boleta previa, aplicando causales de anulación, devolución o descuento según el Catálogo N° 09 de SUNAT.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NotaCreditoRequest"
+            examples:
+              devolucion_parcial:
+                summary: "Nota de crédito por devolución de 2 sacos de arroz de la factura F001-42"
+                value:
+                  serie: "FC01"
+                  fecha_emision: "2026-10-23"
+                  moneda: "PEN"
+                  documento_referenciado:
+                    tipo_comprobante: "01"
+                    serie: "F001"
+                    correlativo: 42
+                    fecha_emision: "2026-10-22"
+                  motivo:
+                    codigo: "07"
+                    descripcion: "Devolución por ítem: 2 sacos con empaque dañado"
+                  emisor:
+                    ruc: "20601234567"
+                    razon_social: "ABC SOFTWARE CORP S.A.C."
+                    nombre_comercial: "DISTRIBUIDORA DE ABARROTES ABC"
+                    direccion: "Av. Universitaria 123, Tingo María, Huánuco"
+                    ubigeo: "100601"
+                  receptor:
+                    tipo_documento: "6"
+                    numero_documento: "20555555551"
+                    razon_social: "COMERCIALIZADORA SAN JUAN S.A.C."
+                    direccion: "Jr. Comercio 456, Rupa Rupa, Leoncio Prado"
+                    email: "facturacion@sanjuan.pe"
+                  items:
+                    - numero_linea: 1
+                      codigo_producto: "PROD-ARR-01"
+                      descripcion: "Arroz Extra Costeño Saco 50 kg"
+                      unidad_medida: "SA"
+                      cantidad: "2"
+                      valor_unitario: "140.00"
+                      tipo_afectacion_igv: "10"
+      responses:
+        "401":
+          $ref: "#/components/responses/NoAutenticado"
+        "403":
+          $ref: "#/components/responses/NoAutorizado"
+        "201":
+          description: "Nota de Crédito emitida y aceptada con CDR."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ComprobanteResponse"
+        "400":
+          description: "Datos requeridos ausentes o motivo de nota inválido."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "409":
+          description: "Serie y correlativo de la Nota de Crédito duplicado."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "422":
+          description: "Rechazo de validación fiscal por SUNAT/OSE, o el comprobante referenciado no existe / no está en estado ACEPTADO."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "502":
+          description: "Error de comunicación con OSE o SUNAT."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /notas-debito:
+    post:
+      tags:
+        - "Notas Modificatorias"
+      summary: "Emitir Nota de Débito Electrónica (08)"
+      operationId: "emitirNotaDebito"
+      description: |
+        **Caso de Uso**: `CU-04` (Emitir Nota de Débito).
+        
+        Emite una nota de débito para aumentar el valor de una Factura o Boleta previa por intereses, moras o gastos adicionales según el Catálogo N° 10 de SUNAT.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NotaDebitoRequest"
+            examples:
+              intereses_mora:
+                summary: "Nota de débito por intereses de mora sobre la factura F001-42"
+                value:
+                  serie: "FD01"
+                  fecha_emision: "2026-11-23"
+                  moneda: "PEN"
+                  documento_referenciado:
+                    tipo_comprobante: "01"
+                    serie: "F001"
+                    correlativo: 42
+                    fecha_emision: "2026-10-22"
+                  motivo:
+                    codigo: "01"
+                    descripcion: "Intereses por mora de 30 días"
+                  emisor:
+                    ruc: "20601234567"
+                    razon_social: "ABC SOFTWARE CORP S.A.C."
+                    nombre_comercial: "DISTRIBUIDORA DE ABARROTES ABC"
+                    direccion: "Av. Universitaria 123, Tingo María, Huánuco"
+                    ubigeo: "100601"
+                  receptor:
+                    tipo_documento: "6"
+                    numero_documento: "20555555551"
+                    razon_social: "COMERCIALIZADORA SAN JUAN S.A.C."
+                    direccion: "Jr. Comercio 456, Rupa Rupa, Leoncio Prado"
+                    email: "facturacion@sanjuan.pe"
+                  items:
+                    - numero_linea: 1
+                      codigo_producto: "INT-MORA"
+                      descripcion: "Intereses por mora"
+                      unidad_medida: "ZZ"
+                      cantidad: "1"
+                      valor_unitario: "50.00"
+                      tipo_afectacion_igv: "10"
+      responses:
+        "401":
+          $ref: "#/components/responses/NoAutenticado"
+        "403":
+          $ref: "#/components/responses/NoAutorizado"
+        "201":
+          description: "Nota de Débito emitida y aceptada con CDR."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ComprobanteResponse"
+        "400":
+          description: "Solicitud inválida o causal no reconocida."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: "Comprobante referenciado no encontrado."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "409":
+          description: "Correlativo duplicado."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "422":
+          description: "Validación tributaria rechazada."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "502":
+          description: "Fallo de conexión externa."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /comunicaciones-baja:
+    post:
+      tags:
+        - "Comunicaciones y Resúmenes"
+      summary: "Enviar Comunicación de Baja (Anulación de Comprobantes)"
+      operationId: "enviarComunicacionBaja"
+      description: |
+        **Caso de Uso**: `CU-07` (Comunicar de Baja Comprobante).
+        
+        Genera el documento XML `UBL-VoidedDocuments-1.0` y lo remite a SUNAT para solicitar la baja de facturas o notas emitidas dentro del plazo reglamentario de 7 días calendario.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ComunicacionBajaRequest"
+            examples:
+              baja_factura:
+                summary: "Baja de la factura F001-42 por error en el RUC del cliente"
+                value:
+                  fecha_emision_documentos: "2026-10-22"
+                  fecha_comunicacion: "2026-10-23"
+                  documentos:
+                    - tipo_comprobante: "01"
+                      serie: "F001"
+                      correlativo: 42
+                      motivo_baja: "Error de digitación en RUC del cliente"
+      responses:
+        "401":
+          $ref: "#/components/responses/NoAutenticado"
+        "403":
+          $ref: "#/components/responses/NoAutorizado"
+        "202":
+          description: "Comunicación de baja recibida; SUNAT procesará de forma asíncrona. Consultar estado por el ticket devuelto."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TicketResponse"
+        "400":
+          description: "Parámetros de baja incorrectos o fuera de plazo normativo."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: "El comprobante a dar de baja no existe en el sistema."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "409":
+          description: "El comprobante ya se encuentra dado de baja previamente."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "422":
+          description: "Rechazo por parte de SUNAT."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "502":
+          description: "Error de conexión con SUNAT/OSE."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /resumenes-diarios:
+    post:
+      tags:
+        - "Comunicaciones y Resúmenes"
+      summary: "Generar y Enviar Resumen Diario de Boletas de Venta"
+      operationId: "enviarResumenDiario"
+      description: |
+        **Caso de Uso**: `CU-08` (Generar y Enviar Resumen Diario).
+        
+        Consolida todas las boletas de venta electrónicas emitidas en la fecha indicada y envía el resumen `UBL-SummaryDocuments-1.0` a SUNAT para su aprobación por lotes.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ResumenDiarioRequest"
+            examples:
+              resumen_del_dia:
+                summary: "Resumen diario de las boletas emitidas el 2026-10-22"
+                value:
+                  fecha_emision_documentos: "2026-10-22"
+                  fecha_resumen: "2026-10-23"
+      responses:
+        "401":
+          $ref: "#/components/responses/NoAutenticado"
+        "403":
+          $ref: "#/components/responses/NoAutorizado"
+        "202":
+          description: "Resumen diario recibido; SUNAT procesa de forma asíncrona por lotes. Consultar estado por el ticket devuelto."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TicketResponse"
+        "400":
+          description: "Fecha o parámetros del resumen incorrectos."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: "No se encontraron boletas pendientes de informar para la fecha."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "409":
+          description: "Ya se envió un resumen diario con el mismo identificador de lote."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "422":
+          description: "Validación de esquema de resumen rechazada por SUNAT."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "502":
+          description: "Error al remitir a SUNAT/OSE."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /contribuyentes/{ruc}/validar:
+    get:
+      tags:
+        - "Contribuyentes"
+      summary: "Validar RUC y consultar padrón SUNAT"
+      operationId: "validarContribuyenteRuc"
+      description: |
+        **Caso de Uso**: `CU-09` (Validar Contribuyente).
+        
+        Verifica el algoritmo Módulo 11 del RUC y consulta el padrón de SUNAT para corroborar razón social, estado tributario (ACTIVO) y condición de domicilio (HABIDO).
+      parameters:
+        - name: "ruc"
+          in: "path"
+          required: true
+          schema:
+            type: "string"
+            pattern: "^[0-9]{11}$"
+          description: "Número de RUC de 11 dígitos"
+          example: "20601234567"
+      responses:
+        "401":
+          $ref: "#/components/responses/NoAutenticado"
+        "403":
+          $ref: "#/components/responses/NoAutorizado"
+        "200":
+          description: "RUC válido y datos del padrón recuperados."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ContribuyenteValidadoResponse"
+        "400":
+          description: "El formato del RUC es inválido o no supera el algoritmo Módulo 11."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: "El RUC no fue encontrado en los registros tributarios de SUNAT."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "502":
+          description: "Error al consultar el servicio web de padrón de SUNAT."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /clientes:
+    get:
+      tags:
+        - "Clientes"
+      summary: "Listar clientes registrados"
+      operationId: "listarClientes"
+      description: "**Caso de Uso**: `CU-10` (Gestionar Clientes y Receptores)."
+      parameters:
+        - name: "query"
+          in: "query"
+          required: false
+          schema:
+            type: "string"
+          description: "Buscar por RUC, DNI o razón social"
+        - name: "page"
+          in: "query"
+          required: false
+          schema:
+            type: "integer"
+            default: 1
+        - name: "page_size"
+          in: "query"
+          required: false
+          schema:
+            type: "integer"
+            default: 20
+      responses:
+        "401":
+          $ref: "#/components/responses/NoAutenticado"
+        "403":
+          $ref: "#/components/responses/NoAutorizado"
+        "400":
+          $ref: "#/components/responses/SolicitudInvalida"
+        "200":
+          description: "Lista de clientes obtenida."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ClienteListResponse"
+    post:
+      tags:
+        - "Clientes"
+      summary: "Crear un nuevo cliente"
+      operationId: "crearCliente"
+      description: "**Caso de Uso**: `CU-10` (Gestionar Clientes y Receptores)."
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ClienteRequest"
+      responses:
+        "401":
+          $ref: "#/components/responses/NoAutenticado"
+        "403":
+          $ref: "#/components/responses/NoAutorizado"
+        "201":
+          description: "Cliente creado exitosamente."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ClienteResponse"
+        "400":
+          description: "Datos del cliente inválidos."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "409":
+          description: "El cliente ya se encuentra registrado con ese documento."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /clientes/{id}:
+    get:
+      tags:
+        - "Clientes"
+      summary: "Obtener cliente por ID"
+      operationId: "obtenerClientePorId"
+      description: "**Caso de Uso**: `CU-10` (Gestionar Clientes y Receptores)."
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "string"
+            format: "uuid"
+      responses:
+        "401":
+          $ref: "#/components/responses/NoAutenticado"
+        "403":
+          $ref: "#/components/responses/NoAutorizado"
+        "200":
+          description: "Datos del cliente."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ClienteResponse"
+        "404":
+          description: "Cliente no encontrado."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    put:
+      tags:
+        - "Clientes"
+      summary: "Actualizar datos de cliente"
+      operationId: "actualizarCliente"
+      description: "**Caso de Uso**: `CU-10` (Gestionar Clientes y Receptores)."
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "string"
+            format: "uuid"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ClienteRequest"
+      responses:
+        "401":
+          $ref: "#/components/responses/NoAutenticado"
+        "403":
+          $ref: "#/components/responses/NoAutorizado"
+        "200":
+          description: "Cliente actualizado."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ClienteResponse"
+        "400":
+          description: "Datos inválidos."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: "Cliente no encontrado."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    delete:
+      tags:
+        - "Clientes"
+      summary: "Eliminar o dar de baja a un cliente"
+      operationId: "eliminarCliente"
+      description: "**Caso de Uso**: `CU-10` (Gestionar Clientes y Receptores)."
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "string"
+            format: "uuid"
+      responses:
+        "401":
+          $ref: "#/components/responses/NoAutenticado"
+        "403":
+          $ref: "#/components/responses/NoAutorizado"
+        "200":
+          description: "Cliente eliminado o desactivado."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OperacionExitosaResponse"
+        "404":
+          description: "Cliente no encontrado."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "409":
+          description: "No se puede eliminar un cliente con comprobantes emitidos asociados."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /productos:
+    get:
+      tags:
+        - "Productos"
+      summary: "Listar catálogo de productos de abarrotes"
+      operationId: "listarProductos"
+      description: "**Caso de Uso**: `CU-11` (Gestionar Catálogo de Productos)."
+      parameters:
+        - name: "query"
+          in: "query"
+          required: false
+          schema:
+            type: "string"
+        - name: "page"
+          in: "query"
+          required: false
+          schema:
+            type: "integer"
+            default: 1
+        - name: "page_size"
+          in: "query"
+          required: false
+          schema:
+            type: "integer"
+            default: 20
+      responses:
+        "401":
+          $ref: "#/components/responses/NoAutenticado"
+        "403":
+          $ref: "#/components/responses/NoAutorizado"
+        "400":
+          $ref: "#/components/responses/SolicitudInvalida"
+        "200":
+          description: "Listado de productos."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProductoListResponse"
+    post:
+      tags:
+        - "Productos"
+      summary: "Crear producto en el catálogo"
+      operationId: "crearProducto"
+      description: "**Caso de Uso**: `CU-11` (Gestionar Catálogo de Productos)."
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProductoRequest"
+      responses:
+        "401":
+          $ref: "#/components/responses/NoAutenticado"
+        "403":
+          $ref: "#/components/responses/NoAutorizado"
+        "201":
+          description: "Producto creado con éxito."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProductoResponse"
+        "400":
+          description: "Datos de producto incorrectos."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "409":
+          description: "Código de producto ya existente."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /productos/{id}:
+    get:
+      tags:
+        - "Productos"
+      summary: "Obtener producto por ID"
+      operationId: "obtenerProductoPorId"
+      description: "**Caso de Uso**: `CU-11` (Gestionar Catálogo de Productos)."
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "string"
+            format: "uuid"
+      responses:
+        "401":
+          $ref: "#/components/responses/NoAutenticado"
+        "403":
+          $ref: "#/components/responses/NoAutorizado"
+        "200":
+          description: "Detalle del producto."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProductoResponse"
+        "404":
+          description: "Producto no encontrado."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    put:
+      tags:
+        - "Productos"
+      summary: "Actualizar producto"
+      operationId: "actualizarProducto"
+      description: "**Caso de Uso**: `CU-11` (Gestionar Catálogo de Productos)."
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "string"
+            format: "uuid"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProductoRequest"
+      responses:
+        "401":
+          $ref: "#/components/responses/NoAutenticado"
+        "403":
+          $ref: "#/components/responses/NoAutorizado"
+        "200":
+          description: "Producto actualizado."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProductoResponse"
+        "400":
+          description: "Datos inválidos."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: "Producto no encontrado."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    delete:
+      tags:
+        - "Productos"
+      summary: "Eliminar producto"
+      operationId: "eliminarProducto"
+      description: "**Caso de Uso**: `CU-11` (Gestionar Catálogo de Productos)."
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "string"
+            format: "uuid"
+      responses:
+        "401":
+          $ref: "#/components/responses/NoAutenticado"
+        "403":
+          $ref: "#/components/responses/NoAutorizado"
+        "200":
+          description: "Producto eliminado."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OperacionExitosaResponse"
+        "404":
+          description: "Producto no encontrado."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "409":
+          description: "No se puede eliminar producto con historial de ventas."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /series:
+    get:
+      tags:
+        - "Series"
+      summary: "Listar series configuradas"
+      operationId: "listarSeries"
+      description: "**Caso de Uso**: `CU-12` (Gestionar Series y Correlativos)."
+      parameters:
+        - name: "tipo_comprobante"
+          in: "query"
+          required: false
+          schema:
+            $ref: "#/components/schemas/TipoComprobanteEnum"
+      responses:
+        "401":
+          $ref: "#/components/responses/NoAutenticado"
+        "403":
+          $ref: "#/components/responses/NoAutorizado"
+        "400":
+          $ref: "#/components/responses/SolicitudInvalida"
+        "200":
+          description: "Listado de series."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerieListResponse"
+    post:
+      tags:
+        - "Series"
+      summary: "Crear o habilitar una serie"
+      operationId: "crearSerie"
+      description: "**Caso de Uso**: `CU-12` (Gestionar Series y Correlativos)."
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SerieRequest"
+      responses:
+        "401":
+          $ref: "#/components/responses/NoAutenticado"
+        "403":
+          $ref: "#/components/responses/NoAutorizado"
+        "201":
+          description: "Serie creada y autorizada para emisión."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerieResponse"
+        "400":
+          description: "Formato de serie incorrecto (debe iniciar con F, B, etc.)."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "409":
+          description: "La serie ya existe."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /series/{id}:
+    get:
+      tags:
+        - "Series"
+      summary: "Obtener serie por ID"
+      operationId: "obtenerSeriePorId"
+      description: "**Caso de Uso**: `CU-12` (Gestionar Series y Correlativos)."
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "string"
+            format: "uuid"
+      responses:
+        "401":
+          $ref: "#/components/responses/NoAutenticado"
+        "403":
+          $ref: "#/components/responses/NoAutorizado"
+        "200":
+          description: "Detalle de la serie."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerieResponse"
+        "404":
+          description: "Serie no encontrada."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    put:
+      tags:
+        - "Series"
+      summary: "Actualizar configuración de serie (solo estado/descripción)"
+      operationId: "actualizarSerie"
+      description: |
+        **Caso de Uso**: `CU-12` (Gestionar Series y Correlativos).
+        
+        Permite actualizar metadatos de la serie (descripción, estado activo/inactivo). **No se puede modificar el `correlativo_actual`** para prevenir regresión de numeración, que violaría la unicidad de comprobantes ante SUNAT. El correlativo es gestionado exclusivamente por el servidor de forma atómica.
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "string"
+            format: "uuid"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SerieUpdateRequest"
+      responses:
+        "401":
+          $ref: "#/components/responses/NoAutenticado"
+        "403":
+          $ref: "#/components/responses/NoAutorizado"
+        "200":
+          description: "Serie actualizada."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SerieResponse"
+        "400":
+          description: "Datos inválidos."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: "Serie no encontrada."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    delete:
+      tags:
+        - "Series"
+      summary: "Desactivar serie"
+      operationId: "desactivarSerie"
+      description: "**Caso de Uso**: `CU-12` (Gestionar Series y Correlativos)."
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "string"
+            format: "uuid"
+      responses:
+        "401":
+          $ref: "#/components/responses/NoAutenticado"
+        "403":
+          $ref: "#/components/responses/NoAutorizado"
+        "200":
+          description: "Serie desactivada."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OperacionExitosaResponse"
+        "404":
+          description: "Serie no encontrada."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /catalogos/{numero}:
+    get:
+      tags:
+        - "Catálogos"
+      summary: "Consultar catálogo oficial de SUNAT (Anexo 8)"
+      operationId: "consultarCatalogoSunat"
+      description: |
+        **Caso de Uso**: `CU-13` (Consultar Catálogos SUNAT).
+        
+        Retorna la lista de valores normativos del catálogo oficial especificado (e.g., Catálogo 01: Tipo comprobante, 05: Tipo de tributo, 07: Tipo de afectación del IGV).
+      parameters:
+        - name: "numero"
+          in: "path"
+          required: true
+          schema:
+            type: "string"
+            pattern: "^[0-9]{2}$"
+          description: "Número del catálogo en formato de dos dígitos (e.g., '01', '05', '07')"
+          example: "07"
+      responses:
+        "401":
+          $ref: "#/components/responses/NoAutenticado"
+        "403":
+          $ref: "#/components/responses/NoAutorizado"
+        "200":
+          description: "Valores oficiales del catálogo de SUNAT."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CatalogoSunatResponse"
+        "400":
+          description: "Formato de número de catálogo inválido."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: "El catálogo de SUNAT especificado no existe."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /migraciones/legado:
+    post:
+      tags:
+        - "Migración"
+      summary: "Iniciar proceso de migración de datos del sistema legado"
+      operationId: "iniciarMigracionLegado"
+      description: |
+        **Caso de Uso**: `CU-14` (Migrar Datos del Sistema Legado).
+        
+        Carga y procesa un lote de ventas y productos históricos desde archivos planos o bases de datos heredadas para convertirlos a la estructura del nuevo sistema.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MigracionLegadoRequest"
+      responses:
+        "401":
+          $ref: "#/components/responses/NoAutenticado"
+        "403":
+          $ref: "#/components/responses/NoAutorizado"
+        "201":
+          description: "Lote de migración aceptado e iniciado."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MigracionResponse"
+        "400":
+          description: "Formato de archivo o datos de origen corruptos o inválidos."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "409":
+          description: "Existe un proceso de migración activo en ejecución."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "422":
+          description: "Falla de integridad referencial o discrepancias insalvables en los datos del legado."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /migraciones/{id}:
+    get:
+      tags:
+        - "Migración"
+      summary: "Consultar estado y progreso de un lote de migración"
+      operationId: "consultarEstadoMigracion"
+      description: |
+        **Caso de Uso**: `CU-14` (Migrar Datos del Sistema Legado).
+        
+        Verifica el avance, cantidad de registros procesados con éxito y bitácora de errores del proceso de migración.
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "string"
+            format: "uuid"
+          description: "UUID del proceso de migración"
+      responses:
+        "401":
+          $ref: "#/components/responses/NoAutenticado"
+        "403":
+          $ref: "#/components/responses/NoAutorizado"
+        "200":
+          description: "Estado del proceso de migración."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MigracionResponse"
+        "404":
+          description: "Proceso de migración no encontrado."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /migraciones/{id}/cuarentena:
+    get:
+      tags:
+        - "Migración"
+      summary: "Listar los registros en cuarentena de un lote de migración"
+      operationId: "listarCuarentenaMigracion"
+      description: |
+        **Caso de Uso**: `CU-14` (Migrar Datos del Sistema Legado).
+
+        Devuelve los registros rechazados por las validaciones del mapeo (`specs/features/0006-migracion-legado/design.md`) con su código de error estable, el valor original y su estado de reproceso. Los registros en cuarentena nunca se insertan de forma parcial en las tablas productivas.
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "string"
+            format: "uuid"
+          description: "UUID del lote de migración"
+        - name: "estado"
+          in: "query"
+          required: false
+          schema:
+            $ref: "#/components/schemas/EstadoCuarentenaEnum"
+        - name: "codigo_error"
+          in: "query"
+          required: false
+          schema:
+            $ref: "#/components/schemas/CodigoErrorCuarentenaEnum"
+        - name: "pagina"
+          in: "query"
+          required: false
+          schema:
+            type: "integer"
+            minimum: 1
+            default: 1
+        - name: "tamano"
+          in: "query"
+          required: false
+          schema:
+            type: "integer"
+            minimum: 1
+            maximum: 200
+            default: 50
+      responses:
+        "401":
+          $ref: "#/components/responses/NoAutenticado"
+        "403":
+          $ref: "#/components/responses/NoAutorizado"
+        "200":
+          description: "Página de registros en cuarentena del lote."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CuarentenaListaResponse"
+        "400":
+          $ref: "#/components/responses/SolicitudInvalida"
+        "404":
+          description: "Lote de migración no encontrado."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /migraciones/{id}/reprocesos:
+    post:
+      tags:
+        - "Migración"
+      summary: "Reprocesar registros en cuarentena de un lote con parches aprobados"
+      operationId: "reprocesarCuarentenaMigracion"
+      description: |
+        **Caso de Uso**: `CU-14` (Migrar Datos del Sistema Legado).
+
+        Aplica **parches de corrección aprobados** a registros en cuarentena `PENDIENTE` del lote `{id}` y crea un nuevo lote enlazado (`lote_origen_id = {id}`). Reglas:
+
+        1. El parche se registra por separado; la extracción original **nunca** se modifica.
+        2. Cada parche exige usuario aprobador, motivo y evidencia. No se admiten valores supuestos: si no hay evidencia, el registro permanece en cuarentena o se descarta con `accion = DESCARTAR` y autorización documentada.
+        3. Los registros se validan de nuevo con la misma versión de reglas del lote o con una posterior (`version_reglas`).
+        4. La carga es idempotente por `(sistema_origen, tipo_entidad, legado_id)`; repetir el mismo reproceso (misma `Idempotency-Key`) no duplica datos.
+        5. Se repite la conciliación del lote y se registra la auditoría `legado_id → nuevo_id`.
+        6. El reproceso **nunca** emite, firma ni envía comprobantes a OSE/SUNAT: los comprobantes migrados siguen siendo históricos (`es_historico = true`, `envio_sunat_habilitado = false`).
+        7. Un registro con `COLISION_LEGADO_ID` no es reprocesable: detiene el lote y se investiga.
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "string"
+            format: "uuid"
+          description: "UUID del lote de migración de origen"
+        - name: "Idempotency-Key"
+          in: "header"
+          required: true
+          schema:
+            type: "string"
+            format: "uuid"
+          description: "UUID generado por el cliente para este reproceso. Si el servidor ya lo procesó, devuelve el lote creado en la primera ejecución."
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ReprocesoCuarentenaRequest"
+            examples:
+              corregir_producto:
+                summary: "Corrección de un código de producto con evidencia"
+                value:
+                  version_reglas: "1.0.0"
+                  parches:
+                    - legado_id: "legado:movimientos:1042"
+                      accion: "CORREGIR"
+                      campo: "producto"
+                      valor_corregido: "A1"
+                      motivo: "El código estaba truncado en la exportación del sistema antiguo."
+                      evidencia: "Maestro de productos del almacén, hoja 3, fila 17"
+                      aprobado_por: "contador@abcsoftwarecorp.pe"
+      responses:
+        "401":
+          $ref: "#/components/responses/NoAutenticado"
+        "403":
+          $ref: "#/components/responses/NoAutorizado"
+        "202":
+          description: "Reproceso aceptado. Se creó un nuevo lote enlazado al lote de origen."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MigracionResponse"
+        "400":
+          description: "Solicitud malformada (parches vacíos, campos obligatorios ausentes o `Idempotency-Key` inválida)."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: "Lote de migración no encontrado."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "409":
+          description: "El lote de origen sigue en ejecución o ya existe un reproceso activo sobre él."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "422":
+          description: "Parche rechazado: sin evidencia, registro que no está en cuarentena `PENDIENTE`, `legado_id` inexistente en el lote o registro con `COLISION_LEGADO_ID`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /libros/registro-ventas:
+    get:
+      tags:
+        - "Libros Electrónicos"
+      summary: "Generar Registro de Ventas e Ingresos (PLE 14.1)"
+      operationId: "generarRegistroVentas"
+      description: |
+        **Caso de Uso**: `CU-15` (Generar Registro de Ventas).
+
+        Genera el archivo del Registro de Ventas del periodo a partir de los comprobantes `ACEPTADO` y `DE_BAJA`. ⚠️ Por verificar: formato PLE 14.1 o SIRE/RVIE según la normativa vigente.
+      parameters:
+        - name: "periodo"
+          in: "query"
+          required: true
+          schema:
+            type: "string"
+            pattern: "^[0-9]{4}(0[1-9]|1[0-2])$"
+          description: "Periodo tributario en formato AAAAMM."
+          example: "202610"
+      responses:
+        "200":
+          description: "Archivo TXT del Registro de Ventas."
+          content:
+            text/plain:
+              schema:
+                type: "string"
+        "400":
+          $ref: "#/components/responses/SolicitudInvalida"
+        "401":
+          $ref: "#/components/responses/NoAutenticado"
+        "403":
+          $ref: "#/components/responses/NoAutorizado"
+        "404":
+          description: "No hay comprobantes en el periodo indicado."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /libros/inventario-permanente:
+    get:
+      tags:
+        - "Libros Electrónicos"
+      summary: "Generar Registro de Inventario Permanente en Unidades Físicas (PLE 12.1)"
+      operationId: "generarInventarioPermanente"
+      description: |
+        **Caso de Uso**: `CU-16` (Generar Registro de Inventario Permanente).
+
+        Genera el archivo del Kardex del periodo desde los movimientos de almacén: entradas, salidas y saldo en unidades físicas por producto y establecimiento.
+      parameters:
+        - name: "periodo"
+          in: "query"
+          required: true
+          schema:
+            type: "string"
+            pattern: "^[0-9]{4}(0[1-9]|1[0-2])$"
+          description: "Periodo en formato AAAAMM."
+          example: "202610"
+        - name: "codigo_establecimiento"
+          in: "query"
+          required: false
+          schema:
+            type: "string"
+            maxLength: 4
+          description: "Código del establecimiento anexo (⚠️ Por verificar formato)."
+      responses:
+        "200":
+          description: "Archivo TXT del Registro de Inventario Permanente."
+          content:
+            text/plain:
+              schema:
+                type: "string"
+        "400":
+          $ref: "#/components/responses/SolicitudInvalida"
+        "401":
+          $ref: "#/components/responses/NoAutenticado"
+        "403":
+          $ref: "#/components/responses/NoAutorizado"
+        "404":
+          description: "No hay movimientos en el periodo indicado."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
 components:
-  $ref: "../03-api/openapi.yaml#/components"
+  responses:
+    NoAutenticado:
+      description: "No autenticado. Token JWT ausente, inválido o expirado."
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    NoAutorizado:
+      description: "No autorizado. El usuario autenticado no tiene permiso para la operación."
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    SolicitudInvalida:
+      description: "Parámetros de consulta inválidos."
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+  schemas:
+    EmitirComprobanteRequest:
+      type: "object"
+      required:
+        - "tipo_comprobante"
+        - "serie"
+        - "fecha_emision"
+        - "moneda"
+        - "emisor"
+        - "receptor"
+        - "items"
+      properties:
+        tipo_comprobante:
+          $ref: "#/components/schemas/TipoComprobanteEnum"
+        serie:
+          type: "string"
+          pattern: "^[FB][A-Z0-9]{3}$"
+          description: "Serie del comprobante: F seguido de 3 alfanuméricos para Factura; B seguido de 3 alfanuméricos para Boleta. El correlativo es asignado atómicamente por el servidor."
+          example: "F001"
+        tipo_operacion:
+          type: "string"
+          pattern: "^[0-9]{4}$"
+          default: "0101"
+          description: "Catálogo N° 51 SUNAT, tipo de operación (cbc:ProfileID). '0101' venta interna. ⚠️ Por verificar lista vigente [F-02]."
+          example: "0101"
+        fecha_emision:
+          type: "string"
+          format: "date"
+          example: "2026-10-22"
+        hora_emision:
+          type: "string"
+          pattern: "^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$"
+          example: "10:30:00"
+        moneda:
+          type: "string"
+          enum: ["PEN", "USD"]
+          default: "PEN"
+        forma_pago:
+          $ref: "#/components/schemas/FormaPago"
+        emisor:
+          $ref: "#/components/schemas/EmisorFiscal"
+        receptor:
+          $ref: "#/components/schemas/ClienteReceptorDto"
+        items:
+          type: "array"
+          minItems: 1
+          items:
+            $ref: "#/components/schemas/ItemComprobanteDto"
+
+    ComprobanteResponse:
+      type: "object"
+      required:
+        - "id"
+        - "tipo_comprobante"
+        - "serie"
+        - "correlativo"
+        - "fecha_emision"
+        - "moneda"
+        - "importe_total"
+        - "estado"
+        - "hash_sha256"
+        - "fecha_registro"
+      properties:
+        id:
+          type: "string"
+          format: "uuid"
+          example: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11"
+        tipo_comprobante:
+          $ref: "#/components/schemas/TipoComprobanteEnum"
+        serie:
+          type: "string"
+          example: "F001"
+        correlativo:
+          type: "integer"
+          example: 42
+        fecha_emision:
+          type: "string"
+          format: "date"
+          example: "2026-10-22"
+        moneda:
+          type: "string"
+          example: "PEN"
+        importe_total:
+          type: "string"
+          pattern: "^[0-9]+(\\.[0-9]{1,10})?$"
+          description: "Importe total a pagar (cac:LegalMonetaryTotal/cbc:PayableAmount). Decimal exacto como texto."
+          example: "2130.18"
+        estado:
+          $ref: "#/components/schemas/EstadoComprobanteEnum"
+        items:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/ItemCalculadoDto"
+        totales:
+          $ref: "#/components/schemas/TotalesComprobanteDto"
+        hash_sha256:
+          type: "string"
+          example: "4v8K+qK20yD...SHA256HASH=="
+          description: "Digest criptográfico de la firma digital XMLDSig"
+        cdr:
+          $ref: "#/components/schemas/CdrDto"
+        enlaces:
+          type: "object"
+          properties:
+            xml:
+              type: "string"
+              example: "/v1/comprobantes/a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11/xml"
+            pdf:
+              type: "string"
+              example: "/v1/comprobantes/a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11/pdf"
+            cdr:
+              type: "string"
+              example: "/v1/comprobantes/a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11/cdr"
+        fecha_registro:
+          type: "string"
+          format: "date-time"
+          example: "2026-10-22T10:30:15Z"
+
+    ComprobanteListResponse:
+      type: "object"
+      required:
+        - "data"
+        - "page"
+        - "page_size"
+        - "total_records"
+        - "total_pages"
+      properties:
+        data:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/ComprobanteResponse"
+        page:
+          type: "integer"
+          example: 1
+        page_size:
+          type: "integer"
+          example: 20
+        total_records:
+          type: "integer"
+          example: 142
+        total_pages:
+          type: "integer"
+          example: 8
+
+    EmisorFiscal:
+      type: "object"
+      required:
+        - "ruc"
+        - "razon_social"
+        - "direccion"
+        - "ubigeo"
+      properties:
+        ruc:
+          type: "string"
+          pattern: "^[0-9]{11}$"
+          example: "20601234567"
+        razon_social:
+          type: "string"
+          example: "ABC SOFTWARE CORP S.A.C."
+        nombre_comercial:
+          type: "string"
+          example: "DISTRIBUIDORA DE ABARROTES ABC"
+        direccion:
+          type: "string"
+          example: "Av. Universitaria 123, Tingo María, Huánuco"
+        ubigeo:
+          type: "string"
+          pattern: "^[0-9]{6}$"
+          example: "100601"
+
+    ClienteReceptorDto:
+      type: "object"
+      required:
+        - "tipo_documento"
+        - "numero_documento"
+        - "razon_social"
+      properties:
+        tipo_documento:
+          type: "string"
+          enum: ["6", "1", "4", "7", "0"]
+          description: "Catálogo 06 SUNAT: '6' RUC, '1' DNI, '4' Carné Extranjería, '0' Sin Documento"
+          example: "6"
+        numero_documento:
+          type: "string"
+          example: "20555555551"
+        razon_social:
+          type: "string"
+          example: "COMERCIALIZADORA SAN JUAN S.A.C."
+        direccion:
+          type: "string"
+          example: "Jr. Comercio 456, Rupa Rupa, Leoncio Prado"
+        email:
+          type: "string"
+          format: "email"
+          example: "facturacion@sanjuan.pe"
+
+    ItemComprobanteDto:
+      type: "object"
+      description: |
+        Línea de detalle **enviada por el cliente**. Solo contiene datos comerciales. El servidor calcula
+        precio con impuestos, valor de venta, ISC, IGV e ICBPER; el cliente no envía ningún monto de impuesto.
+      required:
+        - "numero_linea"
+        - "codigo_producto"
+        - "descripcion"
+        - "unidad_medida"
+        - "cantidad"
+        - "valor_unitario"
+        - "tipo_afectacion_igv"
+      properties:
+        numero_linea:
+          type: "integer"
+          minimum: 1
+          example: 1
+        codigo_producto:
+          type: "string"
+          example: "PROD-ARR-01"
+        descripcion:
+          type: "string"
+          maxLength: 250
+          example: "Arroz Extra Costeño Saco 50 kg"
+        unidad_medida:
+          $ref: "#/components/schemas/UnidadMedidaEnum"
+        cantidad:
+          type: "string"
+          pattern: "^(?!0+(\\.0+)?$)[0-9]+(\\.[0-9]{1,10})?$"
+          description: "Cantidad comercial (cbc:InvoicedQuantity). Mayor que cero; decimal exacto como texto."
+          example: "10"
+        valor_unitario:
+          type: "string"
+          pattern: "^[0-9]+(\\.[0-9]{1,10})?$"
+          description: "Valor unitario sin impuestos (cac:Price/cbc:PriceAmount). Decimal exacto como texto."
+          example: "140.00"
+        tipo_afectacion_igv:
+          $ref: "#/components/schemas/TipoAfectacionIgvEnum"
+        sistema_isc:
+          $ref: "#/components/schemas/SistemaIscEnum"
+        tasa_isc:
+          type: "string"
+          pattern: "^[0-9]{1,3}\\.[0-9]{2}$"
+          description: "Tasa porcentual del ISC (sistemas 01 y 03) según la norma vigente a la fecha de emisión. Decimal exacto como texto."
+          example: "17.00"
+        monto_fijo_isc:
+          type: "string"
+          pattern: "^[0-9]+(\\.[0-9]{1,10})?$"
+          description: "Monto fijo de ISC por unidad física (sistema 02, cbc:PerUnitAmount)."
+          example: "1.25"
+        unidad_base_isc:
+          $ref: "#/components/schemas/UnidadMedidaEnum"
+        precio_venta_publico_sugerido:
+          type: "string"
+          pattern: "^[0-9]+(\\.[0-9]{1,10})?$"
+          description: "PVP sugerido del fabricante para ISC sistema 03. ⚠️ Por verificar: elemento UBL exacto en el perfil SUNAT."
+          example: "5.00"
+        cantidad_bolsas:
+          type: "integer"
+          minimum: 1
+          description: "Número de bolsas plásticas sujetas a ICBPER (cbc:BaseUnitMeasure en TaxSubtotal ID=7152). Distinto de la cantidad comercial del ítem. El importe por bolsa lo resuelve el servidor por fecha de emisión."
+          example: 10
+      allOf:
+        - if:
+            required: ["sistema_isc"]
+            properties:
+              sistema_isc:
+                const: "01"
+          then:
+            required: ["tasa_isc"]
+            properties:
+              tasa_isc:
+                type: "string"
+        - if:
+            required: ["sistema_isc"]
+            properties:
+              sistema_isc:
+                const: "02"
+          then:
+            required: ["monto_fijo_isc", "unidad_base_isc"]
+            properties:
+              monto_fijo_isc:
+                type: "string"
+              unidad_base_isc:
+                $ref: "#/components/schemas/UnidadMedidaEnum"
+        - if:
+            required: ["sistema_isc"]
+            properties:
+              sistema_isc:
+                const: "03"
+          then:
+            required: ["tasa_isc", "precio_venta_publico_sugerido"]
+            properties:
+              tasa_isc:
+                type: "string"
+              precio_venta_publico_sugerido:
+                type: "string"
+
+    ItemCalculadoDto:
+      type: "object"
+      description: "Línea de detalle **calculada por el servidor** y devuelta en la respuesta. Decimales exactos como texto."
+      required:
+        - "numero_linea"
+        - "codigo_producto"
+        - "descripcion"
+        - "unidad_medida"
+        - "cantidad"
+        - "valor_unitario"
+        - "precio_unitario"
+        - "tipo_afectacion_igv"
+        - "valor_total"
+        - "monto_igv"
+      properties:
+        numero_linea:
+          type: "integer"
+          example: 1
+        codigo_producto:
+          type: "string"
+          example: "PROD-ARR-01"
+        descripcion:
+          type: "string"
+          example: "Arroz Extra Costeño Saco 50 kg"
+        unidad_medida:
+          $ref: "#/components/schemas/UnidadMedidaEnum"
+        cantidad:
+          type: "string"
+          example: "10"
+        valor_unitario:
+          type: "string"
+          example: "140.00"
+        precio_unitario:
+          type: "string"
+          description: "Precio unitario con IGV/ISC, sin ICBPER (PricingReference, PriceTypeCode 01)."
+          example: "165.20"
+        tipo_afectacion_igv:
+          $ref: "#/components/schemas/TipoAfectacionIgvEnum"
+        valor_total:
+          type: "string"
+          description: "Valor de venta de la línea sin impuestos (cbc:LineExtensionAmount)."
+          example: "1400.00"
+        monto_isc:
+          type: "string"
+          example: "0.00"
+        monto_igv:
+          type: "string"
+          example: "252.00"
+        monto_icbper:
+          type: "string"
+          example: "0.00"
+
+    UnidadMedidaEnum:
+      type: "string"
+      description: |
+        Catálogo N° 03 SUNAT (UN/ECE Rec. 20). Subconjunto habilitado para abarrotes; texto libre como
+        "UNID" o "SACO" se rechaza. ⚠️ Por verificar: ampliar con la lista vigente del Anexo 8 [F-02].
+      enum: ["NIU", "ZZ", "KGM", "GRM", "TNE", "LTR", "MLT", "GLL", "MTR", "BX", "BG", "SA", "PK", "DZN", "CS"]
+      example: "NIU"
+
+    TipoAfectacionIgvEnum:
+      type: "string"
+      description: "Catálogo N° 07 SUNAT, tipo de afectación al IGV (ej. '10' Gravado oneroso, '20' Exonerado oneroso, '30' Inafecto oneroso, '40' Exportación)."
+      enum: ["10", "11", "12", "13", "14", "15", "16", "17", "20", "21", "30", "31", "32", "33", "34", "35", "36", "37", "40"]
+      example: "10"
+
+    SistemaIscEnum:
+      type: "string"
+      description: "Catálogo N° 08 SUNAT, sistema de cálculo del ISC: '01' Al valor, '02' Específico, '03' Al valor según precio de venta al público. Requerido si el ítem está afecto a ISC."
+      enum: ["01", "02", "03"]
+      example: "01"
+
+    TotalesComprobanteDto:
+      type: "object"
+      description: "Totales **calculados por el servidor** y devueltos en la respuesta. El cliente NO envía totales ni montos de impuestos."
+      required:
+        - "total_operaciones_gravadas"
+        - "total_igv"
+        - "total_impuestos"
+        - "importe_total"
+      properties:
+        total_valor_venta:
+          type: "string"
+          pattern: "^[0-9]+(\\.[0-9]{1,10})?$"
+          description: "Suma de los valores de venta de las líneas antes de tributos (cac:LegalMonetaryTotal/cbc:LineExtensionAmount)."
+          example: "1801.00"
+        total_operaciones_gravadas:
+          type: "string"
+          pattern: "^[0-9]+(\\.[0-9]{1,10})?$"
+          description: "Suma de valores de venta de líneas afectas al IGV (cbc:LineExtensionAmount gravados). Decimal exacto como texto."
+          example: "1801.00"
+        total_operaciones_inafectas:
+          type: "string"
+          pattern: "^[0-9]+(\\.[0-9]{1,10})?$"
+          default: "0.00"
+          description: "Suma de valores de venta de líneas inafectas (Cat. 07 cod. 30-36). Decimal exacto como texto."
+          example: "0.00"
+        total_operaciones_exoneradas:
+          type: "string"
+          pattern: "^[0-9]+(\\.[0-9]{1,10})?$"
+          default: "0.00"
+          description: "Suma de valores de venta de líneas exoneradas (Cat. 07 cod. 20-21). Decimal exacto como texto."
+          example: "0.00"
+        total_igv:
+          type: "string"
+          pattern: "^[0-9]+(\\.[0-9]{1,10})?$"
+          description: "Total IGV del comprobante (cac:TaxTotal/.../ID='1000'). Calculado por el dominio."
+          example: "324.18"
+        total_isc:
+          type: "string"
+          pattern: "^[0-9]+(\\.[0-9]{1,10})?$"
+          default: "0.00"
+          description: "Total ISC del comprobante (cac:TaxTotal/.../ID='2000'). Calculado por el dominio."
+          example: "0.00"
+        total_icbper:
+          type: "string"
+          pattern: "^[0-9]+(\\.[0-9]{1,10})?$"
+          default: "0.00"
+          description: "Total ICBPER del comprobante (cac:TaxTotal/.../ID='7152'). Calculado por el dominio."
+          example: "5.00"
+        total_impuestos:
+          type: "string"
+          pattern: "^[0-9]+(\\.[0-9]{1,10})?$"
+          description: "Suma total de tributos: IGV + ISC + ICBPER (cac:TaxTotal/cbc:TaxAmount). Calculado por el dominio."
+          example: "329.18"
+        total_precio_venta:
+          type: "string"
+          pattern: "^[0-9]+(\\.[0-9]{1,10})?$"
+          description: "Valor de venta + tributos (cac:LegalMonetaryTotal/cbc:TaxInclusiveAmount)."
+          example: "2130.18"
+        total_descuentos:
+          type: "string"
+          pattern: "^[0-9]+(\\.[0-9]{1,10})?$"
+          default: "0.00"
+          description: "Descuentos globales (cbc:AllowanceTotalAmount). Catálogo 53 para el motivo."
+          example: "0.00"
+        total_cargos:
+          type: "string"
+          pattern: "^[0-9]+(\\.[0-9]{1,10})?$"
+          default: "0.00"
+          description: "Cargos globales (cbc:ChargeTotalAmount)."
+          example: "0.00"
+        importe_total:
+          type: "string"
+          pattern: "^[0-9]+(\\.[0-9]{1,10})?$"
+          description: "Importe total a pagar: valor de venta + tributos (cac:LegalMonetaryTotal/cbc:PayableAmount). Calculado por el dominio."
+          example: "2130.18"
+
+    FormaPago:
+      type: "object"
+      required:
+        - "tipo"
+      properties:
+        tipo:
+          type: "string"
+          enum: ["Contado", "Credito"]
+          example: "Contado"
+        monto_neto_pendiente:
+          type: "string"
+          pattern: "^[0-9]+(\\.[0-9]{1,10})?$"
+          description: "Monto neto pendiente de pago. Requerido si tipo es Crédito. Decimal exacto como texto."
+          example: "500.00"
+        cuotas:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/CuotaCredito"
+
+    CuotaCredito:
+      type: "object"
+      required:
+        - "numero"
+        - "monto"
+        - "fecha_vencimiento"
+      properties:
+        numero:
+          type: "integer"
+          example: 1
+        monto:
+          type: "string"
+          pattern: "^[0-9]+(\\.[0-9]{1,10})?$"
+          description: "Monto de la cuota. Decimal exacto como texto."
+          example: "500.00"
+        fecha_vencimiento:
+          type: "string"
+          format: "date"
+          example: "2026-11-22"
+
+    CdrDto:
+      type: "object"
+      required:
+        - "codigo_respuesta"
+        - "descripcion_respuesta"
+        - "fecha_recepcion"
+      properties:
+        codigo_respuesta:
+          type: "string"
+          description: |
+            Código devuelto por SUNAT/OSE:
+            - `'0'`: Aceptado sin observaciones.
+            - `100` a `1999`: excepción; SUNAT/OSE no procesó el archivo y no emite CDR de aceptación. Se corrige y se reenvía. ⚠️ Por verificar rango contra el Manual del Programador [F-05].
+            - `2000` a `3999`: Rechazado; el comprobante no es válido y se emite uno nuevo con otro correlativo.
+            - `4000` en adelante: Aceptado con observaciones (el comprobante queda válido).
+          example: "0"
+        descripcion_respuesta:
+          type: "string"
+          example: "La Factura número F001-00000042 ha sido ACEPTADA."
+        observaciones:
+          type: "array"
+          items:
+            type: "string"
+          example: []
+        fecha_recepcion:
+          type: "string"
+          format: "date-time"
+          example: "2026-10-22T10:30:12Z"
+
+    NotaCreditoRequest:
+      type: "object"
+      required:
+        - "serie"
+        - "fecha_emision"
+        - "moneda"
+        - "documento_referenciado"
+        - "motivo"
+        - "emisor"
+        - "receptor"
+        - "items"
+      properties:
+        serie:
+          type: "string"
+          pattern: "^[FB][A-Z0-9]{3}$"
+          example: "FC01"
+        fecha_emision:
+          type: "string"
+          format: "date"
+          example: "2026-10-22"
+        moneda:
+          type: "string"
+          default: "PEN"
+        documento_referenciado:
+          $ref: "#/components/schemas/DocumentoReferenciaDto"
+        motivo:
+          type: "object"
+          required:
+            - "codigo"
+            - "descripcion"
+          properties:
+            codigo:
+              type: "string"
+              description: "Código del Catálogo N° 09 SUNAT (e.g. '01' Anulación de la operación, '07' Devolución por ítem)"
+              example: "01"
+            descripcion:
+              type: "string"
+              example: "Anulación de la operación por error en datos de venta"
+        emisor:
+          $ref: "#/components/schemas/EmisorFiscal"
+        receptor:
+          $ref: "#/components/schemas/ClienteReceptorDto"
+        items:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/ItemComprobanteDto"
+
+    NotaDebitoRequest:
+      type: "object"
+      required:
+        - "serie"
+        - "fecha_emision"
+        - "moneda"
+        - "documento_referenciado"
+        - "motivo"
+        - "emisor"
+        - "receptor"
+        - "items"
+      properties:
+        serie:
+          type: "string"
+          pattern: "^[FB][A-Z0-9]{3}$"
+          example: "FD01"
+        fecha_emision:
+          type: "string"
+          format: "date"
+          example: "2026-10-22"
+        moneda:
+          type: "string"
+          default: "PEN"
+        documento_referenciado:
+          $ref: "#/components/schemas/DocumentoReferenciaDto"
+        motivo:
+          type: "object"
+          required:
+            - "codigo"
+            - "descripcion"
+          properties:
+            codigo:
+              type: "string"
+              description: "Código del Catálogo N° 10 SUNAT (e.g. '01' Intereses por mora, '02' Aumento en el valor)"
+              example: "01"
+            descripcion:
+              type: "string"
+              example: "Cobro de penalidad e intereses por retraso de pago"
+        emisor:
+          $ref: "#/components/schemas/EmisorFiscal"
+        receptor:
+          $ref: "#/components/schemas/ClienteReceptorDto"
+        items:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/ItemComprobanteDto"
+
+    DocumentoReferenciaDto:
+      type: "object"
+      required:
+        - "tipo_comprobante"
+        - "serie"
+        - "correlativo"
+        - "fecha_emision"
+      properties:
+        tipo_comprobante:
+          $ref: "#/components/schemas/TipoComprobanteEnum"
+        serie:
+          type: "string"
+          example: "F001"
+        correlativo:
+          type: "integer"
+          example: 42
+        fecha_emision:
+          type: "string"
+          format: "date"
+          example: "2026-10-22"
+
+    ComunicacionBajaRequest:
+      type: "object"
+      required:
+        - "fecha_emision_documentos"
+        - "fecha_comunicacion"
+        - "documentos"
+      properties:
+        fecha_emision_documentos:
+          type: "string"
+          format: "date"
+          example: "2026-10-22"
+        fecha_comunicacion:
+          type: "string"
+          format: "date"
+          example: "2026-10-22"
+        documentos:
+          type: "array"
+          minItems: 1
+          items:
+            type: "object"
+            required:
+              - "tipo_comprobante"
+              - "serie"
+              - "correlativo"
+              - "motivo_baja"
+            properties:
+              tipo_comprobante:
+                $ref: "#/components/schemas/TipoComprobanteEnum"
+              serie:
+                type: "string"
+                example: "F001"
+              correlativo:
+                type: "integer"
+                example: 42
+              motivo_baja:
+                type: "string"
+                minLength: 1
+                maxLength: 100
+                description: "Texto libre obligatorio (no es un catálogo). ⚠️ Por verificar longitud máxima contra el Manual del Programador."
+                example: "Error de digitación en RUC del cliente"
+
+    ResumenDiarioRequest:
+      type: "object"
+      required:
+        - "fecha_emision_documentos"
+        - "fecha_resumen"
+      properties:
+        fecha_emision_documentos:
+          type: "string"
+          format: "date"
+          example: "2026-10-22"
+        fecha_resumen:
+          type: "string"
+          format: "date"
+          example: "2026-10-22"
+
+    TicketResponse:
+      type: "object"
+      required:
+        - "ticket"
+        - "fecha_registro"
+        - "estado"
+      properties:
+        ticket:
+          type: "string"
+          example: "202610229876543"
+          description: "Número de ticket devuelto por SUNAT para consulta asíncrona"
+        identificador:
+          type: "string"
+          pattern: "^(RA|RC)-[0-9]{8}-[0-9]{1,5}$"
+          description: "Identificador del documento (cbc:ID) asignado por el servidor de forma atómica: RA-AAAAMMDD-n para la comunicación de baja y RC-AAAAMMDD-n para el resumen diario. El cliente no lo envía."
+          example: "RA-20261022-1"
+        fecha_registro:
+          type: "string"
+          format: "date-time"
+          example: "2026-10-22T23:59:00Z"
+        estado:
+          type: "string"
+          enum: ["PROCESANDO", "TERMINADO", "ERROR"]
+          example: "PROCESANDO"
+
+    ContribuyenteValidadoResponse:
+      type: "object"
+      required:
+        - "ruc"
+        - "razon_social"
+        - "estado"
+        - "condicion"
+        - "es_valido"
+      properties:
+        ruc:
+          type: "string"
+          example: "20601234567"
+        razon_social:
+          type: "string"
+          example: "ABC SOFTWARE CORP S.A.C."
+        estado:
+          type: "string"
+          enum: ["ACTIVO", "SUSPENSION_TEMPORAL", "BAJA_DEFINITIVA"]
+          example: "ACTIVO"
+        condicion:
+          type: "string"
+          enum: ["HABIDO", "NO_HABIDO", "NO_HALLADO"]
+          example: "HABIDO"
+        direccion_fiscal:
+          type: "string"
+          example: "Av. Universitaria 123, Tingo María, Huánuco"
+        ubigeo:
+          type: "string"
+          example: "100601"
+        es_valido:
+          type: "boolean"
+          example: true
+          description: "True si supera Módulo 11 y se encuentra ACTIVO y HABIDO"
+
+    ClienteRequest:
+      type: "object"
+      required:
+        - "tipo_documento"
+        - "numero_documento"
+        - "razon_social"
+      properties:
+        tipo_documento:
+          type: "string"
+          enum: ["6", "1", "4", "7", "0"]
+          example: "6"
+        numero_documento:
+          type: "string"
+          example: "20555555551"
+        razon_social:
+          type: "string"
+          example: "COMERCIALIZADORA SAN JUAN S.A.C."
+        direccion:
+          type: "string"
+          example: "Jr. Comercio 456, Rupa Rupa, Leoncio Prado"
+        email:
+          type: "string"
+          format: "email"
+          example: "facturacion@sanjuan.pe"
+        telefono:
+          type: "string"
+          example: "+51 962123456"
+
+    ClienteResponse:
+      type: "object"
+      required:
+        - "id"
+        - "tipo_documento"
+        - "numero_documento"
+        - "razon_social"
+        - "activo"
+      properties:
+        id:
+          type: "string"
+          format: "uuid"
+          example: "b1ceec99-9c0b-4ef8-bb6d-6bb9bd380a22"
+        tipo_documento:
+          type: "string"
+          example: "6"
+        numero_documento:
+          type: "string"
+          example: "20555555551"
+        razon_social:
+          type: "string"
+          example: "COMERCIALIZADORA SAN JUAN S.A.C."
+        direccion:
+          type: "string"
+          example: "Jr. Comercio 456, Rupa Rupa, Leoncio Prado"
+        email:
+          type: "string"
+          example: "facturacion@sanjuan.pe"
+        telefono:
+          type: "string"
+          example: "+51 962123456"
+        activo:
+          type: "boolean"
+          example: true
+
+    ClienteListResponse:
+      type: "object"
+      required:
+        - "data"
+        - "page"
+        - "page_size"
+        - "total_records"
+      properties:
+        data:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/ClienteResponse"
+        page:
+          type: "integer"
+          example: 1
+        page_size:
+          type: "integer"
+          example: 20
+        total_records:
+          type: "integer"
+          example: 54
+
+    ProductoRequest:
+      type: "object"
+      required:
+        - "codigo"
+        - "descripcion"
+        - "unidad_medida"
+        - "valor_unitario"
+        - "tipo_afectacion_igv"
+      properties:
+        codigo:
+          type: "string"
+          example: "PROD-ARR-01"
+        descripcion:
+          type: "string"
+          example: "Arroz Extra Costeño Saco 50 kg"
+        unidad_medida:
+          $ref: "#/components/schemas/UnidadMedidaEnum"
+        valor_unitario:
+          type: "string"
+          pattern: "^[0-9]+(\\.[0-9]{1,10})?$"
+          example: "140.00"
+        tipo_afectacion_igv:
+          $ref: "#/components/schemas/TipoAfectacionIgvEnum"
+        sistema_isc:
+          $ref: "#/components/schemas/SistemaIscEnum"
+        tasa_isc:
+          type: "string"
+          pattern: "^[0-9]{1,3}\\.[0-9]{2}$"
+          description: "Tasa porcentual del ISC vigente para el producto (sistemas 01 y 03). Decimal exacto como texto."
+          example: "17.00"
+        monto_fijo_isc:
+          type: "string"
+          pattern: "^[0-9]+(\\.[0-9]{1,10})?$"
+          description: "Monto fijo de ISC por unidad física (sistema 02)."
+          example: "1.25"
+        unidad_base_isc:
+          $ref: "#/components/schemas/UnidadMedidaEnum"
+        precio_venta_publico_sugerido:
+          type: "string"
+          pattern: "^[0-9]+(\\.[0-9]{1,10})?$"
+          description: "PVP sugerido del fabricante (sistema 03)."
+          example: "5.00"
+        es_bolsa_plastica:
+          type: "boolean"
+          default: false
+          description: "Indica si el producto está sujeto a impuesto ICBPER"
+          example: false
+      allOf:
+        - if:
+            required: ["sistema_isc"]
+            properties:
+              sistema_isc:
+                const: "01"
+          then:
+            required: ["tasa_isc"]
+            properties:
+              tasa_isc:
+                type: "string"
+        - if:
+            required: ["sistema_isc"]
+            properties:
+              sistema_isc:
+                const: "02"
+          then:
+            required: ["monto_fijo_isc", "unidad_base_isc"]
+            properties:
+              monto_fijo_isc:
+                type: "string"
+              unidad_base_isc:
+                $ref: "#/components/schemas/UnidadMedidaEnum"
+        - if:
+            required: ["sistema_isc"]
+            properties:
+              sistema_isc:
+                const: "03"
+          then:
+            required: ["tasa_isc", "precio_venta_publico_sugerido"]
+            properties:
+              tasa_isc:
+                type: "string"
+              precio_venta_publico_sugerido:
+                type: "string"
+
+    ProductoResponse:
+      type: "object"
+      required:
+        - "id"
+        - "codigo"
+        - "descripcion"
+        - "unidad_medida"
+        - "valor_unitario"
+        - "tipo_afectacion_igv"
+        - "activo"
+      properties:
+        id:
+          type: "string"
+          format: "uuid"
+          example: "c2deec99-9c0b-4ef8-bb6d-6bb9bd380a33"
+        codigo:
+          type: "string"
+          example: "PROD-ARR-01"
+        descripcion:
+          type: "string"
+          example: "Arroz Extra Costeño Saco 50 kg"
+        unidad_medida:
+          $ref: "#/components/schemas/UnidadMedidaEnum"
+        valor_unitario:
+          type: "string"
+          example: "140.00"
+        tipo_afectacion_igv:
+          $ref: "#/components/schemas/TipoAfectacionIgvEnum"
+        sistema_isc:
+          $ref: "#/components/schemas/SistemaIscEnum"
+        tasa_isc:
+          type: "string"
+          pattern: "^[0-9]{1,3}\\.[0-9]{2}$"
+          description: "Tasa porcentual del ISC vigente para el producto (sistemas 01 y 03). Decimal exacto como texto."
+          example: "17.00"
+        monto_fijo_isc:
+          type: "string"
+          pattern: "^[0-9]+(\\.[0-9]{1,10})?$"
+          description: "Monto fijo de ISC por unidad física (sistema 02)."
+          example: "1.25"
+        unidad_base_isc:
+          $ref: "#/components/schemas/UnidadMedidaEnum"
+        precio_venta_publico_sugerido:
+          type: "string"
+          pattern: "^[0-9]+(\\.[0-9]{1,10})?$"
+          description: "PVP sugerido del fabricante (sistema 03)."
+          example: "5.00"
+        es_bolsa_plastica:
+          type: "boolean"
+          example: false
+        activo:
+          type: "boolean"
+          example: true
+
+    ProductoListResponse:
+      type: "object"
+      required:
+        - "data"
+        - "page"
+        - "page_size"
+        - "total_records"
+      properties:
+        data:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/ProductoResponse"
+        page:
+          type: "integer"
+          example: 1
+        page_size:
+          type: "integer"
+          example: 20
+        total_records:
+          type: "integer"
+          example: 120
+
+    SerieRequest:
+      type: "object"
+      description: |
+        Solicitud para crear o habilitar una serie. El correlativo es gestionado atómicamente por el servidor; el cliente no puede enviarlo ni modificarlo para evitar regresión de numeración.
+      required:
+        - "tipo_comprobante"
+        - "codigo_serie"
+      properties:
+        tipo_comprobante:
+          $ref: "#/components/schemas/TipoComprobanteEnum"
+        codigo_serie:
+          type: "string"
+          pattern: "^[FB][A-Z0-9]{3}$"
+          description: "Serie: F seguido de 3 alfanuméricos para Factura (tipo 01); B seguido de 3 alfanuméricos para Boleta (tipo 03). Para notas de crédito y débito la serie conserva el prefijo del documento afectado (F o B). El servidor rechaza con 422 un prefijo que no coincida con el tipo de comprobante (01 con F, 03 con B)."
+          example: "F001"
+
+    SerieUpdateRequest:
+      type: "object"
+      description: "Actualización de una serie. Solo admite descripción y estado; ni el tipo, ni el código ni el `correlativo_actual` son modificables (evita retroceder la numeración)."
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        descripcion:
+          type: "string"
+          maxLength: 100
+          example: "Serie de facturas - caja 1"
+        activa:
+          type: "boolean"
+          example: true
+
+    SerieResponse:
+      type: "object"
+      required:
+        - "id"
+        - "tipo_comprobante"
+        - "codigo_serie"
+        - "correlativo_actual"
+        - "activa"
+      properties:
+        id:
+          type: "string"
+          format: "uuid"
+          example: "d3eeec99-9c0b-4ef8-bb6d-6bb9bd380a44"
+        tipo_comprobante:
+          $ref: "#/components/schemas/TipoComprobanteEnum"
+        codigo_serie:
+          type: "string"
+          example: "F001"
+        correlativo_actual:
+          type: "integer"
+          example: 42
+        activa:
+          type: "boolean"
+          example: true
+
+    SerieListResponse:
+      type: "object"
+      required:
+        - "data"
+      properties:
+        data:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/SerieResponse"
+
+    CatalogoSunatResponse:
+      type: "object"
+      required:
+        - "numero_catalogo"
+        - "nombre_catalogo"
+        - "elementos"
+      properties:
+        numero_catalogo:
+          type: "string"
+          example: "07"
+        nombre_catalogo:
+          type: "string"
+          example: "Catálogo de Tipos de Afectación al IGV"
+        elementos:
+          type: "array"
+          items:
+            type: "object"
+            required:
+              - "codigo"
+              - "descripcion"
+            properties:
+              codigo:
+                type: "string"
+                example: "10"
+              descripcion:
+                type: "string"
+                example: "Gravado - Operación Onerosa"
+
+    MigracionLegadoRequest:
+      type: "object"
+      description: "Importación histórica. Nunca emite, firma ni envía comprobantes a OSE/SUNAT: las referencias de comprobantes se guardan como históricas (origen = LEGADO, es_historico = true)."
+      required:
+        - "tipo_entidad"
+        - "formato_origen"
+        - "contenido_base64"
+      properties:
+        tipo_entidad:
+          type: "string"
+          enum: ["PRODUCTOS", "MOVIMIENTOS_ALMACEN", "REFERENCIAS_COMPROBANTES", "CLIENTES"]
+          example: "MOVIMIENTOS_ALMACEN"
+        formato_origen:
+          type: "string"
+          enum: ["CSV", "JSON", "DBF"]
+          example: "CSV"
+        contenido_base64:
+          type: "string"
+          format: "byte"
+          description: "Contenido codificado en base64 del archivo a migrar"
+
+    MigracionResponse:
+      type: "object"
+      required:
+        - "id"
+        - "estado"
+        - "registros_totales"
+        - "registros_procesados"
+        - "registros_fallidos"
+        - "fecha_inicio"
+      properties:
+        id:
+          type: "string"
+          format: "uuid"
+          example: "e4feec99-9c0b-4ef8-bb6d-6bb9bd380a55"
+        estado:
+          type: "string"
+          enum: ["EN_PROCESO", "COMPLETADO", "CON_ERRORES", "FALLIDO"]
+          example: "EN_PROCESO"
+        registros_totales:
+          type: "integer"
+          example: 5000
+        registros_procesados:
+          type: "integer"
+          example: 4950
+        registros_fallidos:
+          type: "integer"
+          example: 50
+        errores:
+          type: "array"
+          items:
+            type: "string"
+          example: ["Línea 42: RUC '12345678' inválido según algoritmo Módulo 11."]
+        fecha_inicio:
+          type: "string"
+          format: "date-time"
+          example: "2026-10-22T08:00:00Z"
+        fecha_fin:
+          type: ["string", "null"]
+          format: "date-time"
+        lote_origen_id:
+          type: ["string", "null"]
+          format: "uuid"
+          description: "UUID del lote del que proviene este reproceso de cuarentena; nulo en lotes iniciales."
+
+    EstadoCuarentenaEnum:
+      type: "string"
+      enum: ["PENDIENTE", "CORREGIDO", "DESCARTADO_AUTORIZADO"]
+      example: "PENDIENTE"
+
+    CodigoErrorCuarentenaEnum:
+      type: "string"
+      description: "Códigos estables del catálogo de errores de cuarentena (`specs/features/0006-migracion-legado/design.md`)."
+      enum:
+        - "FECHA_INVALIDA"
+        - "FECHA_AMBIGUA"
+        - "FECHA_AUSENTE"
+        - "CANTIDAD_NO_NUMERICA"
+        - "CANTIDAD_NEGATIVA"
+        - "MOVIMIENTO_DOBLE"
+        - "MOVIMIENTO_VACIO"
+        - "PRODUCTO_VACIO"
+        - "PRODUCTO_NO_ENCONTRADO"
+        - "PRODUCTO_AMBIGUO"
+        - "DOCUMENTO_AMBIGUO"
+        - "DOCUMENTO_DUPLICADO_CONFLICTIVO"
+        - "SIN_DOCUMENTO_ORIGEN"
+        - "CODIFICACION_INVALIDA"
+        - "COLISION_LEGADO_ID"
+      example: "FECHA_AMBIGUA"
+
+    CuarentenaRegistro:
+      type: "object"
+      required:
+        - "id"
+        - "lote_id"
+        - "legado_id"
+        - "tipo_entidad"
+        - "fila_original"
+        - "codigos_error"
+        - "intentos"
+        - "estado"
+        - "fecha_registro"
+      properties:
+        id:
+          type: "string"
+          format: "uuid"
+        lote_id:
+          type: "string"
+          format: "uuid"
+        legado_id:
+          type: "string"
+          example: "legado:movimientos:1042"
+          description: "Clave original o sintética reproducible (`sistema:tabla:clave`)."
+        tipo_entidad:
+          type: "string"
+          enum: ["PRODUCTO", "MOVIMIENTO_ALMACEN", "COMPROBANTE"]
+        fila_original:
+          type: "object"
+          additionalProperties:
+            type: "string"
+          description: "Valores originales conservados como texto, sin transformar."
+          example:
+            fecha: "05/06/2026"
+            ingreso: "10"
+            salida: ""
+            producto: "A1"
+            nro_documento: "F001-42"
+        fila_normalizada:
+          type:
+            - "object"
+            - "null"
+          additionalProperties: true
+          description: "Resultado parcial de la normalización, si llegó a producirse."
+        codigos_error:
+          type: "array"
+          minItems: 1
+          items:
+            $ref: "#/components/schemas/CodigoErrorCuarentenaEnum"
+        intentos:
+          type: "integer"
+          minimum: 0
+          example: 0
+        estado:
+          $ref: "#/components/schemas/EstadoCuarentenaEnum"
+        fecha_registro:
+          type: "string"
+          format: "date-time"
+
+    CuarentenaListaResponse:
+      type: "object"
+      required:
+        - "elementos"
+        - "pagina"
+        - "tamano"
+        - "total"
+      properties:
+        elementos:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/CuarentenaRegistro"
+        pagina:
+          type: "integer"
+          minimum: 1
+        tamano:
+          type: "integer"
+          minimum: 1
+        total:
+          type: "integer"
+          minimum: 0
+
+    ParcheCuarentena:
+      type: "object"
+      description: "Corrección o descarte autorizado de un registro en cuarentena. Se guarda como parche separado; no altera la extracción original."
+      required:
+        - "legado_id"
+        - "accion"
+        - "motivo"
+        - "evidencia"
+        - "aprobado_por"
+      properties:
+        legado_id:
+          type: "string"
+          example: "legado:movimientos:1042"
+        accion:
+          type: "string"
+          enum: ["CORREGIR", "DESCARTAR"]
+          description: "`CORREGIR` aplica `valor_corregido` y revalida; `DESCARTAR` marca el registro como `DESCARTADO_AUTORIZADO`."
+        campo:
+          type: "string"
+          enum: ["fecha", "ingreso", "salida", "producto", "nro_documento"]
+          description: "Campo del sistema antiguo que se corrige. Obligatorio si `accion = CORREGIR`."
+        valor_corregido:
+          type: "string"
+          description: "Nuevo valor como texto, tal como se interpretaría desde el origen. Obligatorio si `accion = CORREGIR`."
+        motivo:
+          type: "string"
+          minLength: 10
+          maxLength: 500
+        evidencia:
+          type: "string"
+          minLength: 5
+          maxLength: 500
+          description: "Referencia verificable que respalda el cambio (documento, hoja, fila). Sin evidencia el parche se rechaza con 422."
+        aprobado_por:
+          type: "string"
+          minLength: 3
+          maxLength: 120
+          description: "Usuario que aprueba el parche; queda en la auditoría."
+      if:
+        properties:
+          accion:
+            const: "CORREGIR"
+      then:
+        required:
+          - "campo"
+          - "valor_corregido"
+        properties:
+          campo:
+            type: "string"
+          valor_corregido:
+            type: "string"
+            minLength: 1
+
+    ReprocesoCuarentenaRequest:
+      type: "object"
+      required:
+        - "version_reglas"
+        - "parches"
+      properties:
+        version_reglas:
+          type: "string"
+          pattern: "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+          example: "1.0.0"
+          description: "Versión de las reglas de mapeo/limpieza: la misma del lote original o una posterior."
+        parches:
+          type: "array"
+          minItems: 1
+          maxItems: 1000
+          items:
+            $ref: "#/components/schemas/ParcheCuarentena"
+
+    OperacionExitosaResponse:
+      type: "object"
+      required:
+        - "exito"
+        - "mensaje"
+      properties:
+        exito:
+          type: "boolean"
+          example: true
+        mensaje:
+          type: "string"
+          example: "Operación realizada satisfactoriamente."
+
+    ErrorResponse:
+      type: "object"
+      required:
+        - "codigo"
+        - "mensaje"
+        - "fecha_hora"
+      properties:
+        codigo:
+          type: "string"
+          example: "ERR_VALIDACION_FISCAL"
+          description: "Código interno del error del sistema"
+        mensaje:
+          type: "string"
+          example: "El comprobante no superó las validaciones del estándar UBL 2.1 o reglas de SUNAT."
+        codigo_sunat:
+          type: ["string", "null"]
+          example: "2017"
+          description: "Código oficial de error retornado por SUNAT (Catálogo de Errores OSE/SUNAT: e.g. 0100, 2017, 2324)"
+        mensaje_sunat:
+          type: ["string", "null"]
+          example: "El RUC del receptor no se encuentra en estado ACTIVO y HABIDO."
+        fecha_hora:
+          type: "string"
+          format: "date-time"
+          example: "2026-10-22T10:30:15Z"
+        detalles:
+          type: "array"
+          items:
+            type: "string"
+          example:
+            - "receptor.numero_documento: Dígito verificador de RUC inválido."
+
+    TipoComprobanteEnum:
+      type: "string"
+      enum: ["01", "03", "07", "08"]
+      description: "Catálogo N° 01 SUNAT: '01' Factura, '03' Boleta de Venta, '07' Nota de Crédito, '08' Nota de Débito"
+      example: "01"
+
+    EstadoComprobanteEnum:
+      type: "string"
+      enum: ["EMITIDO", "FIRMADO", "ACEPTADO", "RECHAZADO", "DE_BAJA"]
+      example: "ACEPTADO"
+
+  securitySchemes:
+    bearerAuth:
+      type: "http"
+      scheme: "bearer"
+      bearerFormat: "JWT"
+      description: |
+        Autenticación mediante JSON Web Token (JWT). Incluir el token en la cabecera HTTP:
+        `Authorization: Bearer <token>`
+        
+        Los tokens se obtienen del endpoint de autenticación del sistema y tienen una vigencia configurable.
+        Respuestas de error relacionadas:
+        - **401 Unauthorized**: Token ausente, inválido o expirado.
+        - **403 Forbidden**: Token válido pero sin permisos suficientes para la operación solicitada.

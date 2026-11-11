@@ -8,7 +8,7 @@
 > **No se escribe lógica de negocio hasta que la especificación esté completa y verificada.**
 
 Todo artefacto en este repositorio es una especificación, una referencia normativa o una decisión de arquitectura — **nunca código ejecutable de producción**.  
-Las carpetas `src/` y `tests/` existen como marcadores de posición; permanecen vacías hasta que el equipo de implementación reciba las specs aprobadas.
+La carpeta `src/` permanece vacía hasta que el equipo de implementación reciba las specs aprobadas. La carpeta `tests/` solo contiene pruebas que validan los propios contratos (YAML válido, `$ref` resueltos, ejemplos conformes y `src/` vacío); no prueba lógica de negocio.
 
 ---
 
@@ -29,9 +29,10 @@ Solo las siguientes fuentes son consideradas **verdad de referencia**. Cualquier
 |--------|--------|-------------------------------|
 | F-01 | `UBL-Invoice-2.1.xsd` (OASIS UBL 2.1) | `docs/referencias/ubl/` |
 | F-02 | Catálogos SUNAT — Anexo 8 (RS 097-2012) | `docs/referencias/sunat/` |
-| F-03 | Resolución de Superintendencia N° 097-2012/SUNAT | `docs/referencias/sunat/` |
-| F-04 | Resolución de Superintendencia N° 234-2006/SUNAT | `docs/referencias/sunat/` |
+| F-03 | Resolución de Superintendencia N° 097-2012/SUNAT — sistema de emisión electrónica desde los sistemas del contribuyente | ⚠️ Por incorporar en `docs/referencias/sunat/` |
+| F-04 | Resolución de Superintendencia N° 234-2006/SUNAT — libros y registros vinculados a asuntos tributarios (Registro de Ventas, Inventario Permanente) | ⚠️ Por incorporar en `docs/referencias/sunat/` |
 | F-05 | Manual del Programador — OSE/SOL SUNAT (versión vigente) | `docs/referencias/sunat/` |
+| F-06 | Reglamento de Comprobantes de Pago — RS N° 007-99/SUNAT (requisitos de facturas y boletas) | ⚠️ Por incorporar en `docs/referencias/sunat/` |
 
 ---
 
@@ -50,40 +51,39 @@ Cuando un dato, restricción o comportamiento **no esté confirmado** por alguna
 ```
 docs/
   enunciado.md              → Enunciado del caso ABC Software Corp
-  analisis-problema.md      → Contexto, stakeholders, restricciones, riesgos
+  analisis-problema.md      → AS-IS / TO-BE, stakeholders, restricciones, riesgos
+  caso.md                   → Brecha frente a SUNAT, alcance de la fase y actores
+  glosario.md               → Términos del dominio
+  pendientes-verificacion.md → Registro de datos "Por verificar" y su fuente
   referencias/
     ubl/                    → Esquemas OASIS UBL 2.1 (solo lectura)
-    sunat/                  → RS 097-2012, RS 234-2006, catálogos, manuales
+    sunat/                  → Guía XML, manual del programador, normas y catálogos
 
 specs/
-  adr/                      → Architecture Decision Records
+  adr/                      → Decisiones de arquitectura (NNNN-titulo.md)
   contracts/
-    facturacion-api.yaml    → Contrato OpenAPI 3.1 (solo interfaz, sin lógica)
-    schemas/                → XSD UBL 2.1 anotados con restricciones SUNAT
+    facturacion-api.yaml    → Contrato OpenAPI 3.1: endpoints + DTO en components/schemas (fuente única)
+    schemas/                → Reservada (los DTO viven en facturacion-api.yaml)
   features/
-    0001-casos-uso/         → spec.md + tasks.md
-    0002-modelo-dominio/    → spec.md + tasks.md
-    0003-arquitectura-mvc-hexagonal/  → spec.md + tasks.md
-    0004-contratos-api/     → spec.md + tasks.md
-    0005-trazabilidad-sunat-ubl/      → spec.md + tasks.md
-    0006-migracion-legado/  → spec.md + tasks.md
-    0007-distribucion-multiplataforma/ → spec.md + tasks.md
-  templates/
-    spec-template.md        → Plantilla de especificación de feature
-    design-template.md      → Plantilla de diseño técnico
-    tasks-template.md       → Plantilla de tareas
+    NNNN-nombre/
+      spec.md               → Qué se exige: requisitos, reglas y criterios de aceptación
+      design.md             → Cómo se resuelve: diagramas, tablas, decisiones
+      tasks.md              → Avance y pendientes
+  templates/                → Plantillas de spec, design y tasks
 
 src/                        → VACÍO — sin código hasta specs aprobadas
-tests/                      → VACÍO — sin pruebas hasta specs aprobadas
-requirements.txt            → Dependencias — por definir tras aprobación de specs
+tests/                      → Solo pruebas de los contratos (validan specs, no lógica de negocio)
+requirements.txt            → Dependencias de las pruebas de contratos
 ```
+
+Correspondencia con el enunciado: 0001 casos de uso (sección 3) · 0002 modelo de dominio y DTO (entregable 1) · 0003 MVC → Hexagonal (entregable 2) · 0004 contratos API (entregable 3) · 0005 matriz SUNAT ↔ UBL y Catálogo 08 (entregable 4) · 0006 legado · 0007 MSI / APK.
 
 ---
 
 ## 6. Flujo de trabajo Spec-First
 
 ```
-1. INVESTIGAR  →  Leer fuentes normativas (F-01 … F-05) en docs/referencias/
+1. INVESTIGAR  →  Leer fuentes normativas (F-01 … F-06) en docs/referencias/
 2. ESPECIFICAR →  Redactar spec.md en la carpeta specs/features/NNNN-*/
 3. MARCAR      →  Etiquetar todo lo incierto como "Por verificar"
 4. DISEÑAR     →  Completar design.md y tasks.md si aplica
@@ -117,13 +117,13 @@ Cada `spec.md` o `design.md` en `specs/features/` debe comenzar con:
 | Tareas de la feature | `tasks.md` (dentro de la carpeta de la feature) | `specs/features/0001-casos-uso/tasks.md` |
 | ADR | `NNNN-titulo-kebab.md` | `specs/adr/0001-eleccion-canal-emision.md` |
 | Contrato API | `nombre-api.yaml` (OpenAPI 3.1) | `specs/contracts/facturacion-api.yaml` |
-| XSD anotado | `nombre-anotado.xsd` | `specs/contracts/schemas/UBL-Invoice-anotado.xsd` |
+| Diseño de la feature | `design.md` (dentro de la carpeta de la feature) | `specs/features/0003-arquitectura-mvc-hexagonal/design.md` |
 
 ---
 
 ## 9. Prohibiciones explícitas
 
-- ❌ No agregar archivos `.js`, `.ts`, `.java`, `.py`, `.cs` u otros lenguajes de implementación fuera de `src/`.
+- ❌ No agregar archivos `.js`, `.ts`, `.java`, `.py`, `.cs` u otros lenguajes de implementación fuera de `src/`. Única excepción: `tests/test_contratos.py`, que valida los contratos y no contiene lógica de negocio.
 - ❌ No agregar archivos con credenciales (`.pfx`, `.p12`, `.env`, claves de API).
 - ❌ No inventar valores de catálogo sin citar la fuente normativa.
 - ❌ No modificar los archivos dentro de `docs/referencias/` — son solo lectura.
@@ -131,4 +131,4 @@ Cada `spec.md` o `design.md` en `specs/features/` debe comenzar con:
 
 ---
 
-*Última actualización: 2026-10-22 · Versión de las reglas: 2.0*
+*Última actualización: 2026-11-11 · Versión de las reglas: 3.0*

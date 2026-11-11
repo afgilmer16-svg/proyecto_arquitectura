@@ -8,19 +8,21 @@
 >
 > ### Condición para escribir código aquí
 >
-> Al menos un artefacto de cada carpeta `specs/0*` debe estar en estado **APROBADO** antes de comenzar la implementación.
+> Al menos un artefacto de cada carpeta `specs/features/NNNN-*` debe estar en estado **APROBADO** antes de comenzar la implementación.
 >
 > ### Estado actual de las specs
 >
-> | Carpeta | Estado |
-> |---------|--------|
-> | `specs/00-contexto/` | BORRADOR |
-> | `specs/01-dominio/` | BORRADOR |
-> | `specs/02-arquitectura/` | BORRADOR |
-> | `specs/03-api/` | BORRADOR |
-> | `specs/04-trazabilidad/` | BORRADOR |
-> | `specs/05-casos-uso/` | BORRADOR |
-> | `specs/06-migracion/` | BORRADOR |
-> | `specs/07-distribucion/` | BORRADOR |
+> | Artefacto | Estado |
+> |-----------|--------|
+> | `docs/caso.md` y `docs/analisis-problema.md` | EN REVISIÓN |
+> | `specs/features/0001-casos-uso/` | EN REVISIÓN (CU-01 a CU-16; faltan verificaciones normativas) |
+> | `specs/features/0002-modelo-dominio/` | EN REVISIÓN |
+> | `specs/features/0003-arquitectura-mvc-hexagonal/` | EN REVISIÓN |
+> | `specs/features/0004-contratos-api/` + `specs/contracts/facturacion-api.yaml` | EN REVISIÓN (contrato validado: 0 `$ref` rotos, ejemplos conformes) |
+> | `specs/features/0005-trazabilidad-sunat-ubl/` | EN REVISIÓN (faltan Anexo 8 y guías de baja/resumen) |
+> | `specs/features/0006-migracion-legado/` | EN REVISIÓN (falta muestra del sistema antiguo) |
+> | `specs/features/0007-distribucion-multiplataforma/` | EN REVISIÓN |
 >
-> Actualizar esta tabla cuando cada sección sea aprobada.
+> Ninguna feature está APROBADA todavía: se requiere revisión de un segundo miembro del equipo y cerrar las verificaciones de `docs/pendientes-verificacion.md`.
+>
+> Actualizar esta tabla cuando cada sección cambie de estado.

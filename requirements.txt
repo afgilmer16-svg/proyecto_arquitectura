@@ -1,3 +1,6 @@
-# requirements.txt
-# Dependencias del proyecto — por definir tras aprobación de specs
-# Ver .agent/rules/spec-first.md
+# Dependencias de las pruebas de contratos (tests/test_contratos.py).
+# No hay dependencias de implementación: src/ sigue vacío (fase Spec-First).
+pyyaml>=6.0
+jsonschema>=4.21
+openapi-spec-validator>=0.7
+pytest>=8.0

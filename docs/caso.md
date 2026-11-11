@@ -1,7 +1,7 @@
 ---
 **Documento**: Descripción del caso y contexto del problema
-**Carpeta**: specs/00-contexto/
-**Estado**: BORRADOR
+**Carpeta**: docs/
+**Estado**: EN REVISIÓN
 **Autor**: Equipo Grupo A
 **Fecha**: 2026-10-22
 **Fuentes**: RS 097-2012/SUNAT (F-03), RS 234-2006/SUNAT (F-04), UBL 2.1 (F-01)
@@ -49,7 +49,7 @@ El sistema no aplica los impuestos correctamente:
 
 - **IGV** (Impuesto General a las Ventas): 18% sobre la base imponible. ⚠️ Por verificar: tasa vigente y excepciones [F-03, Catálogo de afectación de IGV, F-02].
 - **ISC** (Impuesto Selectivo al Consumo): aplica a bienes específicos (bebidas, tabacos, combustibles). ⚠️ Por verificar: qué productos de abarrotes están afectos [F-03, F-02].
-- **ICBPER** (Impuesto al Consumo de Bolsas de Plástico): S/ 0.20 por bolsa de plástico entregada al momento de la venta. ⚠️ Por verificar: monto vigente y obligaciones de reporte [F-03].
+- **ICBPER** (Impuesto al Consumo de Bolsas de Plástico): importe fijo por bolsa de plástico entregada (Ley N° 30884). El monto es **S/ 0.50 por bolsa desde el 01/01/2023**; debe parametrizarse por fecha de vigencia y no codificarse como constante. ⚠️ Por verificar: monto vigente a la fecha de emisión y obligaciones de reporte [F-03].
 
 La estructura de tributos en el XML UBL 2.1 requiere declarar explícitamente cada impuesto con su código de catálogo SUNAT, base imponible, porcentaje y monto [F-01, F-02].
 
@@ -103,7 +103,7 @@ El sistema actual no tiene ninguno de estos mecanismos.
 | Integración real con OSE/SUNAT | Requiere certificado digital y entorno de homologación |
 | Declaraciones juradas y libros electrónicos | Fuera del alcance del sistema de facturación |
 | Módulo contable / ERP | Integración futura; no está en el alcance de esta fase |
-| Bolsas de plástico (ICBPER) como producto | ⚠️ Por verificar: si se incluye en esta fase o se posterga |
+| Bolsas de plástico (ICBPER) como producto de inventario | El **cálculo y la declaración del ICBPER en el comprobante** sí están en alcance (ver `specs/features/0005-trazabilidad-sunat-ubl/spec.md`); la gestión de stock de bolsas queda fuera de esta fase |
 
 ---
 
@@ -116,5 +116,5 @@ El sistema actual no tiene ninguno de estos mecanismos.
 | **Almacenero** | Interno (usuario) | Gestiona el catálogo de productos y el stock. Mantiene la información de artículos necesaria para la emisión. |
 | **Contador / Administrador** | Interno (usuario) | Supervisa la emisión, gestiona series/correlativos, consulta el estado de comprobantes, genera resúmenes y comunicaciones de baja. |
 | **Cliente / Adquirente** | Externo | Persona natural o jurídica que recibe el comprobante. Puede ser identificado con RUC (factura) o DNI/CE (boleta). |
-| **OSE** | Externo (sistema) | Operador de Servicios Electrónicos autorizado por SUNAT. Recibe el XML, lo valida y devuelve el CDR. ⚠️ Por verificar: decisión pendiente en ADR-001 [F-03]. |
+| **OSE** | Externo (sistema) | Operador de Servicios Electrónicos autorizado por SUNAT. Recibe el XML, lo valida y devuelve el CDR. ⚠️ Por verificar: decisión tomada en ADR-002 (OSE como canal principal, con contingencia directa a SUNAT) [F-03]. |
 | **SUNAT** | Externo (sistema/regulador) | Superintendencia Nacional de Aduanas y de Administración Tributaria. Receptora final de los comprobantes (vía OSE o SEE directo). Fuente de las normas RS 097-2012 y RS 234-2006. |

@@ -14,6 +14,7 @@ node_modules/
 vendor/
 .venv/
 __pycache__/
+.pytest_cache/
 *.pyc
 
 # ─── Instaladores y paquetes binarios ─────────────────────────────────────────
@@ -58,3 +59,10 @@ coverage/
 
 # ─── Documentos generados automáticamente ────────────────────────────────────
 docs/generated/
+
+# Firma de aplicaciones Android
+*.jks
+*.keystore
+
+# Archivos ajenos al examen
+gilmer_50.docx

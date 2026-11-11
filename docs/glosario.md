@@ -1,6 +1,6 @@
 ---
 **Documento**: Glosario de términos del dominio
-**Carpeta**: specs/00-contexto/
+**Carpeta**: docs/
 **Estado**: BORRADOR
 **Autor**: Equipo Grupo A
 **Fecha**: 2026-10-22
@@ -72,6 +72,9 @@
 - `10` — Gravado — Operación onerosa
 - `20` — Exonerado — Operación onerosa
 - `30` — Inafecto — Operación onerosa
+- `11` a `17` — Gravado — Retiros (bonificaciones, publicidad, muestras, etc.) ⚠️ Por verificar descripción de cada código [F-02]
+- `21` — Exonerado — Transferencia gratuita
+- `31` a `37` — Inafecto — Retiros y transferencia gratuita ⚠️ Por verificar descripción de cada código [F-02]
 - `40` — Exportación de bienes y/o servicios
 
 **Fuente**: [F-02, Catálogo 05 y 07], [F-03].
@@ -97,9 +100,9 @@
 
 **Definición**: Impuesto creado por la Ley N° 30884 (Ley del Plástico) que grava la adquisición de bolsas de plástico en establecimientos comerciales. El monto se cobra por cada bolsa entregada al cliente al momento de la venta.
 
-**Monto**: S/ 0.20 por bolsa. ⚠️ Por verificar: monto vigente (puede haber incrementos anuales según la ley) [F-03].
+**Monto**: escalonado por año según la Ley N° 30884; S/ 0.50 por bolsa desde el 01/01/2023. El monto vigente se parametriza por fecha en `CatalogoSunatPort` y no se codifica como constante. ⚠️ Por verificar: monto vigente a la fecha de emisión [F-03].
 
-**En el XML UBL 2.1**: Se declara dentro de `cac:TaxTotal` con el código de tributo `7152` (ICBPER) del Catálogo N° 05 [F-02]. ⚠️ Por verificar: código exacto en el catálogo SUNAT [F-02].
+**En el XML UBL 2.1**: Se declara dentro de `cac:TaxTotal` con el código de tributo `7152` (ICBPER) del Catálogo N° 05 [F-02].
 
 **Fuente**: Ley N° 30884, [F-02, Catálogo 05].
 
@@ -109,7 +112,7 @@
 
 **Definición**: Número de identificación fiscal de 11 dígitos asignado por SUNAT a personas naturales con negocio y personas jurídicas (empresas) en el Perú. Es obligatorio para la emisión de facturas electrónicas tanto del emisor como del receptor.
 
-**Estructura**: 11 dígitos numéricos. El último dígito es un dígito verificador calculado por un algoritmo de módulo 11. ⚠️ Por verificar: algoritmo exacto de validación del dígito verificador [F-05].
+**Estructura**: 11 dígitos numéricos. El último dígito es un dígito verificador calculado por un algoritmo de módulo 11. Algoritmo: módulo 11 con pesos `5,4,3,2,7,6,5,4,3,2` (ver CU-09). ⚠️ Por verificar: contraste con el Manual del Programador [F-05].
 
 **Estados del RUC relevantes**: ACTIVO, SUSPENDIDO, BAJA DEFINITIVA, BAJA PROVISIONAL. Solo el estado ACTIVO permite emitir y recibir facturas [F-03]. ⚠️ Por verificar: si la validación del estado debe hacerse en línea o es responsabilidad del emisor [F-05].
 
@@ -156,7 +159,7 @@
 
 **Definición**: Documento electrónico que el emisor envía a SUNAT para informar la anulación de uno o más comprobantes electrónicos (facturas, boletas, notas) ya emitidos. A diferencia de la nota de crédito, la comunicación de baja solo se puede utilizar cuando el comprobante **no ha sido pagado ni entregado al receptor**, o cuando SUNAT lo permite expresamente.
 
-**Plazo**: Debe enviarse dentro de los **7 días hábiles** siguientes a la fecha de emisión del comprobante a anular. ⚠️ Por verificar: plazo exacto y excepciones [F-03, F-05].
+**Plazo**: Debe enviarse dentro de los **7 días calendario** siguientes a la fecha de emisión del comprobante a anular. ⚠️ Por verificar: plazo exacto y excepciones [F-03, F-05].
 
 **Formato**: XML con esquema `UBL-VoidedDocuments-1.0.xsd` (estructura propia de SUNAT, no estándar OASIS). ⚠️ Por verificar: esquema y namespace exacto [F-03, F-05].
 
@@ -170,7 +173,7 @@
 
 **Definición**: Documento electrónico consolidado que el emisor envía a SUNAT al final de cada día (o al inicio del día siguiente) para informar todas las boletas de venta electrónicas emitidas durante esa jornada. A diferencia de las facturas, las boletas no se envían individualmente en tiempo real; se consolidan en el resumen diario.
 
-**Plazo de envío**: Al cierre del día de emisión o hasta las 23:59 horas del día siguiente. ⚠️ Por verificar: plazo exacto [F-03, F-05].
+**Plazo de envío**: dentro del plazo máximo de 7 días calendario contados desde la fecha de emisión de las boletas; la política operativa de ABC es enviarlo al cierre de la jornada o el día siguiente. ⚠️ Por verificar: plazo exacto [F-03, F-05].
 
 **Formato**: XML con esquema `UBL-SummaryDocuments-1.0.xsd`. ⚠️ Por verificar: esquema exacto [F-03, F-05].
 
@@ -192,7 +195,12 @@
 - `05` — Descuento por ítem
 - `06` — Devolución total
 - `07` — Devolución por ítem
-- `13` — Ajustes de operaciones de exportación
+- `08` — Bonificación
+- `09` — Disminución en el valor
+- `10` — Otros conceptos
+- `11` — Ajustes de operaciones de exportación
+- `12` — Ajustes afectos al IVAP
+- `13` — Corrección del monto neto pendiente de pago y/o cuotas
 
 **Relación con el comprobante original**: La nota de crédito debe referenciar el número del comprobante original (serie y correlativo) [F-01, F-03].
 
@@ -210,6 +218,8 @@
 - `01` — Intereses por mora
 - `02` — Aumento en el valor
 - `03` — Penalidades / otros conceptos
+- `11` — Ajustes de operaciones de exportación
+- `12` — Ajustes afectos al IVAP
 
 **Relación con el comprobante original**: La nota de débito debe referenciar el número del comprobante original [F-01, F-03].
 

@@ -1,8 +1,11 @@
-# Especificación Técnica: Arquitectura Monolito MVC y Transición Hexagonal
+# design.md — 0003 Arquitectura MVC con visión a Hexagonal
+
+> **Entregable 2** del examen. Complementa a [`spec.md`](spec.md).
+
 
 **Documento**: Arquitectura del Sistema de Facturación Electrónica  
-**Carpeta**: `specs/02-arquitectura/`  
-**Estado**: APROBADO  
+**Carpeta**: `specs/features/0003-arquitectura-mvc-hexagonal/`  
+**Estado**: EN REVISIÓN  
 **Autores**: Equipo Grupo A — UNAS-FIIS  
 **Fecha**: 2026-10-22  
 **Fuentes Normativas**: RS N° 097-2012/SUNAT (F-03), RS N° 234-2006/SUNAT (F-04), OASIS UBL 2.1 (F-01), Catálogos SUNAT Anexo 8 (F-02)
@@ -24,9 +27,9 @@ En el monolito inicial, los controladores atienden las interacciones de los dist
 ```mermaid
 flowchart TD
     subgraph UI["Capa de Presentación / Vistas (Clientes)"]
-        UI_Desktop["💻 Desktop POS (Cajeros Tienda)\nJavaFX / Electron / Terminal Térmico"]
-        UI_Mobile["📱 Mobile App (Preventa / Repartidores)\nAndroid / Flutter"]
-        UI_Web["🌐 Web Backoffice (Administración / Contabilidad)\nReact / SPA"]
+        UI_Desktop["💻 Desktop POS (Cajeros Tienda)\nCompose Desktop (MSI) — ADR-003"]
+        UI_Mobile["📱 Mobile App (Preventa / Repartidores)\nCompose Android (APK) — ADR-003"]
+        UI_Web["🌐 Web Backoffice (Administración / Contabilidad)\nSPA web (tecnología por definir)"]
         UI_CLI["⌨️ CLI / Batch Runner\nHerramienta de Migración Legado"]
     end
 
@@ -38,6 +41,7 @@ flowchart TD
         C_Catalogos["CatalogoSunatController\n(REST / HTTP)"]
         C_CRUD["MaestrosController\n(Clientes, Productos, Series)"]
         C_Migracion["MigracionLegadoController\n(CLI / REST)"]
+        C_Libros["LibrosElectronicosController\n(REST / CLI)"]
     end
 
     subgraph Application["Capa de Aplicación (Servicios / Casos de Uso)"]
@@ -49,6 +53,7 @@ flowchart TD
         UC_Maestros["GestionarMaestrosService\n(CU-10 / CU-11 / CU-12)"]
         UC_Catalogos["ConsultarCatalogosService\n(CU-13)"]
         UC_Migrar["MigrarLegadoService\n(CU-14)"]
+        UC_Libros["GenerarLibrosElectronicosService\n(CU-15 / CU-16)"]
     end
 
     subgraph Domain["Capa de Dominio (Núcleo de Negocio)"]
@@ -81,17 +86,20 @@ flowchart TD
             P_Ruc["ValidadorRucPort"]
             P_Cat["CatalogoSunatPort"]
             P_Legado["LegadoReaderPort"]
+            P_Libro["LibroElectronicoPort"]
+            P_Kardex["KardexElectronicoPort"]
         end
     end
 
     subgraph Infrastructure["Capa de Infraestructura (Adaptadores Iniciales en Monolito)"]
         A_Repo["SqliteComprobanteRepository /\nPostgreSQLJdbcRepository"]
-        A_Xml["FreemarkerXmlUblGeneratorAdapter\n(Plantillas UBL 2.1 XSD)"]
+        A_Xml["JaxbUblAdapter\n(Clases generadas con xjc desde los XSD UBL 2.1)"]
         A_Firma["LocalPkcs12XmlDsigAdapter\n(Almacén .p12 en disco local)"]
         A_Ose["OseSoapClientAdapter\n(Fallback: SunatDirectoSoapAdapter)"]
         A_Ruc["AlgoritmoModulo11PadronLocalAdapter\n(Validación RUC offline/sqlite)"]
         A_Cat["EmbeddedJsonCatalogoSunatAdapter\n(Tablas Anexo 8 estáticas en memoria)"]
         A_Legado["CsvLegacyFileReaderAdapter\n(Archivos planos del sistema antiguo)"]
+        A_Libro["PleTxtRegistroVentasAdapter /\nPleTxtKardex121Adapter"]
     end
 
     %% Relaciones de control y dependencia
@@ -101,6 +109,7 @@ flowchart TD
     UI_Web --> C_Anulacion
     UI_Web --> C_Consulta
     UI_CLI --> C_Migracion
+    UI_Web --> C_Libros
 
     C_Comprobante --> UC_Emitir
     C_Anulacion --> UC_Anular
@@ -109,6 +118,7 @@ flowchart TD
     C_Catalogos --> UC_Catalogos
     C_CRUD --> UC_Maestros
     C_Migracion --> UC_Migrar
+    C_Libros --> UC_Libros
 
     UC_Emitir --> DS_Calc
     UC_Emitir --> DS_Val
@@ -129,7 +139,7 @@ flowchart TD
     UC_Consultar --> P_Ose
 
     UC_Migrar --> P_Legado
-    UC_Migrar --> UC_Emitir
+    UC_Migrar --> P_Repo
 
     %% Inversión de dependencias (DIP): Los adaptadores implementan las interfaces del dominio
     A_Repo -.->|implementa| P_Repo
@@ -139,6 +149,11 @@ flowchart TD
     A_Ruc -.->|implementa| P_Ruc
     A_Cat -.->|implementa| P_Cat
     A_Legado -.->|implementa| P_Legado
+    UC_Libros --> P_Repo
+    UC_Libros --> P_Libro
+    UC_Libros --> P_Kardex
+    A_Libro -.->|implementa| P_Libro
+    A_Libro -.->|implementa| P_Kardex
 
     classDef ui fill:#e1f5fe,stroke:#0288d1,stroke-width:2px;
     classDef controller fill:#ede7f6,stroke:#512da8,stroke-width:2px;
@@ -150,7 +165,10 @@ flowchart TD
     class C_Comprobante,C_Anulacion,C_Consulta,C_Validacion,C_Catalogos,C_CRUD,C_Migracion controller;
     class UC_Emitir,UC_Anular,UC_Consultar,UC_BajaResumen,UC_ValidarRuc,UC_Maestros,UC_Catalogos,UC_Migrar app;
     class E_Comprobante,E_Nota,E_Item,E_Tributo,E_Cliente,E_Serie,VO_RUC,VO_Money,VO_Estado,VO_Hash,DS_Calc,DS_Val,P_Repo,P_Xml,P_Firma,P_Ose,P_Ruc,P_Cat,P_Legado domain;
-    class A_Repo,A_Xml,A_Firma,A_Ose,A_Ruc,A_Cat,A_Legado infra;
+    class A_Repo,A_Xml,A_Firma,A_Ose,A_Ruc,A_Cat,A_Legado,A_Libro infra;
+    class C_Libros controller;
+    class UC_Libros app;
+    class P_Libro,P_Kardex domain;
 ```
 
 ---
@@ -161,16 +179,22 @@ La siguiente matriz clasifica rigurosamente los puertos del sistema, distinguien
 
 | Nombre del Puerto | Tipo | Responsabilidad / Contrato | Adaptador Inicial (Monolito) | Adaptador Futuro (Hexagonal / Microservicios) |
 |---|---|---|---|---|
-| **`EmitirComprobanteUseCase`** | Entrada (Inbound) | Orquestar la creación, cálculo impositivo, persistencia, generación UBL 2.1, firma digital y despacho a OSE/SUNAT de Facturas (`01`) y Boletas (`03`). | `DesktopPosController` (JavaFX/Swing) y `RestApiComprobanteController` (Spring MVC / Express) en el mismo proceso. | `GrpcFacturacionEndpoint`, `EventConsumerAdapter` (Consumidor Kafka/RabbitMQ suscrito a `OrdenVentaPagadaEvent`), o API Gateway distribuido. |
+| **`EmitirComprobanteUseCase`** | Entrada (Inbound) | Orquestar la creación, cálculo impositivo, persistencia, generación UBL 2.1, firma digital y despacho a OSE/SUNAT de Facturas (`01`) y Boletas (`03`). | `DesktopPosController` (Compose Desktop, ADR-003) y `RestApiComprobanteController` (Spring MVC / Express) en el mismo proceso. | `GrpcFacturacionEndpoint`, `EventConsumerAdapter` (Consumidor Kafka/RabbitMQ suscrito a `OrdenVentaPagadaEvent`), o API Gateway distribuido. |
 | **`AnularComprobanteUseCase`** | Entrada (Inbound) | Coordinar la emisión de Notas de Crédito (`07`), Notas de Débito (`08`) y generación de Comunicaciones de Baja para comprobantes erróneos. | `DesktopAnulacionDialogController` y `AdminWebController` con llamadas directas en memoria a la capa de aplicación. | `RestAnulacionController` expuesto por un Microservicio de Cancelaciones o SAGA orchestrator ante devolución de mercadería. |
+| **`GestionarMaestrosUseCase`** | Entrada (Inbound) | CRUD de clientes, productos y series (CU-10, CU-11, CU-12) y consulta de catálogos (CU-13). | `MaestrosController` y vistas de mantenimiento del backoffice. | Servicio de datos maestros independiente (`sunat-masterdata-service`). |
+| **`GenerarLibrosElectronicosUseCase`** | Entrada (Inbound) | Generar el Registro de Ventas e Ingresos (PLE 14.1 / SIRE-RVIE) y el Registro de Inventario Permanente en Unidades Físicas (PLE 12.1) por periodo (CU-15, CU-16). Ver `specs/features/0005-trazabilidad-sunat-ubl/spec.md`, secciones 13 y 14. | `LibrosCliAdapter` y `LibrosController`. | Job programado de cierre mensual. |
 | **`ConsultarEstadoUseCase`** | Entrada (Inbound) | Consultar el estado legal y tributario de un comprobante, recuperar el CDR (Constancia de Recepción) y descargar XML/PDF. | `ConsultaCdrCronJobAdapter` (hilo background en monolito) y `DesktopConsultaViewController`. | `CdrWebhookController` (recepción asíncrona push desde OSE/SUNAT) y `ElasticsearchQueryAdapter` para analítica y auditoría en tiempo real. |
-| **`MigrarLegadoUseCase`** | Entrada (Inbound) | Leer ventas históricas del sistema antiguo de abarrotes, transformar la estructura al modelo de dominio y re-emitir o registrar históricamente. | `CliMigracionCommandAdapter` (comando CLI ejecutado en consola local por el administrador). | `K8sBatchJobMigradorAdapter` o pipeline ETL en Cloud Run / Apache Spark conectado a Data Lakehouse. |
+| **`EnviarResumenDiarioUseCase`** | Entrada (Inbound) | Consolidar las boletas y notas asociadas de una fecha en un `SummaryDocuments` y enviarlo de forma asíncrona (CU-08). Lo implementa `GestionarBajasResumenesService`. | `AdminWebController` y tarea programada del backoffice. | Parte de `sunat-dispatcher-service` junto con el envío OSE. |
+| **`ValidarContribuyenteUseCase`** | Entrada (Inbound) | Validar el RUC (11 dígitos, módulo 11) y consultar su estado y condición antes de emitir una factura (CU-09). Lo implementa `ValidarContribuyenteService` usando `ValidadorRucPort`. | `RestApiComprobanteController` y validación en línea del POS. | Servicio de datos maestros (`sunat-masterdata-service`). |
+| **`MigrarLegadoUseCase`** | Entrada (Inbound) | Leer ventas históricas del sistema antiguo de abarrotes, transformar la estructura al modelo de dominio y registrarlos como **históricos** (`origen = LEGADO`). Nunca re-emite ni reenvía a OSE/SUNAT (ver `specs/features/0006-migracion-legado/design.md`). | `CliMigracionCommandAdapter` (comando CLI ejecutado en consola local por el administrador). | `K8sBatchJobMigradorAdapter` o pipeline ETL en Cloud Run / Apache Spark conectado a Data Lakehouse. |
 | **`ComprobanteRepository`** | Salida (Outbound) | Persistir y recuperar entidades de comprobantes, detalles de ítems, estado de CDR y firmas hash garantizando atomicidad transaccional. | `SqliteComprobanteRepository` (almacenamiento local para punto de venta) o `PostgreSqlJpaRepository` en base monolítica. | `PostgresDistributedRepository` con particionamiento por sucursal/mes y `BlobStorageCdrXmlAdapter` (S3/GCS/MinIO) para XML/CDR. |
-| **`GeneradorXmlUblPort`** | Salida (Outbound) | Transformar el agregado `ComprobantePago` en un documento XML estricto bajo el estándar OASIS UBL 2.1 e incorporar namespaces SUNAT. | `FreemarkerXmlUblGeneratorAdapter` o `JAXBUblAdapter` ejecutado en memoria con plantillas locales. | `UblMicroserviceClientAdapter` (servicio independiente de serialización XML con pre-validación de esquema XSD y Schematron SUNAT). |
+| **`GeneradorXmlUblPort`** | Salida (Outbound) | Transformar el agregado `ComprobantePago` (con IGV, ISC —calculado antes que el IGV, porque integra su base— e ICBPER) en un documento XML estricto bajo el estándar OASIS UBL 2.1 e incorporar namespaces SUNAT. | `JaxbUblAdapter` (único adaptador): clases Java generadas con `xjc` desde los XSD oficiales de UBL 2.1; **no se usan plantillas de texto**. Valida el XML contra el XSD antes de firmar. | `UblMicroserviceClientAdapter` (servicio independiente de serialización XML con pre-validación de esquema XSD y Schematron SUNAT). |
 | **`FirmaDigitalPort`** | Salida (Outbound) | Aplicar la firma electrónica XMLDSig (RSA-SHA256) con certificado digital X.509 en el nodo `ext:UBLExtensions`, generando el digest y código Hash. | `LocalPkcs12XmlDsigAdapter` leyendo certificado `.pfx`/`.p12` desde sistema de archivos con contraseña en variables de entorno. | `CloudKmsHsmFirmaAdapter` (integración con Cloud KMS, AWS KMS o Hardware Security Module FIPS 140-2 L3 sin exponer claves en memoria). |
 | **`EnvioOsePort`** *(con contingencia SUNAT)* | Salida (Outbound) | Enviar el paquete comprimido `.zip` (XML firmado) al web service SOAP del Operador de Servicios Electrónicos (OSE) y recibir CDR. Dispone de conmutación a SUNAT directo. | `NubefactSoapOseAdapter` / `EfactSoapAdapter` con clase interna `SunatSoapDirectoAdapter` para contingencia inmediata ante caída del OSE. | `AsyncOseQueuePublisherAdapter` (encolamiento en RabbitMQ/Kafka con Circuit Breaker, reintentos exponenciales y Dead Letter Queue fiscal). |
 | **`ValidadorRucPort`** | Salida (Outbound) | Validar que el RUC del adquirente tenga 11 dígitos, dígito verificador correcto (módulo 11) y se encuentre en estado ACTIVO y HABIDO. | `SunatRucModulo11Adapter` con base de datos local SQLite conteniendo el padrón reducido de contribuyentes SUNAT. | `SunatConsultaRucApiAdapter` con capa de caché distribuida en Redis (TTL 24h) y fallback a API REST oficial de SUNAT. |
 | **`CatalogoSunatPort`** | Salida (Outbound) | Proveer códigos y descripciones normativas del Anexo 8 (Tablas 01 a 25: tipo documento, afectación IGV, monedas, unidades de medida). | `EmbeddedJsonCatalogoSunatAdapter` leyendo archivos JSON estáticos empaquetados en el artefacto de la aplicación. | `CatalogoSunatDistributedAdapter` respaldado por Redis / ConfigServer centralizado, actualizable en caliente sin redesplegar. |
+| **`LibroElectronicoPort`** | Salida (Outbound) | Producir el archivo del Registro de Ventas (14.1) a partir de los comprobantes `ACEPTADO`/`DE_BAJA` del periodo. | `PleTxtRegistroVentasAdapter` (TXT PLE 14.1). | `SireRvieApiClientAdapter` (⚠️ Por verificar si aplica SIRE/RVIE en lugar de PLE). |
+| **`KardexElectronicoPort`** | Salida (Outbound) | Producir el archivo del Registro de Inventario Permanente en Unidades Físicas (12.1) desde `MovimientoAlmacen`. | `PleTxtKardex121Adapter` (TXT PLE 12.1). | Mismo adaptador sobre almacenamiento distribuido. |
 | **`LegadoReaderPort`** | Salida (Outbound) | Extraer registros de comprobantes antiguos, clientes y artículos desde archivos planos (CSV, TXT) o base de datos relacional heredada. | `CsvLegacyFileReaderAdapter` / `DbfAccessFileReaderAdapter` procesando archivos del software contable previo de la empresa. | `CdcLegacyStreamAdapter` (Debezium + Kafka Connect) capturando cambios de base de datos legado en tiempo real hasta su apagado definitivo. |
 
 ---
@@ -184,8 +208,8 @@ flowchart LR
     subgraph ADAPTERS_IN["ADAPTADORES CONDUCTORES (PRIMARIOS / DRIVING)"]
         direction TB
         A_REST["🌐 Controlador REST API\n(OpenAPI 3.1 / Webhooks)"]
-        A_POS["💻 Interfaz POS Desktop\n(JavaFX / Electron)"]
-        A_MOB["📱 Interfaz Móvil Preventa\n(Android Kotlin / Flutter)"]
+        A_POS["💻 Interfaz POS Desktop\n(Compose Desktop)"]
+        A_MOB["📱 Interfaz Móvil Preventa\n(Compose Android)"]
         A_KAFKA_IN["📥 Consumidor Eventos Kafka/RabbitMQ\n(Evento: VentaCobradaEvent)"]
         A_JOB["⏱️ Scheduler / Cron Job Asíncrono\n(Consultas CDR pendientes)"]
         A_CLI["⌨️ Interfaz CLI\n(Migración y tareas operativas)"]
@@ -200,6 +224,7 @@ flowchart LR
             P_UC3["ConsultarEstadoUseCase"]
             P_UC4["MigrarLegadoUseCase"]
             P_UC5["GestionarMaestrosUseCase"]
+            P_UC6["GenerarLibrosElectronicosUseCase"]
         end
 
         subgraph CORE_DOMAIN["NÚCLEO DE DOMINIO (INDEPENDIENTE)"]
@@ -233,6 +258,8 @@ flowchart LR
             P_Out_Cat["CatalogoSunatPort"]
             P_Out_Notif["NotificadorClientePort"]
             P_Out_Leg["LegadoReaderPort"]
+            P_Out_Lib["LibroElectronicoPort"]
+            P_Out_Kdx["KardexElectronicoPort"]
         end
     end
 
@@ -248,6 +275,7 @@ flowchart LR
         A_REDIS_CAT["📚 Cache Catálogos SUNAT Anexo 8\n(Memoria compartida / JSON)"]
         A_MAIL["✉️ Notificador Email / WhatsApp\n(Envío de PDF y XML al adquirente)"]
         A_LEG_ETL["🔄 Lector ETL Archivos Legado\n(CSV / DBase migración)"]
+        A_PLE["📑 Adaptadores PLE\n(TXT 14.1 y 12.1)"]
     end
 
     %% Inbound Connections (Driving Adapters to Inbound Ports)
@@ -259,6 +287,8 @@ flowchart LR
     A_KAFKA_IN --> P_UC1
     A_JOB --> P_UC3
     A_CLI --> P_UC4
+    A_REST --> P_UC6
+    A_JOB --> P_UC6
 
     %% Ports Inbound to Domain
     P_UC1 --> AGG_Comp
@@ -288,6 +318,10 @@ flowchart LR
     P_UC4 --> P_Out_Leg
     P_UC4 --> P_Out_Repo
 
+    P_UC6 --> P_Out_Repo
+    P_UC6 --> P_Out_Lib
+    P_UC6 --> P_Out_Kdx
+
     %% Outbound Ports to Driven Adapters (Implementation)
     A_SQL -.->|implementa| P_Out_Repo
     A_S3 -.->|almacena docs| P_Out_Repo
@@ -299,6 +333,8 @@ flowchart LR
     A_REDIS_CAT -.->|implementa| P_Out_Cat
     A_MAIL -.->|implementa| P_Out_Notif
     A_LEG_ETL -.->|implementa| P_Out_Leg
+    A_PLE -.->|implementa| P_Out_Lib
+    A_PLE -.->|implementa| P_Out_Kdx
 
     classDef driver fill:#e3f2fd,stroke:#1565c0,stroke-width:2px;
     classDef portIn fill:#e8f8f5,stroke:#1abc9c,stroke-width:2px;
@@ -310,7 +346,9 @@ flowchart LR
     class P_UC1,P_UC2,P_UC3,P_UC4,P_UC5 portIn;
     class AGG_Comp,AGG_Nota,ENT_Item,ENT_Cliente,SVC_Tax,SVC_Rule,VO_Ruc,VO_Money,VO_Serie,VO_Estado core;
     class P_Out_Repo,P_Out_Xml,P_Out_Sign,P_Out_Ose,P_Out_Ruc,P_Out_Cat,P_Out_Notif,P_Out_Leg portOut;
-    class A_SQL,A_S3,A_UBL,A_HSM,A_SOAP_OSE,A_SOAP_SUNAT,A_REDIS_RUC,A_REDIS_CAT,A_MAIL,A_LEG_ETL driven;
+    class A_SQL,A_S3,A_UBL,A_HSM,A_SOAP_OSE,A_SOAP_SUNAT,A_REDIS_RUC,A_REDIS_CAT,A_MAIL,A_LEG_ETL,A_PLE driven;
+    class P_UC6 portIn;
+    class P_Out_Lib,P_Out_Kdx portOut;
 ```
 
 ---
@@ -333,10 +371,10 @@ gantt
     title Cronograma de Transición Arquitectónica (Strangler Fig)
     dateFormat  YYYY-MM-DD
     section Fase 1: Monolito Hexagonal
-    Monolito modular desacoplado con interfaces      :done, 2026-10-22, 2026-11-15
-    Validación de puertos y pruebas de contrato      :done, 2026-11-10, 2026-11-30
+    Monolito modular desacoplado con interfaces      :active, 2026-10-22, 2026-11-15
+    Validación de puertos y pruebas de contrato      :2026-11-10, 2026-11-30
     section Fase 2: Extracción Comunicaciones Fiscales
-    Extracción Servicio Envío OSE y Firma Digital    :active, 2026-12-01, 2026-12-20
+    Extracción Servicio Envío OSE y Firma Digital    :2026-12-01, 2026-12-20
     Implementación de Colas (RabbitMQ) y Circuit Breaker :2026-12-15, 2027-01-10
     section Fase 3: Extracción Servicios de Apoyo
     Microservicio Consulta RUC y Catálogos SUNAT     :2027-01-10, 2027-01-30
@@ -381,13 +419,15 @@ src/
     │   │   ├── SerieCorrelativo.java         ← Formato F001-00000001 según RS 097-2012
     │   │   ├── Dinero.java                   ← BigDecimal con 2 o 10 decimales según norma
     │   │   ├── TipoComprobante.java          ← Enum con valores de Catálogo 01
-    │   │   └── EstadoComprobante.java        ← Enum: EMITIDO, FIRMADO, ACEPTADO, RECHAZADO
+    │   │   └── EstadoComprobante.java        ← Enum: EMITIDO, FIRMADO, ACEPTADO, RECHAZADO, DE_BAJA
     │   ├── services/
     │   │   ├── CalculadorImpuestosService.java ← Fórmulas oficiales de base e IGV
     │   │   └── ValidadorReglasFiscales.java   ← Invariantes de negocio
     │   └── ports/                            ← PUERTOS DE SALIDA (INTERFACES)
     │       ├── ComprobanteRepository.java
     │       ├── GeneradorXmlUblPort.java
+    │       ├── LibroElectronicoPort.java
+    │       ├── KardexElectronicoPort.java
     │       ├── FirmaDigitalPort.java
     │       ├── EnvioOsePort.java
     │       ├── ValidadorRucPort.java
@@ -399,7 +439,11 @@ src/
     │   │   ├── EmitirComprobanteUseCase.java
     │   │   ├── AnularComprobanteUseCase.java
     │   │   ├── ConsultarEstadoUseCase.java
-    │   │   └── MigrarLegadoUseCase.java
+    │   │   ├── MigrarLegadoUseCase.java
+    │   │   ├── EnviarResumenDiarioUseCase.java
+    │   │   ├── ValidarContribuyenteUseCase.java
+    │   │   ├── GenerarLibrosElectronicosUseCase.java
+    │   │   └── GestionarMaestrosUseCase.java
     │   ├── dto/
     │   │   ├── EmitirFacturaRequest.java
     │   │   ├── ComprobanteResponse.java
@@ -420,7 +464,7 @@ src/
             ├── persistence/
             │   └── PostgresJdbcComprobanteRepository.java
             ├── ubl/
-            │   └── FreemarkerXmlUblGeneratorAdapter.java
+            │   └── JaxbUblAdapter.java
             ├── security/
             │   └── LocalPkcs12FirmaAdapter.java
             ├── ose/
@@ -478,3 +522,138 @@ Observe que las carpetas `domain/` y `application/` son **rigurosamente idéntic
 1. **Independencia del Framework**: El dominio no importa bibliotecas de Spring, JavaFX, AWS ni librerías SOAP propietarias.
 2. **Facilidad de Pruebas Unitarias**: Los casos de uso pueden probarse exhaustivamente al 100% instanciando dobles de prueba (Mocks/Stubs) de las interfaces de puertos sin necesidad de levantar bases de datos ni servicios web de SUNAT.
 3. **Conformidad Normativa SUNAT**: La lógica de cálculo tributario (IGV, ISC, ICBPER) y de validación de comprobantes se encuentra blindada dentro del dominio, aislada de fallos de red o cambios de versión de los proveedores OSE.
+
+---
+
+## 8. Vistas C4
+
+### 8.1 Nivel 1 — Contexto
+
+```mermaid
+flowchart TB
+    cajero["Cajero / Vendedor"]
+    contador["Contador / Administrador"]
+    almacenero["Almacenero"]
+    cliente["Cliente (adquirente)"]
+    sistema["Sistema de Facturación Electrónica\nABC Software Corp"]
+    ose["OSE\n(Operador de Servicios Electrónicos)"]
+    sunat["SUNAT\n(padrón RUC, recepción directa)"]
+    legado["Sistema antiguo de abarrotes\n(archivos CSV / DBF)"]
+
+    cajero -->|emite comprobantes| sistema
+    contador -->|bajas, resúmenes, libros| sistema
+    almacenero -->|productos y stock| sistema
+    sistema -->|XML firmado en ZIP / CDR| ose
+    ose -->|valida y reenvía| sunat
+    sistema -.->|contingencia: envío directo| sunat
+    sistema -->|consulta RUC| sunat
+    sistema -->|PDF, XML, CDR| cliente
+    legado -->|importación histórica| sistema
+```
+
+### 8.2 Nivel 2 — Contenedores
+
+```mermaid
+flowchart TB
+    subgraph clientes["Clientes (adaptadores de entrada, ADR-003)"]
+        desktop["App Desktop Windows\nCompose Desktop (MSI)"]
+        android["App Android\nCompose (APK)"]
+        backoffice["Backoffice web\n(ver ADR-004)"]
+        cli["CLI de migración y libros"]
+    end
+
+    subgraph monolito["Monolito modular (JVM) — ADR-001"]
+        api["API REST\nOpenAPI 3.1 (JWT)"]
+        app["Aplicación\ncasos de uso + puertos de entrada"]
+        dominio["Dominio\nentidades, impuestos, reglas fiscales"]
+        infra["Infraestructura\nadaptadores de salida"]
+    end
+
+    bd[("Base de datos\nPostgreSQL / SQLite local")]
+    almacen[("Almacén de archivos\nXML, CDR, PDF")]
+    ose["OSE"]
+    sunat["SUNAT"]
+    kms["Almacén de claves / HSM\n(certificado X.509)"]
+
+    desktop --> api
+    android --> api
+    backoffice --> api
+    cli --> app
+    api --> app --> dominio
+    app --> infra
+    infra --> bd
+    infra --> almacen
+    infra -->|SOAP| ose
+    infra -.->|contingencia| sunat
+    infra -->|firma| kms
+    ose --> sunat
+```
+
+---
+
+## 9. Diagramas de secuencia
+
+### 9.1 CU-01 Emitir factura con contingencia
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Cajero
+    participant UI as App Desktop (adaptador)
+    participant UC as EmitirComprobanteUseCase
+    participant Dom as Dominio (impuestos y reglas)
+    participant Ruc as ValidadorRucPort
+    participant Rep as ComprobanteRepository
+    participant Xml as GeneradorXmlUblPort
+    participant Fir as FirmaDigitalPort
+    participant Ose as EnvioOsePort (OSE)
+    participant Sun as Contingencia SUNAT
+
+    Cajero->>UI: Ingresa ítems y RUC del cliente
+    UI->>UC: emitir(solicitud)
+    UC->>Ruc: validar(ruc)
+    Ruc-->>UC: ACTIVO y HABIDO
+    UC->>Dom: calcular impuestos (ISC, IGV, ICBPER) y validar reglas
+    Dom-->>UC: totales
+    UC->>Rep: reservar correlativo (atómico) y guardar EMITIDO
+    UC->>Xml: generar UBL 2.1 (JAXB) y validar contra XSD
+    UC->>Fir: firmar XMLDSig
+    UC->>Rep: estado FIRMADO
+    UC->>Ose: enviar ZIP
+    alt OSE responde
+        Ose-->>UC: CDR
+    else OSE no disponible tras reintentos
+        UC->>Sun: enviar ZIP (contingencia, ADR-002)
+        Sun-->>UC: CDR
+    end
+    UC->>Rep: ACEPTADO / RECHAZADO y guardar XML + CDR
+    UC-->>UI: ComprobanteResponse
+    UI-->>Cajero: Representación impresa con QR
+```
+
+### 9.2 Emisión sin conexión y sincronización
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Cajero
+    participant UI as App (adaptador)
+    participant Cola as Cola local (SQLite)
+    participant Sync as Sincronizador
+    participant API as API central
+    participant UC as EmitirComprobanteUseCase
+
+    Cajero->>UI: Registra la venta sin red
+    UI->>Cola: guardar comando (UUID, PENDIENTE)
+    UI-->>Cajero: "Registrado localmente"
+    Note over Cola,Sync: Recupera la red
+    Sync->>Cola: tomar pendientes por serie, en orden
+    Sync->>API: POST /comprobantes (Idempotency-Key = UUID)
+    API->>UC: emitir (asigna correlativo)
+    UC-->>API: ComprobanteResponse
+    API-->>Sync: 201 (o resultado previo si el UUID ya existía)
+    Sync->>Cola: CONFIRMADO (o ERROR con motivo)
+    Sync-->>UI: actualizar estado
+```
+
+> El contrato OpenAPI declara la cabecera opcional `Idempotency-Key` en `POST /comprobantes`.
