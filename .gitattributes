@@ -1,0 +1,6 @@
+# Finales de linea estables al clonar en Windows, Linux o macOS
+* text=auto eol=lf
+*.xsd text eol=lf
+*.xml text eol=lf
+*.json text eol=lf
+*.pdf binary

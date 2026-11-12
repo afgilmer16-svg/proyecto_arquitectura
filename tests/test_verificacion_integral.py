@@ -222,7 +222,13 @@ def test_propiedades_de_comprobantes_aleatorios(datos, correlativo, validador):
 class TestRegresion:
     def test_ejemplo_versionado_igual_a_la_generacion_actual(self):
         datos = json.loads((EJEMPLOS / "factura-abarrotes.json").read_text(encoding="utf-8"))
-        assert generar_xml_factura(datos, 1) == (EJEMPLOS / "F001-00000001.xml").read_bytes()
+        # Tolera CRLF: git en Windows (core.autocrlf) puede convertir los saltos de linea al clonar.
+        versionado = (EJEMPLOS / "F001-00000001.xml").read_bytes().replace(b"
+", b"
+")
+        assert generar_xml_factura(datos, 1).replace(b"
+", b"
+") == versionado
 
     def test_generacion_determinista(self):
         datos = json.loads((EJEMPLOS / "factura-abarrotes.json").read_text(encoding="utf-8"))
