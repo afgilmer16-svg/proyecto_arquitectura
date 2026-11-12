@@ -1,6 +1,6 @@
 # ADR-005 — Generador XML UBL 2.1 en Python con lxml
 
-**Estado**: APROBADO  
+**Estado**: APROBADO como prototipo · la implementación principal es el [ADR-006](0006-generador-ubl-java-jaxb.md) (Java + JAXB)  
 **Fecha**: 2026-11-11  
 **Autores**: Equipo Grupo A — UNAS-FIIS  
 **Fuentes**: F-01 (XSD OASIS UBL 2.1), F-05 (Guía XML SUNAT v1.0), retroalimentación del docente (`docs/retroalimentacion-docente.md`)  

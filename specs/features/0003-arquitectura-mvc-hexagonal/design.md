@@ -464,7 +464,7 @@ src/
             ├── persistence/
             │   └── PostgresJdbcComprobanteRepository.java
             ├── ubl/
-            │   └── LxmlUblAdapter          ← implementado en Python: src/facturacion_xml (ADR-0005)
+            │   └── GeneradorUblJaxbAdapter.java ← implementado en servidor/ (Java + JAXB, ADR-0006)
             ├── security/
             │   └── LocalPkcs12FirmaAdapter.java
             ├── ose/

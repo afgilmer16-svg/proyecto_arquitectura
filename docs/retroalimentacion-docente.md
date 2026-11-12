@@ -9,7 +9,7 @@ Cada observación se contrastó contra el proyecto actual. ✅ = resuelto, con e
 
 | Observación | Estado | Dónde comprobarlo |
 |---|---|---|
-| XML generado con plantillas Freemarker | ✅ Único adaptador: `LxmlUblAdapter`, implementado en `src/facturacion_xml/` (árbol XML en el orden del XSD oficial, sin plantillas, validado contra el XSD antes de firmar). Se usa Python por las razones del ADR-0005 | `src/facturacion_xml/generador_ubl.py`, `tests/test_generador_xml.py` |
+| XML generado con plantillas Freemarker | ✅ Único adaptador: `GeneradorUblJaxbAdapter` (Java 21), con **clases generadas por JAXB (xjc) desde `UBL-Invoice-2.1.xsd`** en cada compilación, sin plantillas y validado contra el XSD antes de entregar (ADR-0006). Se conserva un prototipo en Python como referencia (ADR-0005) | `servidor/src/main/java/pe/abc/facturacion/infraestructura/ubl/`, `servidor/src/test/` |
 | `unidad_medida` como texto libre | ✅ `UnidadMedidaEnum` (Catálogo 03) en ítem y producto | `specs/contracts/facturacion-api.yaml` |
 | Patrón `^[F\|B]…` acepta `\|001` | ✅ `^[FB][A-Z0-9]{3}$` | `facturacion-api.yaml` |
 | El cliente envía el correlativo | ✅ Lo asigna el servidor; `PUT /series/{id}` no permite cambiarlo. También el ID de baja y resumen (`RA-`/`RC-`) | `facturacion-api.yaml`, `0004/spec.md` |

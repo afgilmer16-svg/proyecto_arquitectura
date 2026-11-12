@@ -31,7 +31,7 @@ flowchart LR
         PUERTO(["Puerto de salida<br/>GeneradorXmlUblPort"])
     end
     subgraph Adaptador["Adaptador del segundo parcial"]
-        GEN["facturacion_xml<br/>(Python + lxml)"]
+        GEN["GeneradorUblJaxbAdapter<br/>(Java 21 + clases JAXB del XSD)"]
         XSD[("UBL-Invoice-2.1.xsd<br/>OASIS")]
     end
     CTRL --> CASO --> PUERTO
@@ -43,10 +43,12 @@ flowchart LR
 
 | Componente | Función |
 |---|---|
-| **Python 3.10+** | Lenguaje del generador. Aporta `decimal` (importes exactos) y `pytest`; las razones de la elección están en el [ADR-0005](../../specs/adr/0005-generador-ubl-python-lxml.md). |
-| **lxml** (libxml2) | Construye el árbol XML con sus espacios de nombres y lo valida contra el XSD oficial, sin servicios externos. |
+| **Java 21** | Lenguaje del generador: es el stack del backend definido en el primer parcial (ADR-001) y el que recomendó el docente para usar JAXB. Razones en el [ADR-0006](../../specs/adr/0006-generador-ubl-java-jaxb.md). |
+| **JAXB (xjc)** | Genera ≈ 1 240 clases Java desde `UBL-Invoice-2.1.xsd` en cada compilación; el XML se arma llenando esos objetos, sin plantillas. |
+| **Maven** | Compila, genera las clases desde el XSD, ejecuta las pruebas y exige cobertura mínima (incluye el Maven Wrapper). |
+| **Python 3.10+** | Prototipo de referencia (ADR-0005) y herramientas de verificación; sirve de oráculo en la regresión cruzada. |
 | **XSD de OASIS UBL 2.1** | Esquema que define qué XML es válido (`docs/referencias/ubl/`). |
-| **pytest** | Pruebas unitarias de generación, de contratos y de arquitectura. |
+| **JUnit 5, AssertJ, ArchUnit, XMLUnit** | Pruebas unitarias de generación, de reglas de arquitectura y de regresión contra los XML de referencia. |
 | **Git / GitHub** | Versionado y entrega; la integración continua corre las pruebas en cada `push`. |
 
 El generador **no usa base de datos** en este parcial: recibe datos y devuelve bytes.
@@ -82,7 +84,7 @@ Los códigos 1001–1004 vienen del Catálogo 14 de SUNAT, que en UBL 2.0 iba en
 
 ## 5. Objetivo de la implementación
 
-Implementar, en Python, un generador que convierta los datos de un comprobante en el XML `Invoice` UBL 2.1 que exige SUNAT, válido contra el XSD oficial, y comprobarlo con pruebas unitarias de generación.
+Implementar, en Java (el lenguaje del stack del primer parcial), un generador que convierta los datos de un comprobante en el XML `Invoice` UBL 2.1 que exige SUNAT, válido contra el XSD oficial, y comprobarlo con pruebas unitarias de generación.
 
 ## 6. Alcance del desarrollo
 

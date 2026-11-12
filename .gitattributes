@@ -4,3 +4,5 @@
 *.xml text eol=lf
 *.json text eol=lf
 *.pdf binary
+*.cmd text eol=crlf
+*.java text eol=lf

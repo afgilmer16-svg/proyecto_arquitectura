@@ -39,9 +39,9 @@ El **primer parcial** fue la fase Spec-First: reglas, contratos de datos, valida
 | Requisito | Dónde está |
 |---|---|
 | 1. Descripción del caso (contexto técnico, codificación, categorías 1001–1004) | [`docs/segundo-parcial/01-descripcion-caso.md`](docs/segundo-parcial/01-descripcion-caso.md) |
-| 2. Generación del XML a partir del XSD Invoice 2.1 | [`src/facturacion_xml/`](src/facturacion_xml/) · XSD en [`docs/referencias/ubl/`](docs/referencias/ubl/) |
-| 3. Lenguaje del dominio (Python) | [ADR-0005](specs/adr/0005-generador-ubl-python-lxml.md) |
-| 4. Pruebas unitarias de generación | [`tests/test_generador_xml.py`](tests/test_generador_xml.py) · [resultados](docs/segundo-parcial/resultados-pruebas.txt) |
+| 2. Generación del XML a partir del XSD Invoice 2.1 | [`servidor/`](servidor/) (Java 21 + JAXB: las clases se generan del XSD en cada compilación) · XSD en [`docs/referencias/ubl/`](docs/referencias/ubl/) |
+| 3. Lenguaje del dominio (Java, el stack del primer parcial) | [ADR-0006](specs/adr/0006-generador-ubl-java-jaxb.md) · prototipo de referencia en Python: [ADR-0005](specs/adr/0005-generador-ubl-python-lxml.md) |
+| 4. Pruebas unitarias de generación | [`GeneracionXmlUblTest`](servidor/src/test/java/pe/abc/facturacion/infraestructura/ubl/GeneracionXmlUblTest.java) · [`RegresionCruzadaTest`](servidor/src/test/java/pe/abc/facturacion/infraestructura/ubl/RegresionCruzadaTest.java) · [resultados Java](docs/segundo-parcial/resultados-pruebas-java.txt) · prototipo Python: [`tests/test_generador_xml.py`](tests/test_generador_xml.py) |
 | Documentación técnica | [`docs/segundo-parcial/02-documentacion-tecnica.md`](docs/segundo-parcial/02-documentacion-tecnica.md) |
 | Informe de correcciones y verificación | [`docs/segundo-parcial/03-informe-correcciones.md`](docs/segundo-parcial/03-informe-correcciones.md) |
 | Feature | [`specs/features/0008-generacion-xml-ubl/`](specs/features/0008-generacion-xml-ubl/) |
@@ -49,7 +49,14 @@ El **primer parcial** fue la fase Spec-First: reglas, contratos de datos, valida
 | Reglas de arquitectura, cobertura mínima del 90 % y CI | [`tests/test_arquitectura.py`](tests/test_arquitectura.py) · [`.coveragerc`](.coveragerc) · [`.github/workflows/pruebas.yml`](.github/workflows/pruebas.yml) |
 | Diagramas Mermaid como fuente (`.mmd`) y matriz de trazabilidad en CSV | [`diagramas/fuentes/`](diagramas/fuentes/) · [`specs/trazabilidad/csv/`](specs/trazabilidad/csv/) · [`tools/`](tools/) |
 
-Generar un XML de ejemplo (PowerShell, desde la raíz):
+Compilar y probar con Java (solo requiere JDK 21; el Maven Wrapper descarga Maven):
+
+```powershell
+cd servidor
+.\mvnw.cmd verify   # genera las clases del XSD, corre las pruebas y exige 90 % de cobertura
+```
+
+El prototipo en Python sigue disponible (PowerShell, desde la raíz):
 
 ```powershell
 pip install -r requirements.txt
@@ -102,8 +109,11 @@ proyecto_arquitectura/
 │   │   ├── 0007-distribucion-multiplataforma/
 │   │   └── 0008-generacion-xml-ubl/      ← segundo parcial
 │   └── templates/                        ← spec, design y tasks
+├── servidor/                             ← generador XML UBL 2.1 en Java 21 + JAXB (segundo parcial)
+│   ├── pom.xml · mvnw · mvnw.cmd
+│   └── src/{main,test}/java/pe/abc/facturacion/{dominio,aplicacion,infraestructura}
 ├── src/
-│   └── facturacion_xml/                  ← generador XML UBL 2.1 (segundo parcial)
+│   └── facturacion_xml/                  ← prototipo de referencia en Python (ADR-005)
 ├── tests/
 │   ├── test_contratos.py                 ← valida los contratos
 │   ├── test_generador_xml.py             ← pruebas unitarias de generación
@@ -124,7 +134,8 @@ proyecto_arquitectura/
 ## Ejecutar las pruebas
 
 ```bash
-pip install -r requirements.txt
+cd servidor && ./mvnw verify      # Java: pruebas + cobertura minima del 90 %
+cd .. && pip install -r requirements.txt
 pytest -v
 pytest --cov=facturacion_xml     # cobertura (mínimo 90 %, definido en .coveragerc)
 python tests/mutacion.py         # 16 errores introducidos a propósito: todos deben detectarse

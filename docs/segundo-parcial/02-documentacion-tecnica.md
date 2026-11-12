@@ -14,6 +14,8 @@ ABC Software Corp, una distribuidora de abarrotes, debe emitir facturas y boleta
 
 Generar, a partir de los datos de un comprobante, un XML `Invoice` UBL 2.1 **válido contra el XSD oficial** y con los códigos y cálculos de SUNAT, y comprobarlo con pruebas unitarias de generación.
 
+> **Nota**: las secciones 3 a 8 describen el generador con el que se definieron las reglas (prototipo en Python, ADR-005). La **implementación principal es el adaptador Java con JAXB** (ADR-006), descrita en la sección 9; aplica las mismas reglas y produce el mismo XML (regresión cruzada).
+
 ## 3. Tecnologías utilizadas
 
 | Tecnología | Uso | Justificación |
@@ -240,3 +242,67 @@ Total de tributos: 32.40 + 349.45 + 5.00 = **386.85**. Importe a pagar: 1 955.50
 - La estructura de las líneas gratuitas, los códigos del ICBPER y la numeración de cuotas siguen la matriz 0005 y la Guía XML v1.0 (2017). Deben contrastarse con el anexo de validaciones vigente de SUNAT ([`pendientes-verificacion.md`](../pendientes-verificacion.md)).
 - La vigencia del IGV del 10 % para restaurantes y hoteles se toma como regla vista en clase; por eso es un parámetro y no se aplica por defecto.
 - El PVP del ISC sistema 03 se usa en el cálculo, pero no se escribe en el XML, porque la guía no indica en qué elemento va.
+
+## 9. Implementación principal en Java (JAXB)
+
+**Decisión**: [ADR-0006](../../specs/adr/0006-generador-ubl-java-jaxb.md). **Código**: [`servidor/`](../../servidor/).
+
+### 9.1 Estructura
+
+```
+servidor/src/main/java/pe/abc/facturacion/
+├── Aplicacion.java                      ← línea de comandos
+├── dominio/                             ← sin dependencias externas
+│   ├── catalogo/   Catalogos, TipoComprobante, CategoriaOperacion, SistemaIsc, RegimenIgv, Tributo…
+│   ├── modelo/     Modelo (Factura, LineaFactura, Emisor, Receptor, FormaPago, Cuota)
+│   ├── validacion/ LectorFactura (capa 2: reglas), Ruc (módulo 11)
+│   ├── calculo/    MotorTributario (ISC → IGV → ICBPER), ImportesLinea, Totales
+│   ├── error/      DatosFacturaInvalidosException, XmlNoConformeXsdException, …
+│   └── NumeroLetras
+├── aplicacion/
+│   ├── puerto/GeneradorXmlUblPort       ← puerto de salida
+│   └── GenerarFacturaXmlService         ← caso de uso
+└── infraestructura/
+    ├── ubl/     GeneradorUblJaxbAdapter (clases JAXB del XSD) · ValidadorXsd (capa 3)
+    └── entrada/ LectorJson (UTF-8 estricto) · EsquemaEntrada (capa 1: JSON Schema)
+```
+
+### 9.2 Cómo se genera desde el XSD
+
+1. Maven copia los XSD de `docs/referencias/ubl/` a `target/xsd-ubl/{maindoc,common}` (la estructura que esperan sus `schemaLocation`).
+2. `jaxb-maven-plugin` ejecuta xjc sobre `UBL-Invoice-2.1.xsd` y genera ≈ 1 240 clases (`InvoiceType`, `TaxSubtotalType`, `InvoiceLineType`…) con el orden de campos de cada `xsd:sequence`.
+3. `GeneradorUblJaxbAdapter` llena esos objetos con los importes del `MotorTributario` y los serializa con JAXB (`cac:` y `cbc:` como prefijos, `Invoice` como espacio por defecto).
+4. `ValidadorXsd` valida el resultado contra el XSD oficial **antes de entregarlo**; si no cumple, no se entrega.
+
+### 9.3 Las tres capas de validación
+
+| Capa | Qué valida | Dónde |
+|---|---|---|
+| 1 | La forma de los datos (JSON Schema 2020-12) | `specs/schemas/factura-entrada.schema.json` vía `EsquemaEntrada` |
+| 2 | Reglas de dominio: RUC módulo 11, boleta > S/ 700, suma de cuotas, ISC por sistema | `LectorFactura` |
+| 3 | El XML contra `UBL-Invoice-2.1.xsd` | `ValidadorXsd` |
+
+### 9.4 Pruebas (Java)
+
+| Prueba | Qué demuestra |
+|---|---|
+| `GeneracionXmlUblTest` (23) | Pruebas unitarias de generación por XPath: cabecera, emisor/receptor, totales, un `TaxSubtotal` por tributo, categorías 1001–1004, ISC, ICBPER, crédito con cuotas, USD, orden de la cabecera y que no se entrega un XML inválido. |
+| `RegresionCruzadaTest` (7) | El XML Java es **el mismo documento** que el del prototipo Python para los 5 ejemplos. |
+| `ValidadorXsdTest` (10) | El XSD detecta elementos faltantes, inexistentes, fuera de orden, tipos y atributos inválidos, y se identifica un esquema incompleto. |
+| `LectorFacturaTest` (24) | Las reglas de dominio, con los 12 ejemplos inválidos de `specs/ejemplos/invalidos`. |
+| `MotorTributarioTest` (22) | IGV, ISC de los 3 sistemas, gratuitas, ICBPER por año, redondeo y exactitud decimal. |
+| `EntradaTest` (23) | Lectura UTF-8/BOM/WIN1252 y el JSON Schema contra todos los ejemplos. |
+| `AplicacionTest` (7) | Línea de comandos y códigos de salida. |
+| `RucYNumeroLetrasTest` (29) | RUC, importe en letras y catálogos. |
+| `ReglasDeArquitecturaTest` (7) | ArchUnit: dominio sin dependencias, solo el adaptador usa las clases del XSD, sin ciclos. |
+
+**Resultado**: 152 pruebas, 0 fallos, cobertura de líneas 97 % del código propio (mínimo exigido: 90 %). Salida completa en [`resultados-pruebas-java.txt`](resultados-pruebas-java.txt).
+
+### 9.5 Ejecución
+
+```powershell
+cd servidor
+.\mvnw.cmd verify
+```
+
+Solo requiere JDK 21. La primera vez descarga Maven y las dependencias.

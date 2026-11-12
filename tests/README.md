@@ -1,5 +1,7 @@
 # tests/
 
+> Estas son las pruebas del **prototipo en Python** y de los contratos. Las pruebas de la implementación principal (Java + JAXB) están en [`servidor/src/test/java`](../servidor/src/test/java/pe/abc/facturacion/) y se ejecutan con `cd servidor && ./mvnw verify` (resultados: [`resultados-pruebas-java.txt`](../docs/segundo-parcial/resultados-pruebas-java.txt)).
+
 | Archivo | Qué prueba |
 |---|---|
 | `test_generador_xml.py` | **Pruebas unitarias de generación** (segundo parcial, 89 pruebas): que el XML se genere y sea válido contra `UBL-Invoice-2.1.xsd`; estructura y orden; datos en su etiqueta; categorías 1001–1004; ISC e ICBPER; formatos y UTF-8; datos faltantes o inválidos; y que el XSD detecte XML alterados. |

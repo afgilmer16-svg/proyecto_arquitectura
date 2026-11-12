@@ -43,6 +43,10 @@ Tras comparar el proyecto con otro trabajo del curso se agregaron complementos q
 | M-05 | **Reglas de arquitectura** ejecutables (núcleo sin infraestructura, `lxml` solo en adaptadores, sin ciclos, sin `float`). | `tests/test_arquitectura.py` |
 | M-06 | **Diagramas `.mmd`** como fuente (18) y **matriz 0005 en CSV** (12 archivos + índice), regenerables y vigilados por pruebas. | `tools/`, `diagramas/fuentes/`, `specs/trazabilidad/csv/` |
 | M-07 | `redocly.yaml` para el lint del contrato. | `redocly.yaml` |
+| M-08 | **Adaptador principal en Java 21 con JAXB**: las clases se generan desde `UBL-Invoice-2.1.xsd` en cada compilación (≈ 1 240), como recomendó el docente y como pide la continuidad con el primer parcial (backend Java). | `servidor/`, ADR-0006 |
+| M-09 | **Regresión cruzada**: el XML Java es idéntico al del prototipo Python en 5 ejemplos. | `RegresionCruzadaTest`, `specs/ejemplos/xml-referencia/` |
+| M-10 | **152 pruebas Java** (generación, XSD, dominio, entrada, CLI, arquitectura) con cobertura del 97 % y mínimo del 90 % en el build. | `resultados-pruebas-java.txt` |
+| M-11 | CI de Java con Maven Wrapper (solo requiere JDK 21). | `.github/workflows/servidor.yml`, `servidor/mvnw` |
 
 ## 2. Observaciones del docente atendidas
 
@@ -139,7 +143,7 @@ Tras comparar el proyecto con otro trabajo del curso se agregaron complementos q
 | R2 · Tipos y restricciones del esquema respetados | ✅ | `test_xml_generado_es_valido_contra_el_xsd_oficial` y validación en cada `generar()` |
 | R2 · Sin etiquetas ni estructuras ajenas al XSD | ✅ | `test_no_genera_elementos_ajenos_al_xsd_ubl_21`; `test_detecta_elemento_inexistente_en_el_xsd` |
 | R2 · Si falta el esquema, se identifica qué documento falta | ✅ | Error E-01; `EsquemaXsdIncompletoError`; `test_falla_con_mensaje_claro_si_falta_un_xsd` |
-| **R3** Lenguaje del dominio (Python) y términos del dominio | ✅ | ADR-005; nombres `Factura`, `CategoriaOperacion`, `TaxSubtotal`, `RegimenIgv`… |
+| **R3** Lenguaje del dominio (Java, el stack del primer parcial) y términos del dominio | ✅ | ADR-006 (Java + JAXB), ADR-005 (prototipo Python); nombres `Factura`, `CategoriaOperacion`, `TaxSubtotal`, `RegimenIgv`… |
 | **R4** Pruebas unitarias de generación | ✅ | `tests/test_generador_xml.py` (89) + `tests/test_verificacion_integral.py` (310) |
 | R4 · Se genera el archivo XML | ✅ | `TestGeneracion` |
 | R4 · Estructura con los elementos esperados | ✅ | `TestEstructura` |
