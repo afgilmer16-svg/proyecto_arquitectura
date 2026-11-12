@@ -8,7 +8,7 @@
 
 ## 1. Descripción del caso
 
-ABC Software Corp, una distribuidora de abarrotes, debe emitir facturas y boletas electrónicas. El comprobante electrónico es un documento XML con la estructura UBL 2.1 que exige SUNAT. La descripción completa (problema, contexto Odoo, codificación y categorías tributarias) está en [`01-descripcion-caso.md`](01-descripcion-caso.md).
+ABC Software Corp, una distribuidora de abarrotes, debe emitir facturas y boletas electrónicas. El comprobante electrónico es un documento XML con la estructura UBL 2.1 que exige SUNAT. La descripción completa (problema, contexto técnico, codificación y categorías tributarias) está en [`01-descripcion-caso.md`](01-descripcion-caso.md).
 
 ## 2. Objetivo
 
@@ -18,14 +18,14 @@ Generar, a partir de los datos de un comprobante, un XML `Invoice` UBL 2.1 **vá
 
 | Tecnología | Uso | Justificación |
 |---|---|---|
-| **Python 3.10+** | Lenguaje del generador | Es el lenguaje del dominio del curso (Odoo) y el que ya usaba el proyecto en sus pruebas (ADR-005). |
-| **lxml ≥ 5** | Construcción del árbol XML y validación XSD (libxml2) | Ya es dependencia de Odoo; valida contra el XSD real sin servicios externos. |
+| **Python 3.10+** | Lenguaje del generador | Aporta `decimal` para importes exactos y `pytest`; ya era el lenguaje de las pruebas del proyecto (ADR-005). |
+| **lxml ≥ 5** | Construcción del árbol XML y validación XSD (libxml2) | Valida contra el XSD real (libxml2) sin servicios externos. |
 | **decimal** (biblioteca estándar) | Importes exactos | Evita los errores de redondeo de `float`, como pidió el docente. |
 | **pytest ≥ 8** | Pruebas unitarias | Ya era el ejecutor de pruebas del proyecto. |
 | **XSD OASIS UBL 2.1 OS** | Esquema de validación | Fuente normativa del XML (ver §6.1). |
 | **Git / GitHub** | Versionado | Repositorio del curso. |
 
-No se usa base de datos en este parcial (PostgreSQL entra con Odoo en parciales posteriores). No se agregó ninguna dependencia aparte de `lxml`.
+No se usa base de datos en este parcial. No se agregó ninguna dependencia aparte de `lxml`.
 
 ## 4. Funcionamiento del generador
 

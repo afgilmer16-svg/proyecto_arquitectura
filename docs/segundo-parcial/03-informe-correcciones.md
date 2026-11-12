@@ -16,7 +16,7 @@
 | E-04 | La matriz 0005 ubicaba las cuotas en `PaymentTerms[cbc:ID='Cuota{n}']`. | XPath incorrecto: `cbc:ID` lleva `FormaPago` y el número de cuota va en `cbc:PaymentMeansID`. | Corregido a `PaymentMeansID='Cuota001'…`, marcado "Por verificar". |
 | E-05 | La matriz 0005 fijaba el IGV como "constante 18.00". | Contradecía lo visto en clase (10 % para restaurantes y hoteles). | La tasa pasa a ser el parámetro `regimen_igv` (18 % por defecto, 10 % solo si se indica). |
 | E-06 | La matriz 0005 usaba `@schemeName="RUC"` para el emisor. | No coincidía con la Guía XML SUNAT. | `schemeName="SUNAT:Identificador de Documento de Identidad"` y `schemeURI` del Catálogo 06. |
-| E-07 | La arquitectura nombraba un adaptador Java (`JaxbUblAdapter`). | Contradecía el lenguaje del dominio del curso (Odoo → Python). | ADR-005: `LxmlUblAdapter` en Python, con los mismos principios que pidió el docente; se actualizaron 0002, 0003 y 0005. |
+| E-07 | La arquitectura nombraba un adaptador Java (`JaxbUblAdapter`). | No coincidía con el generador implementado en Python. | ADR-005: `LxmlUblAdapter` en Python, con los mismos principios que pidió el docente; se actualizaron 0002, 0003 y 0005. |
 | E-08 | `tests/test_contratos.py` exigía `src/` vacío. | La prueba fallaría al implementar el parcial. | Ahora verifica que `src/` solo contenga el generador autorizado. |
 | E-09 | `requirements.txt` no incluía `lxml`. | El generador no se podría instalar. | Agregado `lxml>=5.0`. |
 | E-10 | No había tratamiento de la codificación de la entrada. | Un JSON guardado en WIN1252 corrompería la "ñ" y las tildes. | Lectura UTF-8 estricta con soporte de BOM y error explícito si el archivo está en WIN1252. |
@@ -129,9 +129,9 @@ Tras comparar el proyecto con otro trabajo del curso se agregaron complementos q
 
 | Requisito | Cumple | Evidencia |
 |---|---|---|
-| **R1** Descripción del caso: problema, contexto Odoo, necesidad del XML, relación con SUNAT, objetivo, alcance y funcionamiento | ✅ | [`01-descripcion-caso.md`](01-descripcion-caso.md) §1–§7 |
-| R1 · Arquitectura de Odoo (núcleo monolítico + addons) sin confundirlos | ✅ | `01-descripcion-caso.md` §2.1 |
-| R1 · Componentes (servidor, PostgreSQL, Python, Git); binarios vs. código fuente | ✅ | `01-descripcion-caso.md` §2.2 |
+| **R1** Descripción del caso: problema, contexto técnico, necesidad del XML, relación con SUNAT, objetivo, alcance y funcionamiento | ✅ | [`01-descripcion-caso.md`](01-descripcion-caso.md) §1–§7 |
+| R1 · Dónde encaja el generador en la arquitectura (puerto `GeneradorXmlUblPort`) | ✅ | `01-descripcion-caso.md` §2.1 |
+| R1 · Tecnologías utilizadas (Python, lxml, XSD, pytest, Git) | ✅ | `01-descripcion-caso.md` §2.2 |
 | R1 · Codificación UTF-8 / WIN1252 | ✅ | `01-descripcion-caso.md` §2.3; `__main__.py`; `test_rechaza_json_guardado_en_win1252` |
 | R1 · Categorías 1001–1004 y tasas 18 % / 10 % | ✅ | `01-descripcion-caso.md` §4; `catalogos.py`; `TestCategoriasDeOperacion` |
 | **R2** XML generado a partir del XSD Invoice 2.1 real, con procedencia y versión documentadas | ✅ | `generador_ubl.py`; `docs/referencias/ubl/README.md` |
@@ -139,7 +139,7 @@ Tras comparar el proyecto con otro trabajo del curso se agregaron complementos q
 | R2 · Tipos y restricciones del esquema respetados | ✅ | `test_xml_generado_es_valido_contra_el_xsd_oficial` y validación en cada `generar()` |
 | R2 · Sin etiquetas ni estructuras ajenas al XSD | ✅ | `test_no_genera_elementos_ajenos_al_xsd_ubl_21`; `test_detecta_elemento_inexistente_en_el_xsd` |
 | R2 · Si falta el esquema, se identifica qué documento falta | ✅ | Error E-01; `EsquemaXsdIncompletoError`; `test_falla_con_mensaje_claro_si_falta_un_xsd` |
-| **R3** Lenguaje del dominio (Python, como Odoo) y términos del dominio | ✅ | ADR-005; nombres `Factura`, `CategoriaOperacion`, `TaxSubtotal`, `RegimenIgv`… |
+| **R3** Lenguaje del dominio (Python) y términos del dominio | ✅ | ADR-005; nombres `Factura`, `CategoriaOperacion`, `TaxSubtotal`, `RegimenIgv`… |
 | **R4** Pruebas unitarias de generación | ✅ | `tests/test_generador_xml.py` (89) + `tests/test_verificacion_integral.py` (310) |
 | R4 · Se genera el archivo XML | ✅ | `TestGeneracion` |
 | R4 · Estructura con los elementos esperados | ✅ | `TestEstructura` |
@@ -151,4 +151,4 @@ Tras comparar el proyecto con otro trabajo del curso se agregaron complementos q
 | R4 · Casos negativos que detectan errores | ✅ | `TestDatosInvalidos` + `TestValidacionXsd` (36) |
 | R4 · Resultados reales y verificables | ✅ | `resultados-pruebas.txt`; `pytest -v` reproducible |
 | R4 · Las pruebas detectan errores reales | ✅ | `tests/mutacion.py`: 16/16 mutantes detectados |
-| No se avanzó al tercer parcial ni posteriores | ✅ | Sin Docker, sin instalación de Odoo, sin addon ni `l10n_pe_accounting_pro` |
+| No se avanzó al tercer parcial ni posteriores | ✅ | Sin Docker, sin base de datos, sin API REST ni interfaz de usuario |

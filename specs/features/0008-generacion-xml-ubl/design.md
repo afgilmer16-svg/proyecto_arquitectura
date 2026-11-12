@@ -12,7 +12,7 @@
 
 ## Contexto de diseño
 
-El generador implementa el puerto de salida `GeneradorXmlUblPort` de la arquitectura ([0003](../0003-arquitectura-mvc-hexagonal/design.md)). Es Python puro, sin dependencias de Odoo ni de la base de datos: recibe datos y devuelve bytes. Así puede probarse de forma aislada y, en un parcial posterior, empaquetarse dentro de un addon de Odoo sin cambios.
+El generador implementa el puerto de salida `GeneradorXmlUblPort` de la arquitectura ([0003](../0003-arquitectura-mvc-hexagonal/design.md)). Es Python puro, sin dependencias de base de datos ni de servidor web: recibe datos y devuelve bytes. Así puede probarse de forma aislada y reutilizarse desde cualquier adaptador de entrada (API, línea de comandos, proceso por lotes).
 
 ## Decisiones de diseño
 

@@ -124,7 +124,7 @@ Cada `spec.md` o `design.md` en `specs/features/` debe comenzar con:
 ## 9. Prohibiciones explícitas
 
 - ❌ No agregar archivos `.js`, `.ts`, `.java`, `.py`, `.cs` u otros lenguajes de implementación fuera de `src/` y `tests/`.
-- ❌ No implementar en `src/` nada fuera de la feature 0008 hasta que el docente habilite el siguiente parcial (Odoo desde el repositorio, Docker, addon de facturación).
+- ❌ No implementar en `src/` nada fuera de la feature 0008 hasta que el docente habilite el siguiente parcial (base de datos, API REST, interfaz de usuario, despliegue).
 - ❌ No modificar los XSD de `docs/referencias/ubl/` ni reemplazarlos por esquemas hechos a mano.
 - ❌ No agregar archivos con credenciales (`.pfx`, `.p12`, `.env`, claves de API).
 - ❌ No inventar valores de catálogo sin citar la fuente normativa.

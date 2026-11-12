@@ -15,47 +15,41 @@ La **RS N° 097-2012/SUNAT** obliga a emitir la factura y la boleta como documen
 
 El primer parcial dejó especificado el sistema (fase Spec-First): casos de uso, modelo de dominio, arquitectura, contrato API y la matriz de trazabilidad SUNAT ↔ UBL. **Este parcial implementa la primera pieza ejecutable: el generador del XML.**
 
-## 2. Contexto del sistema Odoo
+## 2. Contexto técnico del sistema
 
-El curso toma como referencia **Odoo**, un ERP de código abierto que incluye, entre otros, los módulos de ventas, inventario y contabilidad que necesita una empresa como ABC.
+El generador del XML es una pieza del sistema de facturación de ABC Software Corp. Se ubica donde lo define la arquitectura del primer parcial ([feature 0003](../../specs/features/0003-arquitectura-mvc-hexagonal/design.md)): un monolito MVC con núcleo desacoplado por puertos, preparado para evolucionar a hexagonal.
 
-### 2.1 Arquitectura: núcleo monolítico extensible mediante addons
+### 2.1 Dónde encaja el generador
 
-Hay que distinguir dos cosas:
-
-- **El núcleo de Odoo es monolítico.** Una sola aplicación servidor (`odoo-bin`, en Python) contiene el ORM, el servidor web, el motor de vistas, la seguridad y el registro de modelos. Puede lanzar varios procesos trabajadores, pero todos ejecutan el mismo código y se despliegan como una unidad.
-- **La extensibilidad se logra mediante módulos (addons).** Cada addon es una carpeta con un manifiesto (`__manifest__.py`), modelos en Python, vistas en XML y datos. Al instalarlo, el núcleo lo carga en su propio proceso y registro de modelos: el addon puede crear modelos o heredar los existentes y, a través del ORM, lee y escribe en la base de datos. Como el código fuente es abierto, se puede descargar un addon, modificarlo y extenderlo.
-
-Por eso Odoo no es una arquitectura de microservicios ni de plugins aislados: los addons **extienden un monolito** y comparten su proceso y su base de datos.
+El generador **implementa el puerto de salida `GeneradorXmlUblPort`**. El núcleo del sistema entrega los datos del comprobante y recibe el XML; no sabe cómo se construye. Por eso el generador es un módulo independiente: no usa base de datos, servidor web ni ninguna librería de infraestructura aparte de `lxml`.
 
 ```mermaid
-flowchart TB
-    subgraph Servidor["Servidor Odoo (odoo-bin) — núcleo monolítico en Python"]
-        ORM["ORM"]
-        WEB["Servidor web / controladores"]
-        VIS["Motor de vistas"]
-        subgraph Addons["Addons cargados por el núcleo"]
-            A1["sale"]
-            A2["stock"]
-            A3["account"]
-            A4["addon propio<br/>(parcial posterior)"]
-        end
+flowchart LR
+    subgraph Sistema["Sistema de facturación (monolito MVC con núcleo desacoplado)"]
+        CTRL["Controlador / API"]
+        CASO["Caso de uso<br/>EmitirComprobante"]
+        PUERTO(["Puerto de salida<br/>GeneradorXmlUblPort"])
     end
-    U["Navegador"] --> WEB
-    Addons --> ORM
-    ORM --> DB[("PostgreSQL")]
+    subgraph Adaptador["Adaptador del segundo parcial"]
+        GEN["facturacion_xml<br/>(Python + lxml)"]
+        XSD[("UBL-Invoice-2.1.xsd<br/>OASIS")]
+    end
+    CTRL --> CASO --> PUERTO
+    PUERTO -.implementa.-> GEN
+    GEN --> XSD
 ```
 
-### 2.2 Componentes
+### 2.2 Tecnologías
 
 | Componente | Función |
 |---|---|
-| **Servidor Odoo** | Actúa como servidor web (HTTP) y puede ejecutarse como servicio del sistema operativo. |
-| **PostgreSQL** | Sistema gestor de base de datos de Odoo; cada empresa o instancia usa su propia base. |
-| **Python** | Lenguaje principal de Odoo y de sus addons. |
-| **Git** | Herramienta para obtener, administrar y versionar el código fuente de Odoo y de los addons. |
+| **Python 3.10+** | Lenguaje del generador. Aporta `decimal` (importes exactos) y `pytest`; las razones de la elección están en el [ADR-0005](../../specs/adr/0005-generador-ubl-python-lxml.md). |
+| **lxml** (libxml2) | Construye el árbol XML con sus espacios de nombres y lo valida contra el XSD oficial, sin servicios externos. |
+| **XSD de OASIS UBL 2.1** | Esquema que define qué XML es válido (`docs/referencias/ubl/`). |
+| **pytest** | Pruebas unitarias de generación, de contratos y de arquitectura. |
+| **Git / GitHub** | Versionado y entrega; la integración continua corre las pruebas en cada `push`. |
 
-**Instalación por binarios vs. desde el código fuente.** El instalador (binario o paquete) trae Odoo listo para usar, con sus dependencias, y lo registra como servicio; es la vía para usar el sistema. La instalación desde el repositorio (clonar con Git, instalar las dependencias de Python y ejecutar `odoo-bin` apuntando a PostgreSQL) es la vía para **desarrollar**: permite leer y modificar el núcleo y los addons. *Los pasos de esta instalación corresponden al tercer parcial y no se desarrollan aquí.*
+El generador **no usa base de datos** en este parcial: recibe datos y devuelve bytes.
 
 ### 2.3 Codificación de caracteres
 
@@ -88,7 +82,7 @@ Los códigos 1001–1004 vienen del Catálogo 14 de SUNAT, que en UBL 2.0 iba en
 
 ## 5. Objetivo de la implementación
 
-Implementar, en Python (el lenguaje de Odoo), un generador que convierta los datos de un comprobante en el XML `Invoice` UBL 2.1 que exige SUNAT, válido contra el XSD oficial, y comprobarlo con pruebas unitarias de generación.
+Implementar, en Python, un generador que convierta los datos de un comprobante en el XML `Invoice` UBL 2.1 que exige SUNAT, válido contra el XSD oficial, y comprobarlo con pruebas unitarias de generación.
 
 ## 6. Alcance del desarrollo
 
@@ -96,10 +90,10 @@ Implementar, en Python (el lenguaje de Odoo), un generador que convierta los dat
 |---|---|
 | Factura (`01`) y boleta (`03`) de venta interna | Firma digital, envío al OSE y CDR |
 | Categorías gravada, inafecta, exonerada y gratuita | Notas de crédito y débito, bajas, resúmenes |
-| IGV 18 % / 10 %, ISC (3 sistemas), ICBPER | Levantar Odoo desde el repositorio (tercer parcial) |
-| Contado y crédito con cuotas | Docker (tercer parcial) |
-| Validación de la entrada y validación XSD | Arquitectura de plugins / addon (cuarto parcial) |
-| Pruebas unitarias de generación | Integración con `l10n_pe_accounting_pro` (posterior) |
+| IGV 18 % / 10 %, ISC (3 sistemas), ICBPER | Persistencia en base de datos |
+| Contado y crédito con cuotas | Integración con la API REST y la interfaz de usuario |
+| Validación de la entrada y validación XSD | Despliegue y empaquetado |
+| Pruebas unitarias de generación | Integración con el libro electrónico (PLE) y el inventario |
 
 ## 7. Funcionamiento esperado
 

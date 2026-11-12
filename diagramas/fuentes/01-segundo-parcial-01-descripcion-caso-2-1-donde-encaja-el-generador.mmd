@@ -1,0 +1,13 @@
+flowchart LR
+    subgraph Sistema["Sistema de facturación (monolito MVC con núcleo desacoplado)"]
+        CTRL["Controlador / API"]
+        CASO["Caso de uso<br/>EmitirComprobante"]
+        PUERTO(["Puerto de salida<br/>GeneradorXmlUblPort"])
+    end
+    subgraph Adaptador["Adaptador del segundo parcial"]
+        GEN["facturacion_xml<br/>(Python + lxml)"]
+        XSD[("UBL-Invoice-2.1.xsd<br/>OASIS")]
+    end
+    CTRL --> CASO --> PUERTO
+    PUERTO -.implementa.-> GEN
+    GEN --> XSD

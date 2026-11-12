@@ -10,16 +10,16 @@
 
 ## Contexto
 
-El segundo parcial pide implementar la generación del XML a partir del XSD `UBL-Invoice-2.1.xsd`, **en el lenguaje del dominio** del curso, y probarla con pruebas unitarias de generación. El dominio del curso es Odoo, un ERP escrito en Python: su núcleo es monolítico y se extiende con módulos (addons) también escritos en Python, que acceden a PostgreSQL mediante su ORM.
+El segundo parcial pide implementar la generación del XML a partir del XSD `UBL-Invoice-2.1.xsd`, **en el lenguaje del dominio**, y probarla con pruebas unitarias de generación.
 
-En la evaluación del primer parcial, el docente observó que el XML se generaba con plantillas Freemarker y recomendó “clases generadas desde los XSD oficiales (JAXB con xjc, **ya que el stack es Java**), validar contra el XSD antes de firmar, y dejar ese adaptador como único”. La recomendación de JAXB depende de que el stack sea Java. Con el contexto Odoo del segundo parcial, el lenguaje pasa a ser Python.
+En la evaluación del primer parcial, el docente observó que el XML se generaba con plantillas Freemarker y recomendó “clases generadas desde los XSD oficiales (JAXB con xjc, **ya que el stack es Java**), validar contra el XSD antes de firmar, y dejar ese adaptador como único”. La arquitectura del primer parcial (ADR-001) desacopla el núcleo mediante puertos: el generador es un **adaptador del puerto `GeneradorXmlUblPort`** y su lenguaje no afecta al resto del sistema.
 
 ## Opciones consideradas
 
-1. **JAXB + xjc (Java).** Cumple la recomendación al pie de la letra, pero obliga a usar Java en un curso cuyo dominio es Odoo/Python y no podría reutilizarse como addon.
-2. **Plantillas de texto (Jinja2/QWeb).** Es lo que hace Odoo en sus módulos EDI, pero es justo lo que el docente penalizó: una etiqueta mal escrita no se detecta hasta validar.
+1. **JAXB + xjc (Java).** Cumple la recomendación al pie de la letra y coincide con el backend documentado en el primer parcial. Exige un proyecto Maven/Gradle completo y la generación de cientos de clases solo para producir un documento.
+2. **Plantillas de texto (Jinja2, Freemarker).** Es justo lo que el docente penalizó: una etiqueta mal escrita no se detecta hasta validar.
 3. **xsdata (genera clases Python desde el XSD, equivalente a xjc).** Es fiel a la idea de “clases desde el XSD”, pero agrega una dependencia y un paso de generación de código que no aporta al alcance del parcial.
-4. **Árbol de elementos con lxml + validación contra el XSD oficial (elegida).** lxml ya es dependencia de Odoo, construye cada elemento con su espacio de nombres (no hay texto suelto) y valida con libxml2 contra el XSD real.
+4. **Árbol de elementos con lxml + validación contra el XSD oficial (elegida).** lxml construye cada elemento con su espacio de nombres (no hay texto suelto) y valida con libxml2 contra el XSD real. Python aporta `decimal` para importes exactos y `pytest` para pruebas parametrizadas, de mutación y de arquitectura.
 
 ## Decisión
 
@@ -30,10 +30,10 @@ Se implementa `LxmlUblAdapter` en Python, en `src/facturacion_xml/`:
 - es el **único** adaptador de `GeneradorXmlUblPort`;
 - los datos se validan antes de generar (`DatosFacturaInvalidosError`) y los importes se calculan con `Decimal`, nunca con punto flotante.
 
-Se conservan los principios que pidió el docente (sin plantillas, fiel al XSD, validado antes de firmar, adaptador único). Solo cambia el lenguaje, por el contexto Odoo.
+Se conservan los principios que pidió el docente (sin plantillas, fiel al XSD, validado antes de firmar, adaptador único). Solo cambia la técnica: un árbol construido con lxml en lugar de clases generadas.
 
 ## Consecuencias
 
-- **Positivas**: el generador es Python puro, sin dependencias de Odoo, y podrá empaquetarse como addon en un parcial posterior sin reescribirlo. Las pruebas corren con `pytest` y validan contra el XSD real.
-- **Compromisos**: el resto del stack documentado en el primer parcial (backend Java y UI con Kotlin Multiplatform, ADR-001 y ADR-003) no se modifica en este parcial. Su alineación con Odoo corresponde a la arquitectura de plugins del cuarto parcial y queda fuera de este alcance.
+- **Positivas**: el generador es Python puro, sin base de datos ni servidor web, y se prueba de forma aislada con `pytest` contra el XSD real.
+- **Compromisos**: el resto del stack documentado en el primer parcial (backend Java y UI con Kotlin Multiplatform, ADR-001 y ADR-003) no se modifica. Si el backend necesita un adaptador en el mismo proceso, un `JaxbUblAdapter` implementaría el mismo puerto `GeneradorXmlUblPort`; el contrato de la entrada (`specs/schemas/factura-entrada.schema.json`) y el XSD siguen siendo los mismos, y los ejemplos de `specs/ejemplos/` sirven para comprobar que ambos adaptadores producen el mismo documento.
 - **Riesgo**: que el orden de los elementos dependa del código y no de clases generadas. Se mitiga con pruebas que validan contra el XSD y comprueban el orden de la cabecera (`tests/test_generador_xml.py`).

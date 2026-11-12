@@ -23,7 +23,7 @@ PROHIBIDOS = {
     "calculo": {"generador_ubl", "validador_xsd"},
     "validador_xsd": {"modelo", "calculo", "generador_ubl", "catalogos"},
 }
-EXTERNOS_PROHIBIDOS_EN_NUCLEO = {"lxml", "xml", "requests", "sqlalchemy", "psycopg2", "odoo", "flask", "django"}
+EXTERNOS_PROHIBIDOS_EN_NUCLEO = {"lxml", "xml", "requests", "sqlalchemy", "psycopg2", "flask", "django"}
 
 
 def _importaciones(modulo: str) -> tuple[set[str], set[str]]:

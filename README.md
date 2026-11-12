@@ -38,9 +38,9 @@ El **primer parcial** fue la fase Spec-First: reglas, contratos de datos, valida
 
 | Requisito | Dónde está |
 |---|---|
-| 1. Descripción del caso (contexto Odoo, codificación, categorías 1001–1004) | [`docs/segundo-parcial/01-descripcion-caso.md`](docs/segundo-parcial/01-descripcion-caso.md) |
+| 1. Descripción del caso (contexto técnico, codificación, categorías 1001–1004) | [`docs/segundo-parcial/01-descripcion-caso.md`](docs/segundo-parcial/01-descripcion-caso.md) |
 | 2. Generación del XML a partir del XSD Invoice 2.1 | [`src/facturacion_xml/`](src/facturacion_xml/) · XSD en [`docs/referencias/ubl/`](docs/referencias/ubl/) |
-| 3. Lenguaje del dominio (Python, como Odoo) | [ADR-0005](specs/adr/0005-generador-ubl-python-lxml.md) |
+| 3. Lenguaje del dominio (Python) | [ADR-0005](specs/adr/0005-generador-ubl-python-lxml.md) |
 | 4. Pruebas unitarias de generación | [`tests/test_generador_xml.py`](tests/test_generador_xml.py) · [resultados](docs/segundo-parcial/resultados-pruebas.txt) |
 | Documentación técnica | [`docs/segundo-parcial/02-documentacion-tecnica.md`](docs/segundo-parcial/02-documentacion-tecnica.md) |
 | Informe de correcciones y verificación | [`docs/segundo-parcial/03-informe-correcciones.md`](docs/segundo-parcial/03-informe-correcciones.md) |

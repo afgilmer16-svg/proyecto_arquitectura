@@ -32,7 +32,7 @@ A partir de los datos de un comprobante (DTO `EmitirComprobanteRequest` del cont
 - Notas de crédito y débito (usan otros XSD), comunicación de baja y resumen diario.
 - Afectaciones `11`–`17` (gravadas gratuitas e IVAP) y `40` (exportación): se rechazan con un error explícito.
 - Descuentos y cargos (`cac:AllowanceCharge`), detracciones, anticipos.
-- Integración con Odoo como addon, Docker y despliegue.
+- Persistencia en base de datos, API REST, interfaz de usuario y despliegue.
 
 ## Requisitos funcionales
 

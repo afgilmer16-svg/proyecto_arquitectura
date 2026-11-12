@@ -30,4 +30,4 @@ Documentación técnica: [`docs/segundo-parcial/02-documentacion-tecnica.md`](..
 |-----------|--------|
 | `specs/features/0001` a `0007` | EN REVISIÓN: completas, con datos marcados "Por verificar" en `docs/pendientes-verificacion.md` |
 
-Lo que corresponde a parciales posteriores (Odoo desde el repositorio, Docker, addon de facturación) **no** se implementa aquí todavía.
+Lo que corresponde a parciales posteriores (base de datos, API REST, interfaz de usuario, despliegue) **no** se implementa aquí todavía.
