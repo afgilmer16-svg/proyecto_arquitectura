@@ -97,7 +97,7 @@
 
 | Ejecución | Resultado |
 |---|---|
-| `pytest tests/test_generador_xml.py tests/test_verificacion_integral.py -v` | **399 aprobadas, 0 fallidas**. Salida completa en [`resultados-pruebas.txt`](resultados-pruebas.txt). |
+| `pytest -v` (suite completa, con `openapi-spec-validator` 0.9.0 real, Windows 11 / Python 3.12.7) | **415 aprobadas, 0 fallidas**. Salida completa en [`resultados-pruebas.txt`](resultados-pruebas.txt). |
 | `python tests/mutacion.py` | **16 de 16 mutantes detectados**. |
 | `pytest` (suite completa) | **415 aprobadas, 0 fallidas**, con `openapi-spec-validator` sustituido por un validador estructural propio porque el entorno de trabajo no tenía acceso a PyPI (en la PC del equipo esa prueba ya pasó con la librería real). |
 | CLI con el ejemplo | XML generado y validado: `docs/segundo-parcial/ejemplos/F001-00000001.xml`. |
@@ -108,8 +108,6 @@
 
 | Pendiente | Motivo | Acción |
 |---|---|---|
-| Ejecutar `pytest -v` en la PC del equipo | Confirma la suite completa con `openapi-spec-validator` real. | Correr y, si se quiere, guardar la salida en `resultados-pruebas.txt`. |
-| Confirmar los 3 XSD agregados contra el sitio de OASIS | El entorno de trabajo no podía acceder a `docs.oasis-open.org`. | Comando de verificación en `02-documentacion-tecnica.md`, §6.1. |
 | Volver a correr `redocly lint` | Cambiaron los RUC de ejemplo del contrato. | `npx.cmd @redocly/cli lint specs/contracts/facturacion-api.yaml`. |
 | Contrastar la estructura de las gratuitas, los códigos del ICBPER y las cuotas con el anexo de validaciones vigente de SUNAT | La guía local es la v1.0 (2017), anterior a esas reglas. | Ver `docs/pendientes-verificacion.md`. |
 | Firma, envío al OSE, notas, bajas y resúmenes | Fuera del alcance del segundo parcial. | Parciales posteriores. |

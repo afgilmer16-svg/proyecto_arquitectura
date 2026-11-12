@@ -212,13 +212,12 @@ pytest -v
 
 | Verificación | Resultado | Evidencia |
 |---|---|---|
-| `pytest tests/test_generador_xml.py tests/test_verificacion_integral.py -v` | **399 aprobadas, 0 fallidas** | [`resultados-pruebas.txt`](resultados-pruebas.txt) |
-| `pytest` (suite completa: generador + verificación + contratos) | **415 aprobadas, 0 fallidas** | ver nota |
+| `pytest -v` (suite completa: generador + verificación + contratos, con `openapi-spec-validator` 0.9.0 real) | **415 aprobadas, 0 fallidas** | [`resultados-pruebas.txt`](resultados-pruebas.txt) (Windows 11, Python 3.12.7) |
 | `python tests/mutacion.py` | **16 de 16 mutantes detectados** | [`resultados-pruebas.txt`](resultados-pruebas.txt) |
 | XML de ejemplo con las 4 categorías, ISC e ICBPER | Válido contra `UBL-Invoice-2.1.xsd` | [`ejemplos/F001-00000001.xml`](ejemplos/F001-00000001.xml) |
 | Cuadre del ejemplo | Valor de venta 1 955.50 + tributos 386.85 = **2 342.35** | §8.1 |
 
-> **Nota sobre el entorno**: las 399 pruebas del generador y de la verificación integral se ejecutaron sin ninguna dependencia simulada. En la suite completa, la librería `openapi-spec-validator` no se pudo instalar en el entorno de trabajo (sin acceso a PyPI), así que esa única verificación del contrato se reemplazó por un validador estructural propio. En la PC del equipo esa prueba ya había pasado con la librería real (15/15, 2026-11-11; ahora son 16 por la feature 0008). Al ejecutar `pytest -v` en la PC se obtiene el resultado completo sin sustituciones.
+> **Nota**: la suite completa se ejecutó el 2026-11-11 en la PC del equipo, sin dependencias simuladas y con `openapi-spec-validator` real. Los 3 XSD de firma agregados se compararon con los publicados en `docs.oasis-open.org` y sus SHA-256 coinciden byte a byte (ver `docs/referencias/ubl/README.md`).
 
 ### 8.1 Cuadre del ejemplo (`factura-abarrotes.json`)
 

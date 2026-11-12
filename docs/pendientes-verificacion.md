@@ -49,7 +49,7 @@ Este documento registra qué dato "Por verificar" ya se contrastó con una fuent
 
 | Dato | Decisión tomada | Qué falta |
 |---|---|---|
-| 3 XSD de firma agregados (`UBL-xmldsig-core-schema-2.1.xsd`, `UBL-XAdESv132-2.1.xsd`, `UBL-XAdESv141-2.1.xsd`) | Copias OS 2.1 de `thegreenter/ubl-validator`, con SHA-256 en `docs/referencias/ubl/README.md` | Compararlos con los de `docs.oasis-open.org` (comando en `docs/segundo-parcial/02-documentacion-tecnica.md`, §6.1). |
+| 3 XSD de firma agregados (`UBL-xmldsig-core-schema-2.1.xsd`, `UBL-XAdESv132-2.1.xsd`, `UBL-XAdESv141-2.1.xsd`) | Copias OS 2.1 de `thegreenter/ubl-validator`, con SHA-256 en `docs/referencias/ubl/README.md` | Ninguna: el 2026-11-11 se compararon con `docs.oasis-open.org` y los SHA-256 coinciden byte a byte (también el de `UBL-Invoice-2.1.xsd`). |
 | Línea gratuita | Tributo `9996` GRATUITO (`Z`), `LineExtensionAmount` = valor referencial, `PriceTypeCode` `02`, `Price` `0.00`, sin sumar al total | Contrastar con el anexo de validaciones vigente; el ejemplo de la guía v1.0 usa `9998` en la línea y `LineExtensionAmount` `0.00`. |
 | `Percent` en líneas no gravadas | `0.00` (matriz 0005 §8) | La guía v1.0 muestra `18.00` en exoneradas e inafectas. |
 | Cuotas de crédito | `cbc:ID` = `FormaPago`, `cbc:PaymentMeansID` = `Cuota001`…, `cbc:Amount`, `cbc:PaymentDueDate` | Guía posterior a la RS 193-2020. |
@@ -83,7 +83,7 @@ Este documento registra qué dato "Por verificar" ya se contrastó con una fuent
 ## 5. Tareas que requieren una acción humana
 
 - [ ] Descargar a `docs/referencias/sunat/` los PDF de la RS 097-2012, RS 234-2006, Anexo 8 y las guías de baja/resumen, y cotejar la sección 2 y 3 de este documento.
-- [ ] Ejecutar `pytest -v` (incluye `openapi-spec-validator`) en una máquina con acceso a PyPI. Ya se verificó sin esa librería (2026-11-11): YAML válido, 33 operaciones, 0 `$ref` rotos, `operationId` únicos y los 6 ejemplos cumplen su schema. Opcional: `npx @redocly/cli lint specs/contracts/facturacion-api.yaml` (requiere Node.js).
+- [x] Ejecutar `pytest -v` (incluye `openapi-spec-validator` real): 415 aprobadas el 2026-11-11 (`docs/segundo-parcial/resultados-pruebas.txt`). Queda opcional `npx @redocly/cli lint specs/contracts/facturacion-api.yaml` (requiere Node.js y descargar el paquete; no se pudo ejecutar en esta sesión).
 - [ ] Obtener una muestra del sistema antiguo y confirmar los supuestos S-01 a S-11 de `specs/features/0006-migracion-legado/diccionario-legado.md`.
 - [ ] Revisión por un segundo miembro del equipo (si el examen es en equipo).
 - [ ] Confirmar `minSdk` con los dispositivos reales de preventa.
