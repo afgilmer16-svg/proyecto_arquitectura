@@ -1,0 +1,40 @@
+{
+  "tipo_comprobante": "01",
+  "serie": "F001",
+  "tipo_operacion": "0101",
+  "fecha_emision": "2026-11-11",
+  "hora_emision": "10:30:00",
+  "moneda": "PEN",
+  "forma_pago": { "tipo": "Contado" },
+  "emisor": {
+    "ruc": "20601234565",
+    "razon_social": "ABC SOFTWARE CORP S.A.C.",
+    "nombre_comercial": "DISTRIBUIDORA DE ABARROTES ABC",
+    "direccion": "Av. Universitaria 123, Tingo María, Huánuco",
+    "ubigeo": "100601"
+  },
+  "receptor": {
+    "tipo_documento": "6",
+    "numero_documento": "20555555556",
+    "razon_social": "COMERCIALIZADORA SAN JUAN S.A.C.",
+    "direccion": "Jr. Comercio 456, Rupa Rupa, Leoncio Prado"
+  },
+  "items": [
+    { "numero_linea": 1, "codigo_producto": "PROD-ARR-01", "descripcion": "Arroz Extra Costeño Saco 50 kg",
+      "unidad_medida": "SA", "cantidad": "10", "valor_unitario": "140.00", "tipo_afectacion_igv": "10" },
+    { "numero_linea": 2, "codigo_producto": "PROD-ACE-02", "descripcion": "Aceite Vegetal Botella 1 Litro (Caja x 12)",
+      "unidad_medida": "BX", "cantidad": "5", "valor_unitario": "80.00", "tipo_afectacion_igv": "10" },
+    { "numero_linea": 3, "codigo_producto": "PROD-BOL-03", "descripcion": "Bolsa plástica 50x70 cm",
+      "unidad_medida": "NIU", "cantidad": "10", "valor_unitario": "0.10", "tipo_afectacion_igv": "10",
+      "cantidad_bolsas": 10 },
+    { "numero_linea": 4, "codigo_producto": "PROD-CER-04", "descripcion": "Cerveza lata 355 ml",
+      "unidad_medida": "NIU", "cantidad": "24", "valor_unitario": "4.50", "tipo_afectacion_igv": "10",
+      "sistema_isc": "01", "tasa_isc": "30.00" },
+    { "numero_linea": 5, "codigo_producto": "PROD-EXO-05", "descripcion": "Producto de ejemplo con operación exonerada",
+      "unidad_medida": "KGM", "cantidad": "3", "valor_unitario": "7.50", "tipo_afectacion_igv": "20" },
+    { "numero_linea": 6, "codigo_producto": "PROD-INA-06", "descripcion": "Producto de ejemplo con operación inafecta",
+      "unidad_medida": "NIU", "cantidad": "2", "valor_unitario": "12.00", "tipo_afectacion_igv": "30" },
+    { "numero_linea": 7, "codigo_producto": "PROD-GAL-07", "descripcion": "Galletas de muestra (bonificación, sin cobro)",
+      "unidad_medida": "NIU", "cantidad": "5", "valor_unitario": "1.20", "tipo_afectacion_igv": "31" }
+  ]
+}

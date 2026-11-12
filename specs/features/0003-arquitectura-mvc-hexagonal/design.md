@@ -93,7 +93,7 @@ flowchart TD
 
     subgraph Infrastructure["Capa de Infraestructura (Adaptadores Iniciales en Monolito)"]
         A_Repo["SqliteComprobanteRepository /\nPostgreSQLJdbcRepository"]
-        A_Xml["JaxbUblAdapter\n(Clases generadas con xjc desde los XSD UBL 2.1)"]
+        A_Xml["LxmlUblAdapter\n(lxml + validación contra el XSD UBL 2.1, ADR-0005)"]
         A_Firma["LocalPkcs12XmlDsigAdapter\n(Almacén .p12 en disco local)"]
         A_Ose["OseSoapClientAdapter\n(Fallback: SunatDirectoSoapAdapter)"]
         A_Ruc["AlgoritmoModulo11PadronLocalAdapter\n(Validación RUC offline/sqlite)"]
@@ -188,7 +188,7 @@ La siguiente matriz clasifica rigurosamente los puertos del sistema, distinguien
 | **`ValidarContribuyenteUseCase`** | Entrada (Inbound) | Validar el RUC (11 dígitos, módulo 11) y consultar su estado y condición antes de emitir una factura (CU-09). Lo implementa `ValidarContribuyenteService` usando `ValidadorRucPort`. | `RestApiComprobanteController` y validación en línea del POS. | Servicio de datos maestros (`sunat-masterdata-service`). |
 | **`MigrarLegadoUseCase`** | Entrada (Inbound) | Leer ventas históricas del sistema antiguo de abarrotes, transformar la estructura al modelo de dominio y registrarlos como **históricos** (`origen = LEGADO`). Nunca re-emite ni reenvía a OSE/SUNAT (ver `specs/features/0006-migracion-legado/design.md`). | `CliMigracionCommandAdapter` (comando CLI ejecutado en consola local por el administrador). | `K8sBatchJobMigradorAdapter` o pipeline ETL en Cloud Run / Apache Spark conectado a Data Lakehouse. |
 | **`ComprobanteRepository`** | Salida (Outbound) | Persistir y recuperar entidades de comprobantes, detalles de ítems, estado de CDR y firmas hash garantizando atomicidad transaccional. | `SqliteComprobanteRepository` (almacenamiento local para punto de venta) o `PostgreSqlJpaRepository` en base monolítica. | `PostgresDistributedRepository` con particionamiento por sucursal/mes y `BlobStorageCdrXmlAdapter` (S3/GCS/MinIO) para XML/CDR. |
-| **`GeneradorXmlUblPort`** | Salida (Outbound) | Transformar el agregado `ComprobantePago` (con IGV, ISC —calculado antes que el IGV, porque integra su base— e ICBPER) en un documento XML estricto bajo el estándar OASIS UBL 2.1 e incorporar namespaces SUNAT. | `JaxbUblAdapter` (único adaptador): clases Java generadas con `xjc` desde los XSD oficiales de UBL 2.1; **no se usan plantillas de texto**. Valida el XML contra el XSD antes de firmar. | `UblMicroserviceClientAdapter` (servicio independiente de serialización XML con pre-validación de esquema XSD y Schematron SUNAT). |
+| **`GeneradorXmlUblPort`** | Salida (Outbound) | Transformar el agregado `ComprobantePago` (con IGV, ISC —calculado antes que el IGV, porque integra su base— e ICBPER) en un documento XML estricto bajo el estándar OASIS UBL 2.1 e incorporar namespaces SUNAT. | `LxmlUblAdapter` (único adaptador, **implementado** en `src/facturacion_xml/`, ADR-0005): construye el árbol XML con lxml en el orden del XSD oficial de UBL 2.1; **no se usan plantillas de texto**. Valida el XML contra `UBL-Invoice-2.1.xsd` antes de entregarlo al firmador. | `UblMicroserviceClientAdapter` (servicio independiente de serialización XML con pre-validación de esquema XSD y Schematron SUNAT). |
 | **`FirmaDigitalPort`** | Salida (Outbound) | Aplicar la firma electrónica XMLDSig (RSA-SHA256) con certificado digital X.509 en el nodo `ext:UBLExtensions`, generando el digest y código Hash. | `LocalPkcs12XmlDsigAdapter` leyendo certificado `.pfx`/`.p12` desde sistema de archivos con contraseña en variables de entorno. | `CloudKmsHsmFirmaAdapter` (integración con Cloud KMS, AWS KMS o Hardware Security Module FIPS 140-2 L3 sin exponer claves en memoria). |
 | **`EnvioOsePort`** *(con contingencia SUNAT)* | Salida (Outbound) | Enviar el paquete comprimido `.zip` (XML firmado) al web service SOAP del Operador de Servicios Electrónicos (OSE) y recibir CDR. Dispone de conmutación a SUNAT directo. | `NubefactSoapOseAdapter` / `EfactSoapAdapter` con clase interna `SunatSoapDirectoAdapter` para contingencia inmediata ante caída del OSE. | `AsyncOseQueuePublisherAdapter` (encolamiento en RabbitMQ/Kafka con Circuit Breaker, reintentos exponenciales y Dead Letter Queue fiscal). |
 | **`ValidadorRucPort`** | Salida (Outbound) | Validar que el RUC del adquirente tenga 11 dígitos, dígito verificador correcto (módulo 11) y se encuentre en estado ACTIVO y HABIDO. | `SunatRucModulo11Adapter` con base de datos local SQLite conteniendo el padrón reducido de contribuyentes SUNAT. | `SunatConsultaRucApiAdapter` con capa de caché distribuida en Redis (TTL 24h) y fallback a API REST oficial de SUNAT. |
@@ -267,7 +267,7 @@ flowchart LR
         direction TB
         A_SQL["🗄️ PostgreSQL Adapter\n(Transacciones y datos)"]
         A_S3["📦 MinIO / S3 Object Storage\n(Archivos XML firmados y CDRs)"]
-        A_UBL["📄 Serializador OASIS UBL 2.1\n(JAXB / Schematron Validator)"]
+        A_UBL["📄 Serializador OASIS UBL 2.1\n(lxml + validación XSD / Schematron)"]
         A_HSM["🔐 Cloud KMS / HSM Adapter\n(Firma Digital XMLDSig X.509)"]
         A_SOAP_OSE["☁️ Cliente Web Service OSE\n(SOAP con CDR response)"]
         A_SOAP_SUNAT["🏛️ Cliente Web Service SUNAT Directo\n(Contingencia ante caída OSE)"]
@@ -464,7 +464,7 @@ src/
             ├── persistence/
             │   └── PostgresJdbcComprobanteRepository.java
             ├── ubl/
-            │   └── JaxbUblAdapter.java
+            │   └── LxmlUblAdapter          ← implementado en Python: src/facturacion_xml (ADR-0005)
             ├── security/
             │   └── LocalPkcs12FirmaAdapter.java
             ├── ose/
@@ -616,7 +616,7 @@ sequenceDiagram
     UC->>Dom: calcular impuestos (ISC, IGV, ICBPER) y validar reglas
     Dom-->>UC: totales
     UC->>Rep: reservar correlativo (atómico) y guardar EMITIDO
-    UC->>Xml: generar UBL 2.1 (JAXB) y validar contra XSD
+    UC->>Xml: generar UBL 2.1 (lxml) y validar contra XSD
     UC->>Fir: firmar XMLDSig
     UC->>Rep: estado FIRMADO
     UC->>Ose: enviar ZIP

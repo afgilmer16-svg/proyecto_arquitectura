@@ -8,7 +8,7 @@
 > **No se escribe lógica de negocio hasta que la especificación esté completa y verificada.**
 
 Todo artefacto en este repositorio es una especificación, una referencia normativa o una decisión de arquitectura — **nunca código ejecutable de producción**.  
-La carpeta `src/` permanece vacía hasta que el equipo de implementación reciba las specs aprobadas. La carpeta `tests/` solo contiene pruebas que validan los propios contratos (YAML válido, `$ref` resueltos, ejemplos conformes y `src/` vacío); no prueba lógica de negocio.
+En `src/` solo hay código de features **APROBADAS**. Hoy la única es la 0008 (generador XML UBL 2.1, segundo parcial), en `src/facturacion_xml/`, en Python (ADR-005). `tests/` contiene las pruebas de los contratos (`test_contratos.py`) y las pruebas unitarias de generación (`test_generador_xml.py`). Ninguna prueba se marca como aprobada sin haberla ejecutado.
 
 ---
 
@@ -71,8 +71,8 @@ specs/
       tasks.md              → Avance y pendientes
   templates/                → Plantillas de spec, design y tasks
 
-src/                        → VACÍO — sin código hasta specs aprobadas
-tests/                      → Solo pruebas de los contratos (validan specs, no lógica de negocio)
+src/facturacion_xml/        → Generador XML UBL 2.1 (feature 0008, único código autorizado)
+tests/                      → test_contratos.py (contratos) y test_generador_xml.py (generación XML)
 requirements.txt            → Dependencias de las pruebas de contratos
 ```
 
@@ -123,7 +123,9 @@ Cada `spec.md` o `design.md` en `specs/features/` debe comenzar con:
 
 ## 9. Prohibiciones explícitas
 
-- ❌ No agregar archivos `.js`, `.ts`, `.java`, `.py`, `.cs` u otros lenguajes de implementación fuera de `src/`. Única excepción: `tests/test_contratos.py`, que valida los contratos y no contiene lógica de negocio.
+- ❌ No agregar archivos `.js`, `.ts`, `.java`, `.py`, `.cs` u otros lenguajes de implementación fuera de `src/` y `tests/`.
+- ❌ No implementar en `src/` nada fuera de la feature 0008 hasta que el docente habilite el siguiente parcial (Odoo desde el repositorio, Docker, addon de facturación).
+- ❌ No modificar los XSD de `docs/referencias/ubl/` ni reemplazarlos por esquemas hechos a mano.
 - ❌ No agregar archivos con credenciales (`.pfx`, `.p12`, `.env`, claves de API).
 - ❌ No inventar valores de catálogo sin citar la fuente normativa.
 - ❌ No modificar los archivos dentro de `docs/referencias/` — son solo lectura.

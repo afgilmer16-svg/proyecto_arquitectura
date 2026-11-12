@@ -9,7 +9,7 @@ Cada observación se contrastó contra el proyecto actual. ✅ = resuelto, con e
 
 | Observación | Estado | Dónde comprobarlo |
 |---|---|---|
-| XML generado con plantillas Freemarker | ✅ Único adaptador: `JaxbUblAdapter` (clases xjc desde los XSD oficiales, validación contra XSD antes de firmar) | `specs/features/0003-arquitectura-mvc-hexagonal/design.md` §3 y §6 |
+| XML generado con plantillas Freemarker | ✅ Único adaptador: `LxmlUblAdapter`, implementado en `src/facturacion_xml/` (árbol XML en el orden del XSD oficial, sin plantillas, validado contra el XSD antes de firmar). Se usa Python por el contexto Odoo del segundo parcial (ADR-0005) | `src/facturacion_xml/generador_ubl.py`, `tests/test_generador_xml.py` |
 | `unidad_medida` como texto libre | ✅ `UnidadMedidaEnum` (Catálogo 03) en ítem y producto | `specs/contracts/facturacion-api.yaml` |
 | Patrón `^[F\|B]…` acepta `\|001` | ✅ `^[FB][A-Z0-9]{3}$` | `facturacion-api.yaml` |
 | El cliente envía el correlativo | ✅ Lo asigna el servidor; `PUT /series/{id}` no permite cambiarlo. También el ID de baja y resumen (`RA-`/`RC-`) | `facturacion-api.yaml`, `0004/spec.md` |
@@ -23,7 +23,7 @@ Cada observación se contrastó contra el proyecto actual. ✅ = resuelto, con e
 
 | Observación | Estado | Dónde comprobarlo |
 |---|---|---|
-| El adaptador de plantillas contradice el “dominio intacto” | ✅ Sustituido por `JaxbUblAdapter` | `0003/design.md` |
+| El adaptador de plantillas contradice el “dominio intacto” | ✅ Sustituido por `LxmlUblAdapter` (ADR-0005) | `0003/design.md` |
 | La migración pasa por la emisión | ✅ `MigrarLegadoService` no invoca `EmitirComprobanteUseCase`; lo migrado queda `origen = LEGADO` y nunca va al OSE | `0006/spec.md` RF-MIG-01, `0003/design.md` |
 
 ## Entregable 3 — Contratos API (antes 19/25)

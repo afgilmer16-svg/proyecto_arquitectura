@@ -21,7 +21,7 @@ Marco normativo:
 
 Enunciado completo: [`docs/enunciado.md`](docs/enunciado.md) · Análisis: [`docs/analisis-problema.md`](docs/analisis-problema.md)
 
-Esta es la **primera fase Spec-First**: se definen reglas, contratos de datos, validaciones y contratos de interfaz **antes** de escribir lógica de negocio. Por eso `src/` está vacío. Reglas: [`.agent/rules/spec-first.md`](.agent/rules/spec-first.md).
+El **primer parcial** fue la fase Spec-First: reglas, contratos de datos, validaciones y contratos de interfaz **antes** de escribir lógica de negocio. El **segundo parcial** implementa la primera pieza ejecutable: el generador del XML UBL 2.1 (ver abajo). Reglas: [`.agent/rules/spec-first.md`](.agent/rules/spec-first.md).
 
 ---
 
@@ -33,6 +33,26 @@ Esta es la **primera fase Spec-First**: se definen reglas, contratos de datos, v
 | 2. Diagramas de arquitectura MVC con visión a Hexagonal | [`specs/features/0003-arquitectura-mvc-hexagonal/design.md`](specs/features/0003-arquitectura-mvc-hexagonal/design.md) · [ADR](specs/adr/) |
 | 3. Especificación de endpoints / servicios (contratos API) | [`specs/contracts/facturacion-api.yaml`](specs/contracts/facturacion-api.yaml) (OpenAPI 3.1, 33 operaciones) · [`specs/features/0004-contratos-api/`](specs/features/0004-contratos-api/) |
 | 4. Matriz de trazabilidad normativa SUNAT ↔ UBL | [`specs/features/0005-trazabilidad-sunat-ubl/`](specs/features/0005-trazabilidad-sunat-ubl/) (incluye el Catálogo 08) |
+
+## Segundo parcial — Generación del XML UBL 2.1
+
+| Requisito | Dónde está |
+|---|---|
+| 1. Descripción del caso (contexto Odoo, codificación, categorías 1001–1004) | [`docs/segundo-parcial/01-descripcion-caso.md`](docs/segundo-parcial/01-descripcion-caso.md) |
+| 2. Generación del XML a partir del XSD Invoice 2.1 | [`src/facturacion_xml/`](src/facturacion_xml/) · XSD en [`docs/referencias/ubl/`](docs/referencias/ubl/) |
+| 3. Lenguaje del dominio (Python, como Odoo) | [ADR-0005](specs/adr/0005-generador-ubl-python-lxml.md) |
+| 4. Pruebas unitarias de generación | [`tests/test_generador_xml.py`](tests/test_generador_xml.py) · [resultados](docs/segundo-parcial/resultados-pruebas.txt) |
+| Documentación técnica | [`docs/segundo-parcial/02-documentacion-tecnica.md`](docs/segundo-parcial/02-documentacion-tecnica.md) |
+| Informe de correcciones y verificación | [`docs/segundo-parcial/03-informe-correcciones.md`](docs/segundo-parcial/03-informe-correcciones.md) |
+| Feature | [`specs/features/0008-generacion-xml-ubl/`](specs/features/0008-generacion-xml-ubl/) |
+
+Generar un XML de ejemplo (PowerShell, desde la raíz):
+
+```powershell
+pip install -r requirements.txt
+$env:PYTHONPATH = "src"
+python -m facturacion_xml docs\segundo-parcial\ejemplos\factura-abarrotes.json salida\F001-00000001.xml --correlativo 1
+```
 
 ## Restricciones del enunciado (sección 2) y casos de uso (sección 3)
 
@@ -60,11 +80,12 @@ proyecto_arquitectura/
 │   ├── enunciado.md · analisis-problema.md · caso.md · glosario.md
 │   ├── pendientes-verificacion.md        ← datos "Por verificar" y su fuente
 │   ├── retroalimentacion-docente.md      ← observaciones del docente y su estado
+│   ├── segundo-parcial/                  ← descripción del caso, documentación técnica, informe, ejemplos
 │   └── referencias/
-│       ├── ubl/                          ← XSD oficiales de UBL 2.1
+│       ├── ubl/                          ← XSD oficiales de UBL 2.1 (14 archivos)
 │       └── sunat/                        ← Guía XML de factura y manual del programador
 ├── specs/
-│   ├── adr/                              ← 0000 plantilla · 0001 a 0004
+│   ├── adr/                              ← 0000 plantilla · 0001 a 0005
 │   ├── contracts/
 │   │   ├── facturacion-api.yaml          ← contrato OpenAPI 3.1 (endpoints + DTO)
 │   │   └── schemas/
@@ -75,17 +96,20 @@ proyecto_arquitectura/
 │   │   ├── 0004-contratos-api/
 │   │   ├── 0005-trazabilidad-sunat-ubl/
 │   │   ├── 0006-migracion-legado/        ← + diccionario-legado.md
-│   │   └── 0007-distribucion-multiplataforma/
+│   │   ├── 0007-distribucion-multiplataforma/
+│   │   └── 0008-generacion-xml-ubl/      ← segundo parcial
 │   └── templates/                        ← spec, design y tasks
-├── src/                                  ← vacío a propósito (fase Spec-First)
+├── src/
+│   └── facturacion_xml/                  ← generador XML UBL 2.1 (segundo parcial)
 ├── tests/
-│   └── test_contratos.py                 ← valida los contratos, no lógica de negocio
+│   ├── test_contratos.py                 ← valida los contratos
+│   └── test_generador_xml.py             ← pruebas unitarias de generación
 ├── .gitignore
 ├── README.md
 └── requirements.txt
 ```
 
-## Validar los contratos
+## Ejecutar las pruebas
 
 ```bash
 pip install -r requirements.txt
@@ -98,7 +122,7 @@ Para ver el contrato como documentación, pega `specs/contracts/facturacion-api.
 
 Las observaciones del docente sobre la versión anterior y dónde se resolvió cada una están en [`docs/retroalimentacion-docente.md`](docs/retroalimentacion-docente.md).
 
-Todas las features están **EN REVISIÓN**: el contenido está completo, pero hay datos normativos marcados **Por verificar** contra los PDF oficiales de SUNAT. La lista está en [`docs/pendientes-verificacion.md`](docs/pendientes-verificacion.md).
+Las features 0001 a 0007 (primer parcial) están **EN REVISIÓN**: el contenido está completo, pero hay datos normativos marcados **Por verificar** contra los PDF oficiales de SUNAT. La feature 0008 (segundo parcial) está **APROBADA** e implementada. La lista de pendientes está en [`docs/pendientes-verificacion.md`](docs/pendientes-verificacion.md).
 
 | Etiqueta | Significado |
 |---|---|

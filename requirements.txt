@@ -1,6 +1,8 @@
-# Dependencias de las pruebas de contratos (tests/test_contratos.py).
-# No hay dependencias de implementación: src/ sigue vacío (fase Spec-First).
-pyyaml>=6.0
-jsonschema>=4.21
-openapi-spec-validator>=0.7
+# Generador XML UBL 2.1 (src/facturacion_xml)
+lxml>=5.0                      # construcción del XML y validación contra el XSD
+
+# Pruebas (tests/)
 pytest>=8.0
+pyyaml>=6.0                    # lectura del contrato OpenAPI
+jsonschema>=4.21               # validación de ejemplos del contrato
+openapi-spec-validator>=0.7    # validación oficial del contrato OpenAPI 3.1

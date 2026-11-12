@@ -45,6 +45,19 @@ Este documento registra qué dato "Por verificar" ya se contrastó con una fuent
 | Umbral de identificación en boletas | "mayor o igual a S/ 700" y citado a F-04 | "mayor a S/ 700", citado a F-06; sigue **Por verificar** el monto vigente |
 | Puertos de entrada de CU-08 y CU-09 | Tenían servicio en el diagrama MVC pero no puerto en la tabla | `EnviarResumenDiarioUseCase` y `ValidarContribuyenteUseCase` |
 
+## 2.2 Generador XML del segundo parcial (2026-11-11)
+
+| Dato | Decisión tomada | Qué falta |
+|---|---|---|
+| 3 XSD de firma agregados (`UBL-xmldsig-core-schema-2.1.xsd`, `UBL-XAdESv132-2.1.xsd`, `UBL-XAdESv141-2.1.xsd`) | Copias OS 2.1 de `thegreenter/ubl-validator`, con SHA-256 en `docs/referencias/ubl/README.md` | Compararlos con los de `docs.oasis-open.org` (comando en `docs/segundo-parcial/02-documentacion-tecnica.md`, §6.1). |
+| Línea gratuita | Tributo `9996` GRATUITO (`Z`), `LineExtensionAmount` = valor referencial, `PriceTypeCode` `02`, `Price` `0.00`, sin sumar al total | Contrastar con el anexo de validaciones vigente; el ejemplo de la guía v1.0 usa `9998` en la línea y `LineExtensionAmount` `0.00`. |
+| `Percent` en líneas no gravadas | `0.00` (matriz 0005 §8) | La guía v1.0 muestra `18.00` en exoneradas e inafectas. |
+| Cuotas de crédito | `cbc:ID` = `FormaPago`, `cbc:PaymentMeansID` = `Cuota001`…, `cbc:Amount`, `cbc:PaymentDueDate` | Guía posterior a la RS 193-2020. |
+| ICBPER | Tributo `7152` / `ICBPER` / `OTH`; `BaseUnitMeasure` en `TaxSubtotal` y `PerUnitAmount` en `TaxCategory`; importe por año (0.10 en 2019 a 0.50 desde 2023) | Guía SUNAT de ICBPER y Catálogo 05 vigente. |
+| IGV 10 % (restaurantes y hoteles) | Parámetro `RegimenIgv.RESTAURANTES_HOTELES`, nunca por defecto | Norma y vigencia del régimen. |
+| Boleta sin documento (`tipo_documento` `0`) | Número `-`; rechazada si supera S/ 700 | Formato exacto exigido por SUNAT. |
+| ISC sistema 02 | `BaseUnitMeasure` = cantidad de la línea en `unidad_base_isc` | Que la cantidad se exprese en la unidad normativa del bien. |
+
 ## 3. Abierto (no se pudo verificar con las fuentes accesibles)
 
 | Dato | Por qué sigue abierto | Dónde buscarlo |

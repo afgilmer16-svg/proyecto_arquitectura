@@ -14,7 +14,7 @@
 - [x] Alinear la capa de presentación con ADR-003 (Compose Desktop y Android)
 - [x] Corregir la dependencia de la migración: `MigrarLegadoService` no invoca `EmitirComprobanteUseCase`
 - [x] Incluir `GestionarMaestrosUseCase` en la matriz de puertos
-- [x] Reemplazar Freemarker por `JaxbUblAdapter` (xjc + validación XSD) como único adaptador UBL
+- [x] Reemplazar Freemarker por un adaptador que construye el XML desde el XSD y lo valida (2026-11-11: implementado como `LxmlUblAdapter` en Python, ADR-0005)
 - [x] Agregar `LibroElectronicoPort`, `KardexElectronicoPort` y `GenerarLibrosElectronicosUseCase`
 - [x] Agregar los nuevos puertos a los diagramas Mermaid
 - [x] Agregar vista C4 de contexto y de contenedores

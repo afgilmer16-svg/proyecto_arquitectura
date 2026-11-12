@@ -1,6 +1,6 @@
 """Pruebas de los contratos Spec-First.
 
-No prueban lógica de negocio (no existe todavía): verifican que las
+No prueban la lógica del generador (eso está en test_generador_xml.py): verifican que las
 especificaciones sean válidas y consistentes entre sí.
 
 Ejecutar desde la raíz del proyecto:
@@ -122,6 +122,10 @@ def test_enlaces_markdown_no_rotos():
     assert rotos == []
 
 
-def test_src_sin_logica_de_negocio():
-    archivos = [p for p in (RAIZ / "src").rglob("*") if p.is_file() and p.name not in {".gitkeep", "README.md"}]
-    assert archivos == [], "Fase Spec-First: src/ debe estar vacío"
+def test_src_solo_contiene_el_generador_autorizado():
+    """Spec-First: el único código de producción autorizado es el generador XML (feature 0008)."""
+    permitidos = {"README.md", ".gitkeep"}
+    archivos = [p for p in (RAIZ / "src").rglob("*")
+                if p.is_file() and p.name not in permitidos and "__pycache__" not in p.parts]
+    fuera = [str(p.relative_to(RAIZ)) for p in archivos if p.parts[len(RAIZ.parts) + 1] != "facturacion_xml"]
+    assert fuera == [], f"código fuera del alcance autorizado: {fuera}"

@@ -18,8 +18,6 @@ servers:
     description: "Servidor Principal de Producción"
   - url: "https://api-homologacion.facturacion.abcsoftwarecorp.pe/v1"
     description: "Ambiente de Pruebas y Homologación OSE/SUNAT"
-  - url: "http://localhost:8080/v1"
-    description: "Entorno de Desarrollo Local"
 
 security:
   - bearerAuth: []
@@ -85,14 +83,14 @@ paths:
                   forma_pago:
                     tipo: "Contado"
                   emisor:
-                    ruc: "20601234567"
+                    ruc: "20601234565"
                     razon_social: "ABC SOFTWARE CORP S.A.C."
                     nombre_comercial: "DISTRIBUIDORA DE ABARROTES ABC"
                     direccion: "Av. Universitaria 123, Tingo María, Huánuco"
                     ubigeo: "100601"
                   receptor:
                     tipo_documento: "6"
-                    numero_documento: "20555555551"
+                    numero_documento: "20555555556"
                     razon_social: "COMERCIALIZADORA SAN JUAN S.A.C."
                     direccion: "Jr. Comercio 456, Rupa Rupa, Leoncio Prado"
                     email: "facturacion@sanjuan.pe"
@@ -436,14 +434,14 @@ paths:
                     codigo: "07"
                     descripcion: "Devolución por ítem: 2 sacos con empaque dañado"
                   emisor:
-                    ruc: "20601234567"
+                    ruc: "20601234565"
                     razon_social: "ABC SOFTWARE CORP S.A.C."
                     nombre_comercial: "DISTRIBUIDORA DE ABARROTES ABC"
                     direccion: "Av. Universitaria 123, Tingo María, Huánuco"
                     ubigeo: "100601"
                   receptor:
                     tipo_documento: "6"
-                    numero_documento: "20555555551"
+                    numero_documento: "20555555556"
                     razon_social: "COMERCIALIZADORA SAN JUAN S.A.C."
                     direccion: "Jr. Comercio 456, Rupa Rupa, Leoncio Prado"
                     email: "facturacion@sanjuan.pe"
@@ -523,14 +521,14 @@ paths:
                     codigo: "01"
                     descripcion: "Intereses por mora de 30 días"
                   emisor:
-                    ruc: "20601234567"
+                    ruc: "20601234565"
                     razon_social: "ABC SOFTWARE CORP S.A.C."
                     nombre_comercial: "DISTRIBUIDORA DE ABARROTES ABC"
                     direccion: "Av. Universitaria 123, Tingo María, Huánuco"
                     ubigeo: "100601"
                   receptor:
                     tipo_documento: "6"
-                    numero_documento: "20555555551"
+                    numero_documento: "20555555556"
                     razon_social: "COMERCIALIZADORA SAN JUAN S.A.C."
                     direccion: "Jr. Comercio 456, Rupa Rupa, Leoncio Prado"
                     email: "facturacion@sanjuan.pe"
@@ -735,7 +733,7 @@ paths:
             type: "string"
             pattern: "^[0-9]{11}$"
           description: "Número de RUC de 11 dígitos"
-          example: "20601234567"
+          example: "20601234565"
       responses:
         "401":
           $ref: "#/components/responses/NoAutenticado"
@@ -1840,7 +1838,7 @@ components:
         ruc:
           type: "string"
           pattern: "^[0-9]{11}$"
-          example: "20601234567"
+          example: "20601234565"
         razon_social:
           type: "string"
           example: "ABC SOFTWARE CORP S.A.C."
@@ -1869,7 +1867,7 @@ components:
           example: "6"
         numero_documento:
           type: "string"
-          example: "20555555551"
+          example: "20555555556"
         razon_social:
           type: "string"
           example: "COMERCIALIZADORA SAN JUAN S.A.C."
@@ -2403,7 +2401,7 @@ components:
       properties:
         ruc:
           type: "string"
-          example: "20601234567"
+          example: "20601234565"
         razon_social:
           type: "string"
           example: "ABC SOFTWARE CORP S.A.C."
@@ -2439,7 +2437,7 @@ components:
           example: "6"
         numero_documento:
           type: "string"
-          example: "20555555551"
+          example: "20555555556"
         razon_social:
           type: "string"
           example: "COMERCIALIZADORA SAN JUAN S.A.C."
@@ -2472,7 +2470,7 @@ components:
           example: "6"
         numero_documento:
           type: "string"
-          example: "20555555551"
+          example: "20555555556"
         razon_social:
           type: "string"
           example: "COMERCIALIZADORA SAN JUAN S.A.C."
@@ -2935,29 +2933,42 @@ components:
           minimum: 0
 
     ParcheCuarentena:
+      description: "Corrección o descarte autorizado de un registro en cuarentena. Se guarda como parche separado; no altera la extracción original. `CORREGIR` exige `campo` y `valor_corregido`; `DESCARTAR` marca el registro como `DESCARTADO_AUTORIZADO`."
+      oneOf:
+        - $ref: "#/components/schemas/ParcheCorregir"
+        - $ref: "#/components/schemas/ParcheDescartar"
+      discriminator:
+        propertyName: "accion"
+        mapping:
+          CORREGIR: "#/components/schemas/ParcheCorregir"
+          DESCARTAR: "#/components/schemas/ParcheDescartar"
+
+    ParcheCorregir:
       type: "object"
-      description: "Corrección o descarte autorizado de un registro en cuarentena. Se guarda como parche separado; no altera la extracción original."
+      description: "Aplica `valor_corregido` al campo indicado y vuelve a validar el registro."
       required:
         - "legado_id"
         - "accion"
+        - "campo"
+        - "valor_corregido"
         - "motivo"
         - "evidencia"
         - "aprobado_por"
       properties:
-        legado_id:
-          type: "string"
-          example: "legado:movimientos:1042"
         accion:
           type: "string"
-          enum: ["CORREGIR", "DESCARTAR"]
-          description: "`CORREGIR` aplica `valor_corregido` y revalida; `DESCARTAR` marca el registro como `DESCARTADO_AUTORIZADO`."
+          const: "CORREGIR"
         campo:
           type: "string"
           enum: ["fecha", "ingreso", "salida", "producto", "nro_documento"]
-          description: "Campo del sistema antiguo que se corrige. Obligatorio si `accion = CORREGIR`."
+          description: "Campo del sistema antiguo que se corrige."
         valor_corregido:
           type: "string"
-          description: "Nuevo valor como texto, tal como se interpretaría desde el origen. Obligatorio si `accion = CORREGIR`."
+          minLength: 1
+          description: "Nuevo valor como texto, tal como se interpretaría desde el origen."
+        legado_id:
+          type: "string"
+          example: "legado:movimientos:1042"
         motivo:
           type: "string"
           minLength: 10
@@ -2972,20 +2983,37 @@ components:
           minLength: 3
           maxLength: 120
           description: "Usuario que aprueba el parche; queda en la auditoría."
-      if:
-        properties:
-          accion:
-            const: "CORREGIR"
-      then:
-        required:
-          - "campo"
-          - "valor_corregido"
-        properties:
-          campo:
-            type: "string"
-          valor_corregido:
-            type: "string"
-            minLength: 1
+
+    ParcheDescartar:
+      type: "object"
+      description: "Descarta el registro con autorización; queda como `DESCARTADO_AUTORIZADO` en la auditoría."
+      required:
+        - "legado_id"
+        - "accion"
+        - "motivo"
+        - "evidencia"
+        - "aprobado_por"
+      properties:
+        accion:
+          type: "string"
+          const: "DESCARTAR"
+        legado_id:
+          type: "string"
+          example: "legado:movimientos:1042"
+        motivo:
+          type: "string"
+          minLength: 10
+          maxLength: 500
+        evidencia:
+          type: "string"
+          minLength: 5
+          maxLength: 500
+          description: "Referencia verificable que respalda el cambio (documento, hoja, fila). Sin evidencia el parche se rechaza con 422."
+        aprobado_por:
+          type: "string"
+          minLength: 3
+          maxLength: 120
+          description: "Usuario que aprueba el parche; queda en la auditoría."
 
     ReprocesoCuarentenaRequest:
       type: "object"

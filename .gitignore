@@ -14,7 +14,6 @@ node_modules/
 vendor/
 .venv/
 __pycache__/
-.pytest_cache/
 *.pyc
 
 # ─── Instaladores y paquetes binarios ─────────────────────────────────────────
@@ -66,3 +65,6 @@ docs/generated/
 
 # Archivos ajenos al examen
 gilmer_50.docx
+
+# Salidas del generador XML (los ejemplos versionados están en docs/segundo-parcial/ejemplos/)
+salida/

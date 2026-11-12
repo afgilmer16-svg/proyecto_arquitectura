@@ -86,7 +86,7 @@ Cuando ocurre cualquier condición de fallo en la API, el servidor retorna el es
   "mensaje_sunat": "El RUC del receptor no se encuentra en estado ACTIVO y HABIDO.",
   "fecha_hora": "2026-10-22T10:30:15Z",
   "detalles": [
-    "receptor.numero_documento: El RUC '20555555551' reporta condición 'NO_HABIDO' ante SUNAT."
+    "receptor.numero_documento: El RUC '20555555556' reporta condición 'NO_HABIDO' ante SUNAT."
   ]
 }
 ```
@@ -115,4 +115,4 @@ Rango de respuestas del CDR: `0` aceptado; `2000`–`3999` rechazo; `4000` en ad
 | ISC condicional | `sistema_isc` (Catálogo 08) exige `tasa_isc` (01), `monto_fijo_isc` + `unidad_base_isc` (02) o `tasa_isc` + `precio_venta_publico_sugerido` (03). Validado con `if/then` en el esquema. |
 | Serie | Patrón `^[FB][A-Z0-9]{3}$`. El servidor rechaza con `422` un prefijo que no coincida con el tipo (`01` con `F`, `03` con `B`). `PUT /series/{id}` usa `SerieUpdateRequest` (solo `descripcion` y `activa`). |
 | Seguridad | `bearerAuth` global; todas las operaciones declaran `401` y `403` mediante `components/responses`. |
-| Validación | Verificación estructural propia (2026-11-11): 0 `$ref` rotos, `operationId` únicos, ejemplos conformes. `openapi-spec-validator` sin errores (`pytest -v`, 15/15, 2026-11-11). **Pendiente:** `redocly lint` (requiere Node.js). |
+| Validación | Verificación estructural propia (2026-11-11): 0 `$ref` rotos, `operationId` únicos, ejemplos conformes. **Pendientes de correr:** `openapi-spec-validator` (vía `pytest -v`) y `redocly lint`. |

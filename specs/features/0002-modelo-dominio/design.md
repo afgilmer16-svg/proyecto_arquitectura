@@ -51,7 +51,7 @@ flowchart TB
         PO["Puertos de salida (interfaces)"]
     end
     subgraph Salida["Adaptadores de salida"]
-        UBL["JaxbUblAdapter → XML UBL 2.1"]
+        UBL["LxmlUblAdapter → XML UBL 2.1"]
         BD["Repositorio SQL"]
         OSE["Adaptador OSE"]
     end

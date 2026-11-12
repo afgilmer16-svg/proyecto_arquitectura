@@ -49,6 +49,7 @@ Abreviaturas: **O** = obligatorio; **C** = condicional; **OP** = opcional.
 | Fecha de emisión | Guía XML SUNAT | `/Invoice/cbc:IssueDate` | `fecha_emision` | ISO 8601 `YYYY-MM-DD`; no futura; dentro de plazo de envío vigente. **O** |
 | Hora de emisión | Guía XML SUNAT | `/Invoice/cbc:IssueTime` | `hora_emision` | Formato `HH:mm:ss`; zona horaria `America/Lima`. **O** |
 | Código de moneda | Cat. 02 | `/Invoice/cbc:DocumentCurrencyCode` con `@listID="ISO 4217 Alpha"` | `moneda` | Enum ISO 4217: `"PEN"`, `"USD"`. Todos los `@currencyID` del documento deben coincidir. **O** |
+| Cantidad de líneas | Guía XML SUNAT (p. 5) | `/Invoice/cbc:LineCountNumeric` | *(calculado en servidor)* | Igual al número de `cac:InvoiceLine`. **O** |
 
 ---
 
@@ -56,11 +57,13 @@ Abreviaturas: **O** = obligatorio; **C** = condicional; **OP** = opcional.
 
 | Dato SUNAT | Catálogo / Norma | XPath UBL 2.1 | Campo DTO | Regla de validación |
 |---|---|---|---|---|
-| RUC del emisor | Cat. 06 / RUC | `/Invoice/cac:AccountingSupplierParty/cac:Party/cac:PartyIdentification/cbc:ID` con `@schemeID="6"` `@schemeName="RUC"` `@schemeAgencyName="PE:SUNAT"` | `emisor.ruc` | 11 dígitos; prefijo `10/15/16/17/20`; dígito verificador módulo 11 (pesos 5-4-3-2-7-6-5-4-3-2). **O** |
+| RUC del emisor | Cat. 06 / RUC | `/Invoice/cac:AccountingSupplierParty/cac:Party/cac:PartyIdentification/cbc:ID` con `@schemeID="6"` `@schemeName="SUNAT:Identificador de Documento de Identidad"` `@schemeAgencyName="PE:SUNAT"` `@schemeURI="urn:pe:gob:sunat:cpe:see:gem:catalogos:catalogo06"` (Guía XML v1.0, p. 7) | `emisor.ruc` | 11 dígitos; prefijo `10/15/16/17/20`; dígito verificador módulo 11 (pesos 5-4-3-2-7-6-5-4-3-2). **O** |
 | Razón social del emisor | RUC / guía XML | `/Invoice/cac:AccountingSupplierParty/cac:Party/cac:PartyLegalEntity/cbc:RegistrationName` | `emisor.razon_social` | No vacío; debe corresponder al RUC en el padrón SUNAT. **O** |
 | Nombre comercial | Guía XML SUNAT | `/Invoice/cac:AccountingSupplierParty/cac:Party/cac:PartyName/cbc:Name` | `emisor.nombre_comercial` | Texto libre; omitir elemento si no existe. **OP** |
 | Ubigeo del emisor | Cat. 13 | `/Invoice/cac:AccountingSupplierParty/cac:Party/cac:PartyLegalEntity/cac:RegistrationAddress/cbc:ID` con `@schemeAgencyName="PE:INEI"` | `emisor.ubigeo` | 6 dígitos numéricos. **O** |
 | Dirección fiscal del emisor | Guía XML SUNAT | `/Invoice/cac:AccountingSupplierParty/cac:Party/cac:PartyLegalEntity/cac:RegistrationAddress/cac:AddressLine/cbc:Line` | `emisor.direccion` | No vacío. **O** |
+| Código de establecimiento anexo | Guía XML SUNAT (p. 7) | `/Invoice/cac:AccountingSupplierParty/cac:Party/cac:PartyLegalEntity/cac:RegistrationAddress/cbc:AddressTypeCode` | *(constante `"0000"` = domicilio fiscal)* | 4 dígitos; `0000` cuando se emite desde el domicilio fiscal. **O** |
+| País del emisor | ISO 3166-1 | `/Invoice/cac:AccountingSupplierParty/cac:Party/cac:PartyLegalEntity/cac:RegistrationAddress/cac:Country/cbc:IdentificationCode` con `@listID="ISO 3166-1"` | *(constante `"PE"`)* | Código ISO 3166-1 alfa-2. **O** |
 
 ---
 
@@ -82,7 +85,7 @@ Abreviaturas: **O** = obligatorio; **C** = condicional; **OP** = opcional.
 | Indicador de pago | RS 000193-2020 / guía XML | `/Invoice/cac:PaymentTerms/cbc:ID` con valor `"FormaPago"` | *(derivado de `forma_pago.tipo`)* | Siempre presente; valor literal `"FormaPago"`. **O** |
 | Tipo de pago (Contado / Crédito) | RS 000193-2020 | `/Invoice/cac:PaymentTerms/cbc:PaymentMeansID` | `forma_pago.tipo` | `"Contado"` o `"Credito"`. Si es `"Credito"`, debe haber al menos una cuota. **O** |
 | Monto neto pendiente (crédito) | RS 000193-2020 | `/Invoice/cac:PaymentTerms/cbc:Amount` con `@currencyID` | `forma_pago.monto_neto_pendiente` | Requerido cuando tipo es `"Credito"`; `> 0`; misma moneda del documento. **C** |
-| Cuotas de pago | RS 000193-2020 | `/Invoice/cac:PaymentTerms[cbc:ID='Cuota{n}']/cbc:Amount` y `cbc:PaymentDueDate` | `forma_pago.cuotas[].monto` / `fecha_vencimiento` | Fecha de vencimiento ≥ fecha de emisión; suma de cuotas = monto neto pendiente. **C** |
+| Cuotas de pago | RS 000193-2020 | `/Invoice/cac:PaymentTerms[cbc:PaymentMeansID='Cuota001']/cbc:Amount` y `cbc:PaymentDueDate` (cada cuota repite `cbc:ID='FormaPago'`; numeración `Cuota001`, `Cuota002`…; ⚠️ Por verificar contra la guía posterior a la RS 193-2020) | `forma_pago.cuotas[].monto` / `fecha_vencimiento` | Fecha de vencimiento ≥ fecha de emisión; suma de cuotas = monto neto pendiente. **C** |
 
 ---
 
@@ -111,7 +114,7 @@ Abreviaturas: **O** = obligatorio; **C** = condicional; **OP** = opcional.
 | Base imponible IGV | Cat. 05 / guía | `/Invoice/cac:InvoiceLine/cac:TaxTotal/cac:TaxSubtotal[cac:TaxCategory/cac:TaxScheme/cbc:ID='1000']/cbc:TaxableAmount` con `@currencyID` | *(calculado por dominio)* | `= valor_total` cuando afectación `"10"`; solo líneas gravadas; las exoneradas, inafectas y gratuitas usan `TaxScheme` `9997`, `9998` y `9996` (sección 18.1). **O/C** |
 | Monto IGV de la línea | Cat. 05 | `.../cbc:TaxAmount` con `@currencyID` | *(calculado por dominio)* | `= base × 0.18`; redondeo a 2 decimales; `0.00` en líneas exoneradas/inafectas, que no se declaran bajo el tributo `1000` sino con su propio `TaxScheme` (sección 18.1). **O/C** |
 | Código de tributo IGV | Cat. 05 | `.../cac:TaxScheme/cbc:ID="1000"`, `cbc:Name="IGV"`, `cbc:TaxTypeCode="VAT"` | *(constante servidor)* | Fijo: `ID=1000`, `Name=IGV`, `TaxTypeCode=VAT`. **O** |
-| Tasa IGV | Cat. 05 / TUO IGV | `.../cac:TaxCategory/cbc:Percent` | *(constante 18.00)* | `18.00`; `0.00` si no gravado. **O/C** |
+| Tasa IGV | Cat. 05 / TUO IGV | `.../cac:TaxCategory/cbc:Percent` | *(parámetro `regimen_igv` del servidor)* | `18.00` en el régimen general; `10.00` solo si se indica el régimen de restaurantes y hoteles (regla vista en clase; ⚠️ Por verificar vigencia); `0.00` si no gravado. **O/C** |
 
 ---
 
@@ -304,7 +307,7 @@ Fuente: `docs/referencias/ubl/` (F-01). Se inspeccionaron los tipos complejos `I
 | `CreditNote/cac:BillingReference/cac:InvoiceDocumentReference` y `CreditNote/cac:DiscrepancyResponse/cbc:ResponseCode`, `Description`, `ReferenceID` | ✅ Existen. |
 | `DebitNote/cac:DiscrepancyResponse` | ✅ Existe. |
 
-**Diferencias de las notas respecto de `Invoice`** (relevantes para `JaxbUblAdapter`):
+**Diferencias de las notas respecto de `Invoice`** (relevantes para el generador UBL):
 
 | Aspecto | `Invoice` | `CreditNote` | `DebitNote` |
 |---|---|---|---|
