@@ -83,7 +83,7 @@ paths:
                   forma_pago:
                     tipo: "Contado"
                   emisor:
-                    ruc: "20601234565"
+                    ruc: "20526018151"
                     razon_social: "ABC SOFTWARE CORP S.A.C."
                     nombre_comercial: "DISTRIBUIDORA DE ABARROTES ABC"
                     direccion: "Av. Universitaria 123, Tingo María, Huánuco"
@@ -434,7 +434,7 @@ paths:
                     codigo: "07"
                     descripcion: "Devolución por ítem: 2 sacos con empaque dañado"
                   emisor:
-                    ruc: "20601234565"
+                    ruc: "20526018151"
                     razon_social: "ABC SOFTWARE CORP S.A.C."
                     nombre_comercial: "DISTRIBUIDORA DE ABARROTES ABC"
                     direccion: "Av. Universitaria 123, Tingo María, Huánuco"
@@ -521,7 +521,7 @@ paths:
                     codigo: "01"
                     descripcion: "Intereses por mora de 30 días"
                   emisor:
-                    ruc: "20601234565"
+                    ruc: "20526018151"
                     razon_social: "ABC SOFTWARE CORP S.A.C."
                     nombre_comercial: "DISTRIBUIDORA DE ABARROTES ABC"
                     direccion: "Av. Universitaria 123, Tingo María, Huánuco"
@@ -733,7 +733,7 @@ paths:
             type: "string"
             pattern: "^[0-9]{11}$"
           description: "Número de RUC de 11 dígitos"
-          example: "20601234565"
+          example: "20526018151"
       responses:
         "401":
           $ref: "#/components/responses/NoAutenticado"
@@ -1838,7 +1838,7 @@ components:
         ruc:
           type: "string"
           pattern: "^[0-9]{11}$"
-          example: "20601234565"
+          example: "20526018151"
         razon_social:
           type: "string"
           example: "ABC SOFTWARE CORP S.A.C."
@@ -2401,7 +2401,7 @@ components:
       properties:
         ruc:
           type: "string"
-          example: "20601234565"
+          example: "20526018151"
         razon_social:
           type: "string"
           example: "ABC SOFTWARE CORP S.A.C."

@@ -96,7 +96,7 @@ class GeneradorFacturaUbl:
         _cbc(inv, "InvoiceTypeCode", f.tipo_comprobante.value,
              listID=f.tipo_operacion,
              listAgencyName=cat.AGENCIA_SUNAT,
-             listName="SUNAT:Identificador de Tipo de Documento",
+             listName="Tipo de Documento",
              listURI=cat.URI_CATALOGO.format(1))
         _cbc(inv, "Note", importe_en_letras(t.importe_total, cat.MONEDAS[moneda]),
              languageLocaleID=cat.LEYENDA_MONTO_EN_LETRAS)
@@ -129,7 +129,7 @@ class GeneradorFacturaUbl:
     def _identificacion(self, party: etree._Element, tipo_doc: str, numero: str) -> None:
         _cbc(_cac(party, "PartyIdentification"), "ID", numero,
              schemeID=tipo_doc,
-             schemeName="SUNAT:Identificador de Documento de Identidad",
+             schemeName="Documento de Identidad",
              schemeAgencyName=cat.AGENCIA_SUNAT,
              schemeURI=cat.URI_CATALOGO.format(6))
 
@@ -194,7 +194,7 @@ class GeneradorFacturaUbl:
             _cbc(categoria, "PerUnitAmount", _importe(monto_por_unidad), currencyID=moneda)
         if afectacion:
             _cbc(categoria, "TaxExemptionReasonCode", afectacion, listAgencyName=cat.AGENCIA_SUNAT,
-                 listName="SUNAT:Codigo de Tipo de Afectación del IGV", listURI=cat.URI_CATALOGO.format(7))
+                 listName="Afectacion del IGV", listURI=cat.URI_CATALOGO.format(7))
         if sistema_isc:
             _cbc(categoria, "TierRange", sistema_isc)
         esquema = _cac(categoria, "TaxScheme")
@@ -240,7 +240,7 @@ class GeneradorFacturaUbl:
         precio = _cac(_cac(il, "PricingReference"), "AlternativeConditionPrice")
         tipo_precio = cat.VALOR_REFERENCIAL_GRATUITO if li.es_gratuita else cat.PRECIO_UNITARIO_CON_TRIBUTOS
         _cbc(precio, "PriceAmount", _unitario(li.precio_unitario), currencyID=moneda)
-        _cbc(precio, "PriceTypeCode", tipo_precio, listName="SUNAT:Indicador de Tipo de Precio",
+        _cbc(precio, "PriceTypeCode", tipo_precio, listName="Tipo de Precio",
              listAgencyName=cat.AGENCIA_SUNAT, listURI=cat.URI_CATALOGO.format(16))
 
         total = _cac(il, "TaxTotal")

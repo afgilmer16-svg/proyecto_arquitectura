@@ -194,7 +194,7 @@ class TestDatosEnEtiquetas:
     def test_emisor_y_receptor(self, datos):
         raiz = generar(datos)
         emisor = "cac:AccountingSupplierParty/cac:Party"
-        assert texto(raiz, f"{emisor}/cac:PartyIdentification/cbc:ID") == "20601234565"
+        assert texto(raiz, f"{emisor}/cac:PartyIdentification/cbc:ID") == "20526018151"
         assert texto(raiz, f"{emisor}/cac:PartyIdentification/cbc:ID/@schemeID") == "6"
         assert texto(raiz, f"{emisor}/cac:PartyLegalEntity/cbc:RegistrationName") == "ABC SOFTWARE CORP S.A.C."
         assert texto(raiz, f"{emisor}/cac:PartyLegalEntity/cac:RegistrationAddress/cbc:ID") == "100601"
@@ -539,7 +539,7 @@ class TestValidacionXsd:
 class TestUtilidades:
     @pytest.mark.parametrize("ruc, valido", [
         ("20131312955", True),    # RUC real de SUNAT
-        ("20601234565", True),
+        ("20526018151", True),
         ("20601234567", False),   # dígito verificador incorrecto
         ("30601234565", False),   # prefijo inexistente
         ("2060123456", False),    # 10 dígitos

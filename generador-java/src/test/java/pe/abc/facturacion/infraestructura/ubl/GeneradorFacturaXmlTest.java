@@ -118,7 +118,7 @@ class GeneradorFacturaXmlTest {
     @Test
     void emisorYReceptor() {
         String emisor = "/i:Invoice/cac:AccountingSupplierParty/cac:Party";
-        assertThat(x.texto(emisor + "/cac:PartyIdentification/cbc:ID")).isEqualTo("20601234565");
+        assertThat(x.texto(emisor + "/cac:PartyIdentification/cbc:ID")).isEqualTo("20526018151");
         assertThat(x.texto(emisor + "/cac:PartyIdentification/cbc:ID/@schemeID")).isEqualTo("6");
         assertThat(x.texto(emisor + "/cac:PartyName/cbc:Name")).isEqualTo("DISTRIBUIDORA DE ABARROTES ABC");
         assertThat(x.texto(emisor + "/cac:PartyLegalEntity/cbc:RegistrationName")).isEqualTo("ABC SOFTWARE CORP S.A.C.");

@@ -179,7 +179,7 @@ public class GeneradorUblJaxbAdapter implements GeneradorXmlUblPort {
         InvoiceTypeCodeType tipo = codigo(new InvoiceTypeCodeType(), f.tipoComprobante().codigo());
         tipo.setListID(f.tipoOperacion());
         tipo.setListAgencyName(Catalogos.AGENCIA_SUNAT);
-        tipo.setListName("SUNAT:Identificador de Tipo de Documento");
+        tipo.setListName("Tipo de Documento");
         tipo.setListURI(Catalogos.uriCatalogo(1));
         inv.setInvoiceTypeCode(tipo);
 
@@ -278,7 +278,7 @@ public class GeneradorUblJaxbAdapter implements GeneradorXmlUblPort {
     private PartyIdentificationType identificacion(String tipoDoc, String numero) {
         IDType id = ident(new IDType(), numero);
         id.setSchemeID(tipoDoc);
-        id.setSchemeName("SUNAT:Identificador de Documento de Identidad");
+        id.setSchemeName("Documento de Identidad");
         id.setSchemeAgencyName(Catalogos.AGENCIA_SUNAT);
         id.setSchemeURI(Catalogos.uriCatalogo(6));
         PartyIdentificationType pi = new PartyIdentificationType();
@@ -401,7 +401,7 @@ public class GeneradorUblJaxbAdapter implements GeneradorXmlUblPort {
         if (afectacion != null) {
             TaxExemptionReasonCodeType exencion = codigo(new TaxExemptionReasonCodeType(), afectacion);
             exencion.setListAgencyName(Catalogos.AGENCIA_SUNAT);
-            exencion.setListName("SUNAT:Codigo de Tipo de Afectación del IGV");
+            exencion.setListName("Afectacion del IGV");
             exencion.setListURI(Catalogos.uriCatalogo(7));
             categoria.setTaxExemptionReasonCode(exencion);
         }
@@ -481,7 +481,7 @@ public class GeneradorUblJaxbAdapter implements GeneradorXmlUblPort {
         precio.setPriceAmount(importeUnitario(li.precioUnitario(), moneda));
         PriceTypeCodeType tipoPrecio = codigo(new PriceTypeCodeType(),
                 li.esGratuita() ? Catalogos.VALOR_REFERENCIAL_GRATUITO : Catalogos.PRECIO_UNITARIO_CON_TRIBUTOS);
-        tipoPrecio.setListName("SUNAT:Indicador de Tipo de Precio");
+        tipoPrecio.setListName("Tipo de Precio");
         tipoPrecio.setListAgencyName(Catalogos.AGENCIA_SUNAT);
         tipoPrecio.setListURI(Catalogos.uriCatalogo(16));
         precio.setPriceTypeCode(tipoPrecio);

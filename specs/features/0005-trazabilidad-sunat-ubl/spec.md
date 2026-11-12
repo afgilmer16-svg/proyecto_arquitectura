@@ -57,7 +57,7 @@ Abreviaturas: **O** = obligatorio; **C** = condicional; **OP** = opcional.
 
 | Dato SUNAT | Catálogo / Norma | XPath UBL 2.1 | Campo DTO | Regla de validación |
 |---|---|---|---|---|
-| RUC del emisor | Cat. 06 / RUC | `/Invoice/cac:AccountingSupplierParty/cac:Party/cac:PartyIdentification/cbc:ID` con `@schemeID="6"` `@schemeName="SUNAT:Identificador de Documento de Identidad"` `@schemeAgencyName="PE:SUNAT"` `@schemeURI="urn:pe:gob:sunat:cpe:see:gem:catalogos:catalogo06"` (Guía XML v1.0, p. 7) | `emisor.ruc` | 11 dígitos; prefijo `10/15/16/17/20`; dígito verificador módulo 11 (pesos 5-4-3-2-7-6-5-4-3-2). **O** |
+| RUC del emisor | Cat. 06 / RUC | `/Invoice/cac:AccountingSupplierParty/cac:Party/cac:PartyIdentification/cbc:ID` con `@schemeID="6"` `@schemeName="Documento de Identidad"` `@schemeAgencyName="PE:SUNAT"` `@schemeURI="urn:pe:gob:sunat:cpe:see:gem:catalogos:catalogo06"` (Guía XML v1.0, p. 7) | `emisor.ruc` | 11 dígitos; prefijo `10/15/16/17/20`; dígito verificador módulo 11 (pesos 5-4-3-2-7-6-5-4-3-2). **O** |
 | Razón social del emisor | RUC / guía XML | `/Invoice/cac:AccountingSupplierParty/cac:Party/cac:PartyLegalEntity/cbc:RegistrationName` | `emisor.razon_social` | No vacío; debe corresponder al RUC en el padrón SUNAT. **O** |
 | Nombre comercial | Guía XML SUNAT | `/Invoice/cac:AccountingSupplierParty/cac:Party/cac:PartyName/cbc:Name` | `emisor.nombre_comercial` | Texto libre; omitir elemento si no existe. **OP** |
 | Ubigeo del emisor | Cat. 13 | `/Invoice/cac:AccountingSupplierParty/cac:Party/cac:PartyLegalEntity/cac:RegistrationAddress/cbc:ID` con `@schemeAgencyName="PE:INEI"` | `emisor.ubigeo` | 6 dígitos numéricos. **O** |
@@ -372,7 +372,7 @@ Cada tipo de afectación se informa en su propio `cac:TaxSubtotal`, con `TaxSche
 |---|---|
 | `cbc:UBLVersionID` = `2.1` y `cbc:CustomizationID` = `2.0` | ✅ Confirmado. |
 | `cbc:TierRange` | ✅ Ubicación `.../cac:TaxSubtotal/cac:TaxCategory/cbc:TierRange` confirmada; valores `01`, `02`, `03` (Apéndice IV, lit. A, B y C del TUO). |
-| `cbc:PriceTypeCode` | ✅ `listName="SUNAT:Indicador de Tipo de Precio"`, `listAgencyName="PE:SUNAT"`, `listURI="...catalogo16"`; valores `01` y `02`. |
+| `cbc:PriceTypeCode` | ✅ `listName="Tipo de Precio"`, `listAgencyName="PE:SUNAT"`, `listURI="...catalogo16"`; valores `01` y `02`. |
 | ISC sistema `03` | La guía solo muestra `Percent` + `TierRange=03`; **no** indica dónde se consigna el PVP sugerido. Sigue ⚠️ Por verificar con una guía posterior. |
 | Descuentos por línea | La guía admite `cac:AllowanceCharge` por línea (`ChargeIndicator`, `AllowanceChargeReasonCode` Cat. 53, `MultiplierFactorNumeric`, `Amount`, `BaseAmount`). **El DTO actual no los incluye**: queda fuera de alcance de esta fase y se registra como brecha. |
 

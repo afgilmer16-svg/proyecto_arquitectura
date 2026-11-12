@@ -21,13 +21,13 @@ import pe.abc.facturacion.dominio.validacion.ValidadorRuc;
 class RucYNumeroLetrasTest {
 
     @ParameterizedTest
-    @ValueSource(strings = {"20601234565", "20555555556"})
+    @ValueSource(strings = {"20526018151", "20555555556"})
     void rucValidoConDigitoVerificador(String ruc) {
         assertThat(ValidadorRuc.esValido(ruc)).isTrue();
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"20601234566", "2060123456", "206012345650", "ABCDEFGHIJK", "30601234565", ""})
+    @ValueSource(strings = {"20601234566", "2060123456", "205260181510", "ABCDEFGHIJK", "30601234565", ""})
     void rucInvalido(String ruc) {
         assertThat(ValidadorRuc.esValido(ruc)).isFalse();
     }
