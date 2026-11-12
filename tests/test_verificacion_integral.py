@@ -223,12 +223,9 @@ class TestRegresion:
     def test_ejemplo_versionado_igual_a_la_generacion_actual(self):
         datos = json.loads((EJEMPLOS / "factura-abarrotes.json").read_text(encoding="utf-8"))
         # Tolera CRLF: git en Windows (core.autocrlf) puede convertir los saltos de linea al clonar.
-        versionado = (EJEMPLOS / "F001-00000001.xml").read_bytes().replace(b"
-", b"
-")
-        assert generar_xml_factura(datos, 1).replace(b"
-", b"
-") == versionado
+        crlf, lf = b"\r\n", b"\n"
+        versionado = (EJEMPLOS / "F001-00000001.xml").read_bytes().replace(crlf, lf)
+        assert generar_xml_factura(datos, 1).replace(crlf, lf) == versionado
 
     def test_generacion_determinista(self):
         datos = json.loads((EJEMPLOS / "factura-abarrotes.json").read_text(encoding="utf-8"))
