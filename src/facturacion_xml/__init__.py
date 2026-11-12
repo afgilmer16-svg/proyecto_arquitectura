@@ -7,7 +7,7 @@ Uso típico::
     xml = generar_xml_factura(datos, correlativo=1)   # bytes UTF-8, validado contra el XSD
 
 ``datos`` sigue el DTO ``EmitirComprobanteRequest`` de
-``specs/contracts/facturacion-api.yaml``. Ver ``docs/segundo-parcial/02-documentacion-tecnica.md``.
+``specs/contracts/facturacion-api.yaml``. Ver ``docs/documentacion-tecnica-xml.md``.
 """
 from __future__ import annotations
 

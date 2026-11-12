@@ -17,7 +17,7 @@ public final class Ejemplos {
     public static final Path VALIDOS = RAIZ.resolve("specs/ejemplos/validos");
     public static final Path INVALIDOS = RAIZ.resolve("specs/ejemplos/invalidos");
     public static final Path REFERENCIA_XML = RAIZ.resolve("specs/ejemplos/xml-referencia");
-    public static final Path EJEMPLO_PARCIAL = RAIZ.resolve("docs/segundo-parcial/ejemplos/factura-abarrotes.json");
+    public static final Path EJEMPLO_PARCIAL = RAIZ.resolve("docs/ejemplos/factura-abarrotes.json");
 
     private Ejemplos() {
     }

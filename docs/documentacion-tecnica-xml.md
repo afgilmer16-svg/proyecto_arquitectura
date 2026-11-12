@@ -1,14 +1,14 @@
 # Segundo parcial — Documentación técnica del generador XML UBL 2.1
 
 **Proyecto**: Facturación electrónica SUNAT — ABC Software Corp  
-**Feature**: [0008 — Generación del XML UBL 2.1](../../specs/features/0008-generacion-xml-ubl/spec.md)  
+**Feature**: [0008 — Generación del XML UBL 2.1](../specs/features/0008-generacion-xml-ubl/spec.md)  
 **Fecha**: 2026-11-11
 
 ---
 
 ## 1. Descripción del caso
 
-ABC Software Corp, una distribuidora de abarrotes, debe emitir facturas y boletas electrónicas. El comprobante electrónico es un documento XML con la estructura UBL 2.1 que exige SUNAT. La descripción completa (problema, contexto técnico, codificación y categorías tributarias) está en [`01-descripcion-caso.md`](01-descripcion-caso.md).
+ABC Software Corp, una distribuidora de abarrotes, debe emitir facturas y boletas electrónicas. El comprobante electrónico es un documento XML con la estructura UBL 2.1 que exige SUNAT. La descripción completa (problema, contexto técnico, codificación y categorías tributarias) está en [`descripcion-del-caso-xml.md`](descripcion-del-caso-xml.md).
 
 ## 2. Objetivo
 
@@ -68,7 +68,7 @@ sequenceDiagram
 
 ### 4.3 Entrada
 
-La entrada sigue el DTO `EmitirComprobanteRequest` del contrato [`facturacion-api.yaml`](../../specs/contracts/facturacion-api.yaml): importes como texto decimal (`"140.00"`), unidades del Catálogo 03 y afectación del Catálogo 07. El **correlativo no forma parte de los datos**: lo asigna la serie en el servidor y se pasa como parámetro. Ejemplo: [`ejemplos/factura-abarrotes.json`](ejemplos/factura-abarrotes.json).
+La entrada sigue el DTO `EmitirComprobanteRequest` del contrato [`facturacion-api.yaml`](../specs/contracts/facturacion-api.yaml): importes como texto decimal (`"140.00"`), unidades del Catálogo 03 y afectación del Catálogo 07. El **correlativo no forma parte de los datos**: lo asigna la serie en el servidor y se pasa como parámetro. Ejemplo: [`ejemplos/factura-abarrotes.json`](ejemplos/factura-abarrotes.json).
 
 ### 4.4 Cálculo de importes
 
@@ -133,7 +133,7 @@ Cada `cac:InvoiceLine` lleva `cbc:ID`, `cbc:InvoicedQuantity` (`@unitCode` del C
 | Esquema | OASIS Universal Business Language (UBL) **2.1 OS** (*OASIS Standard*), publicado el 04-nov-2013 |
 | Fuente oficial | <https://docs.oasis-open.org/ubl/os-UBL-2.1/xsd/> (`maindoc/` y `common/`) |
 | Documento raíz | `docs/referencias/ubl/UBL-Invoice-2.1.xsd` |
-| Archivos | 14 XSD; lista y SHA-256 en [`docs/referencias/ubl/README.md`](../referencias/ubl/README.md) |
+| Archivos | 14 XSD; lista y SHA-256 en [`docs/referencias/ubl/README.md`](referencias/ubl/README.md) |
 
 **Hallazgo**: el proyecto original tenía 11 de los 14 archivos. Faltaban `UBL-xmldsig-core-schema-2.1.xsd`, `UBL-XAdESv132-2.1.xsd` y `UBL-XAdESv141-2.1.xsd`, que importa la parte de firma (`UBL-CommonSignatureComponents` → `UBL-SignatureAggregateComponents`). Sin ellos, el XSD de Invoice **no compila**:
 
@@ -172,7 +172,7 @@ La verificación tiene tres niveles: pruebas unitarias de generación (§7.1), v
 
 ### 7.1 Pruebas unitarias de generación
 
-Archivo: [`tests/test_generador_xml.py`](../../tests/test_generador_xml.py) — **89 pruebas** en 9 grupos.
+Archivo: [`tests/test_generador_xml.py`](../tests/test_generador_xml.py) — **89 pruebas** en 9 grupos.
 
 | Grupo | Qué verifica | Pruebas |
 |---|---|---|
@@ -190,7 +190,7 @@ Además, `tests/test_contratos.py` (16 pruebas) sigue validando el contrato Open
 
 ### 7.2 Verificación integral
 
-Archivo: [`tests/test_verificacion_integral.py`](../../tests/test_verificacion_integral.py) — **310 pruebas**. Comprueban el proyecto con oráculos que no dependen del código verificado:
+Archivo: [`tests/test_verificacion_integral.py`](../tests/test_verificacion_integral.py) — **310 pruebas**. Comprueban el proyecto con oráculos que no dependen del código verificado:
 
 | Grupo | Qué verifica | Pruebas |
 |---|---|---|
@@ -201,7 +201,7 @@ Archivo: [`tests/test_verificacion_integral.py`](../../tests/test_verificacion_i
 
 ### 7.3 Pruebas de mutación
 
-Script: [`tests/mutacion.py`](../../tests/mutacion.py). Introduce **16 errores realistas** en el generador, uno por vez (IGV sin el ISC en su base, tasa equivocada, elementos fuera de orden, generar sin validar contra el XSD, RUC sin dígito verificador, ICBPER fijo, redondeo bancario, gratuitas sumadas al total, correlativo sin ceros, lectura que corrompe WIN1252, precio redondeado, ISC 03 mal calculado, tributo equivocado en gratuitas, afectación no soportada aceptada, etc.), y ejecuta la suite completa. Resultado: **16 de 16 detectados**. Salida en [`resultados-pruebas.txt`](resultados-pruebas.txt).
+Script: [`tests/mutacion.py`](../tests/mutacion.py). Introduce **16 errores realistas** en el generador, uno por vez (IGV sin el ISC en su base, tasa equivocada, elementos fuera de orden, generar sin validar contra el XSD, RUC sin dígito verificador, ICBPER fijo, redondeo bancario, gratuitas sumadas al total, correlativo sin ceros, lectura que corrompe WIN1252, precio redondeado, ISC 03 mal calculado, tributo equivocado en gratuitas, afectación no soportada aceptada, etc.), y ejecuta la suite completa. Resultado: **16 de 16 detectados**. Salida en [`resultados-pruebas-python.txt`](resultados-pruebas-python.txt).
 
 Ejecución:
 
@@ -214,8 +214,8 @@ pytest -v
 
 | Verificación | Resultado | Evidencia |
 |---|---|---|
-| `pytest -v` (suite completa: generador + verificación + contratos, con `openapi-spec-validator` 0.9.0 real) | **460 aprobadas, 0 fallidas** | [`resultados-pruebas.txt`](resultados-pruebas.txt) (Windows 11, Python 3.12.7) |
-| `python tests/mutacion.py` | **16 de 16 mutantes detectados** | [`resultados-pruebas.txt`](resultados-pruebas.txt) |
+| `pytest -v` (suite completa: generador + verificación + contratos, con `openapi-spec-validator` 0.9.0 real) | **460 aprobadas, 0 fallidas** | [`resultados-pruebas-python.txt`](resultados-pruebas-python.txt) (Windows 11, Python 3.12.7) |
+| `python tests/mutacion.py` | **16 de 16 mutantes detectados** | [`resultados-pruebas-python.txt`](resultados-pruebas-python.txt) |
 | XML de ejemplo con las 4 categorías, ISC e ICBPER | Válido contra `UBL-Invoice-2.1.xsd` | [`ejemplos/F001-00000001.xml`](ejemplos/F001-00000001.xml) |
 | Cuadre del ejemplo | Valor de venta 1 955.50 + tributos 386.85 = **2 342.35** | §8.1 |
 
@@ -239,13 +239,13 @@ Total de tributos: 32.40 + 349.45 + 5.00 = **386.85**. Importe a pagar: 1 955.50
 ## 9. Limitaciones y puntos por verificar
 
 - Las afectaciones `11`–`17` (gravadas gratuitas, IVAP) y `40` (exportación) se rechazan con un error explícito: quedan fuera de este parcial.
-- La estructura de las líneas gratuitas, los códigos del ICBPER y la numeración de cuotas siguen la matriz 0005 y la Guía XML v1.0 (2017). Deben contrastarse con el anexo de validaciones vigente de SUNAT ([`pendientes-verificacion.md`](../pendientes-verificacion.md)).
+- La estructura de las líneas gratuitas, los códigos del ICBPER y la numeración de cuotas siguen la matriz 0005 y la Guía XML v1.0 (2017). Deben contrastarse con el anexo de validaciones vigente de SUNAT ([`pendientes-verificacion.md`](pendientes-verificacion.md)).
 - La vigencia del IGV del 10 % para restaurantes y hoteles se toma como regla vista en clase; por eso es un parámetro y no se aplica por defecto.
 - El PVP del ISC sistema 03 se usa en el cálculo, pero no se escribe en el XML, porque la guía no indica en qué elemento va.
 
 ## 9. Implementación principal en Java (JAXB)
 
-**Decisión**: [ADR-0006](../../specs/adr/0006-generador-ubl-java-jaxb.md). **Código**: [`generador-java/`](../../generador-java/).
+**Decisión**: [ADR-0006](../specs/adr/0006-generador-ubl-java-jaxb.md). **Código**: [`generador-java/`](../generador-java/).
 
 ### 9.1 Estructura
 

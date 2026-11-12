@@ -13,7 +13,7 @@
 
 ## Descripción
 
-A partir de los datos de un comprobante (DTO `EmitirComprobanteRequest` del contrato [`facturacion-api.yaml`](../../contracts/facturacion-api.yaml)) y del correlativo asignado por el servidor, el sistema genera el documento XML `Invoice` UBL 2.1 que exige SUNAT y comprueba que sea válido contra el XSD oficial. Descripción del caso: [`docs/segundo-parcial/01-descripcion-caso.md`](../../../docs/segundo-parcial/01-descripcion-caso.md).
+A partir de los datos de un comprobante (DTO `EmitirComprobanteRequest` del contrato [`facturacion-api.yaml`](../../contracts/facturacion-api.yaml)) y del correlativo asignado por el servidor, el sistema genera el documento XML `Invoice` UBL 2.1 que exige SUNAT y comprueba que sea válido contra el XSD oficial. Descripción del caso: [`docs/descripcion-del-caso-xml.md`](../../../docs/descripcion-del-caso-xml.md).
 
 ## Alcance
 
@@ -67,7 +67,7 @@ A partir de los datos de un comprobante (DTO `EmitirComprobanteRequest` del cont
 - [x] Dado un ítem con ISC, cuando se genera, entonces el ISC entra en la base del IGV y `TierRange` lleva el código del Catálogo 08 (`TestIscEIcbper`).
 - [x] Dado un dato faltante o inválido, cuando se intenta generar, entonces se lanza `DatosFacturaInvalidosError` con la ruta del campo (`TestDatosInvalidos`).
 - [x] Dado un XML alterado (sin un elemento obligatorio, fuera de orden, con un elemento inexistente o con un tipo incorrecto), cuando se valida, entonces el validador lo rechaza (`TestValidacionXsd`).
-- [x] `pytest -v` ejecuta 89 pruebas de generación y 310 de verificación integral sin fallos (`docs/segundo-parcial/resultados-pruebas.txt`).
+- [x] `pytest -v` ejecuta 89 pruebas de generación y 310 de verificación integral sin fallos (`docs/resultados-pruebas-python.txt`).
 - [x] Dado un error introducido a propósito en el generador, la suite lo detecta: 16/16 mutantes (`tests/mutacion.py`).
 - [x] Dado el ejemplo del contrato, el XML reproduce los importes de la respuesta `201` (`test_ejemplo_del_contrato_produce_los_importes_que_publica_el_contrato`).
 

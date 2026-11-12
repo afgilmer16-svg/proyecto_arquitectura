@@ -66,7 +66,7 @@ docs/generated/
 # Archivos ajenos al examen
 gilmer_50.docx
 
-# Salidas del generador XML (los ejemplos versionados están en docs/segundo-parcial/ejemplos/)
+# Salidas del generador XML (los ejemplos versionados están en docs/ejemplos/)
 salida/
 
 # Java (generador-java/)

@@ -35,7 +35,7 @@ from facturacion_xml.modelo import ruc_valido
 from facturacion_xml.numero_letras import entero_en_letras, importe_en_letras
 
 RAIZ = Path(__file__).resolve().parents[1]
-EJEMPLO = RAIZ / "docs" / "segundo-parcial" / "ejemplos" / "factura-abarrotes.json"
+EJEMPLO = RAIZ / "docs" / "ejemplos" / "factura-abarrotes.json"
 NS = {
     "inv": "urn:oasis:names:specification:ubl:schema:xsd:Invoice-2",
     "cac": "urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2",

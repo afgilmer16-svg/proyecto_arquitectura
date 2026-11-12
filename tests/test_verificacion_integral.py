@@ -32,7 +32,7 @@ from facturacion_xml import catalogos as cat
 
 RAIZ = Path(__file__).resolve().parents[1]
 CONTRATO = RAIZ / "specs" / "contracts" / "facturacion-api.yaml"
-EJEMPLOS = RAIZ / "docs" / "segundo-parcial" / "ejemplos"
+EJEMPLOS = RAIZ / "docs" / "ejemplos"
 MATRIZ = RAIZ / "specs" / "features" / "0005-trazabilidad-sunat-ubl" / "spec.md"
 NS = {
     "cac": "urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2",

@@ -6,7 +6,7 @@
 **Autor**: Equipo Grupo A — UNAS-FIIS  
 **Fecha**: 2026-11-11
 
-> Complementa a [`spec.md`](spec.md). La documentación técnica completa, con la estructura del XML, la validación XSD y los resultados, está en [`docs/segundo-parcial/02-documentacion-tecnica.md`](../../../docs/segundo-parcial/02-documentacion-tecnica.md).
+> Complementa a [`spec.md`](spec.md). La documentación técnica completa, con la estructura del XML, la validación XSD y los resultados, está en [`docs/documentacion-tecnica-xml.md`](../../../docs/documentacion-tecnica-xml.md).
 
 ---
 

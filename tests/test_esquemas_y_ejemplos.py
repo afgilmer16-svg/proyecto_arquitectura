@@ -18,7 +18,7 @@ RAIZ = Path(__file__).resolve().parents[1]
 ESQUEMA = RAIZ / "specs" / "schemas" / "factura-entrada.schema.json"
 VALIDOS = sorted((RAIZ / "specs" / "ejemplos" / "validos").glob("*.json"))
 INVALIDOS = sorted((RAIZ / "specs" / "ejemplos" / "invalidos").glob("*.json"))
-EJEMPLO_PARCIAL = RAIZ / "docs" / "segundo-parcial" / "ejemplos" / "factura-abarrotes.json"
+EJEMPLO_PARCIAL = RAIZ / "docs" / "ejemplos" / "factura-abarrotes.json"
 
 # archivo -> (lo rechaza el esquema JSON?, texto que debe aparecer en el error del modelo)
 INVALIDOS_ESPERADOS = {

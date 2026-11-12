@@ -13,7 +13,7 @@ Según las reglas **Spec-First** del proyecto (`.agent/rules/spec-first.md`), aq
 ```powershell
 pip install -r requirements.txt
 $env:PYTHONPATH = "src"
-python -m facturacion_xml docs\segundo-parcial\ejemplos\factura-abarrotes.json salida\F001-00000001.xml --correlativo 1
+python -m facturacion_xml docs\ejemplos\factura-abarrotes.json salida\F001-00000001.xml --correlativo 1
 ```
 
 Desde Python:
@@ -24,7 +24,7 @@ from facturacion_xml import generar_xml_factura
 xml = generar_xml_factura(datos, correlativo=1)   # bytes UTF-8, ya validados contra el XSD
 ```
 
-Documentación técnica: [`docs/segundo-parcial/02-documentacion-tecnica.md`](../docs/segundo-parcial/02-documentacion-tecnica.md).
+Documentación técnica: [`docs/documentacion-tecnica-xml.md`](../docs/documentacion-tecnica-xml.md).
 
 ## Estado de las demás specs (primer parcial)
 

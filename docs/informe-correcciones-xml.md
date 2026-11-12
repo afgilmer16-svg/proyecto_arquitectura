@@ -2,7 +2,7 @@
 
 **Fecha**: 2026-11-11  
 **Base de comparación**: estado del repositorio en GitHub antes de este trabajo (commit `f5b2be4`, "Corrige observaciones del docente…").  
-**Referencias del docente**: observaciones escritas sobre el primer parcial (`gilmer_50.docx`, resumidas en [`docs/retroalimentacion-docente.md`](../retroalimentacion-docente.md)) y requisitos del segundo parcial vistos en clase (descripción del caso, generación XML desde el XSD Invoice 2.1, lenguaje del dominio y pruebas unitarias de generación).
+**Referencias del docente**: observaciones escritas sobre el primer parcial (`gilmer_50.docx`, resumidas en [`docs/retroalimentacion-docente.md`](retroalimentacion-docente.md)) y requisitos del segundo parcial vistos en clase (descripción del caso, generación XML desde el XSD Invoice 2.1, lenguaje del dominio y pruebas unitarias de generación).
 
 ---
 
@@ -62,7 +62,7 @@ Tras comparar el proyecto con otro trabajo del curso se agregaron complementos q
 | "Importes como texto decimal; sin double" | Entrada en texto y cálculo con `Decimal`; se rechazan `float`. | `test_importe_como_numero_flotante_se_rechaza` |
 | "ICBPER parametrizado por fecha" | Importe por año de emisión (0.50 desde 2023). | `test_icbper_2022_usa_el_importe_de_ese_anio` |
 | "Que el cliente no envíe impuestos" | El generador calcula todos los tributos y totales. | `calculo.py` |
-| "Correr la validación antes de marcar el criterio" | Las pruebas se ejecutaron y su salida está guardada; no se marcó nada sin correr. | `resultados-pruebas.txt` |
+| "Correr la validación antes de marcar el criterio" | Las pruebas se ejecutaron y su salida está guardada; no se marcó nada sin correr. | `resultados-pruebas-python.txt` |
 
 ## 3. Archivos modificados
 
@@ -92,11 +92,11 @@ Tras comparar el proyecto con otro trabajo del curso se agregaron complementos q
 | `tests/mutacion.py` | Pruebas de mutación (16 errores introducidos a propósito) |
 | `tests/conftest.py` | Hace importable `src/` para pytest |
 | `docs/referencias/ubl/UBL-xmldsig-core-schema-2.1.xsd`, `UBL-XAdESv132-2.1.xsd`, `UBL-XAdESv141-2.1.xsd` | XSD oficiales que faltaban |
-| `docs/segundo-parcial/01-descripcion-caso.md` | Requisito 1 |
-| `docs/segundo-parcial/02-documentacion-tecnica.md` | Documentación técnica |
-| `docs/segundo-parcial/03-informe-correcciones.md` | Este informe |
-| `docs/segundo-parcial/resultados-pruebas.txt` | Salida real de `pytest -v` |
-| `docs/segundo-parcial/ejemplos/factura-abarrotes.json` y `F001-00000001.xml` | Entrada de ejemplo y XML generado |
+| `docs/descripcion-del-caso-xml.md` | Requisito 1 |
+| `docs/documentacion-tecnica-xml.md` | Documentación técnica |
+| `docs/informe-correcciones-xml.md` | Este informe |
+| `docs/resultados-pruebas-python.txt` | Salida real de `pytest -v` |
+| `docs/ejemplos/factura-abarrotes.json` y `F001-00000001.xml` | Entrada de ejemplo y XML generado |
 | `specs/features/0008-generacion-xml-ubl/spec.md`, `design.md`, `tasks.md` | Feature del segundo parcial |
 | `specs/adr/0005-generador-ubl-python-lxml.md` | Decisión del lenguaje y la técnica |
 
@@ -115,9 +115,9 @@ Tras comparar el proyecto con otro trabajo del curso se agregaron complementos q
 
 | Ejecución | Resultado |
 |---|---|
-| `pytest -v` (suite completa, con `openapi-spec-validator` 0.9.0 real, Windows 11 / Python 3.12.7) | **460 aprobadas, 0 fallidas**. Salida completa en [`resultados-pruebas.txt`](resultados-pruebas.txt). |
+| `pytest -v` (suite completa, con `openapi-spec-validator` 0.9.0 real, Windows 11 / Python 3.12.7) | **460 aprobadas, 0 fallidas**. Salida completa en [`resultados-pruebas-python.txt`](resultados-pruebas-python.txt). |
 | `python tests/mutacion.py` | **16 de 16 mutantes detectados**. |
-| CLI con el ejemplo | XML generado y validado: `docs/segundo-parcial/ejemplos/F001-00000001.xml`. |
+| CLI con el ejemplo | XML generado y validado: `docs/ejemplos/F001-00000001.xml`. |
 | CLI con correlativo `0` | Rechazado con mensaje claro y código de salida 1. |
 | Los 18 diagramas Mermaid del proyecto | Se renderizan sin errores. |
 
@@ -133,13 +133,13 @@ Tras comparar el proyecto con otro trabajo del curso se agregaron complementos q
 
 | Requisito | Cumple | Evidencia |
 |---|---|---|
-| **R1** Descripción del caso: problema, contexto técnico, necesidad del XML, relación con SUNAT, objetivo, alcance y funcionamiento | ✅ | [`01-descripcion-caso.md`](01-descripcion-caso.md) §1–§7 |
-| R1 · Dónde encaja el generador en la arquitectura (puerto `GeneradorXmlUblPort`) | ✅ | `01-descripcion-caso.md` §2.1 |
-| R1 · Tecnologías utilizadas (Python, lxml, XSD, pytest, Git) | ✅ | `01-descripcion-caso.md` §2.2 |
-| R1 · Codificación UTF-8 / WIN1252 | ✅ | `01-descripcion-caso.md` §2.3; `__main__.py`; `test_rechaza_json_guardado_en_win1252` |
-| R1 · Categorías 1001–1004 y tasas 18 % / 10 % | ✅ | `01-descripcion-caso.md` §4; `catalogos.py`; `TestCategoriasDeOperacion` |
+| **R1** Descripción del caso: problema, contexto técnico, necesidad del XML, relación con SUNAT, objetivo, alcance y funcionamiento | ✅ | [`descripcion-del-caso-xml.md`](descripcion-del-caso-xml.md) §1–§7 |
+| R1 · Dónde encaja el generador en la arquitectura (puerto `GeneradorXmlUblPort`) | ✅ | `descripcion-del-caso-xml.md` §2.1 |
+| R1 · Tecnologías utilizadas (Python, lxml, XSD, pytest, Git) | ✅ | `descripcion-del-caso-xml.md` §2.2 |
+| R1 · Codificación UTF-8 / WIN1252 | ✅ | `descripcion-del-caso-xml.md` §2.3; `__main__.py`; `test_rechaza_json_guardado_en_win1252` |
+| R1 · Categorías 1001–1004 y tasas 18 % / 10 % | ✅ | `descripcion-del-caso-xml.md` §4; `catalogos.py`; `TestCategoriasDeOperacion` |
 | **R2** XML generado a partir del XSD Invoice 2.1 real, con procedencia y versión documentadas | ✅ | `generador_ubl.py`; `docs/referencias/ubl/README.md` |
-| R2 · Elementos obligatorios y opcionales identificados | ✅ | `02-documentacion-tecnica.md` §5 |
+| R2 · Elementos obligatorios y opcionales identificados | ✅ | `documentacion-tecnica-xml.md` §5 |
 | R2 · Tipos y restricciones del esquema respetados | ✅ | `test_xml_generado_es_valido_contra_el_xsd_oficial` y validación en cada `generar()` |
 | R2 · Sin etiquetas ni estructuras ajenas al XSD | ✅ | `test_no_genera_elementos_ajenos_al_xsd_ubl_21`; `test_detecta_elemento_inexistente_en_el_xsd` |
 | R2 · Si falta el esquema, se identifica qué documento falta | ✅ | Error E-01; `EsquemaXsdIncompletoError`; `test_falla_con_mensaje_claro_si_falta_un_xsd` |
@@ -153,6 +153,6 @@ Tras comparar el proyecto con otro trabajo del curso se agregaron complementos q
 | R4 · Datos faltantes o inválidos detectados | ✅ | `TestDatosInvalidos` (30) |
 | R4 · Validación contra el XSD | ✅ | `TestValidacionXsd` y validación de cada XML positivo |
 | R4 · Casos negativos que detectan errores | ✅ | `TestDatosInvalidos` + `TestValidacionXsd` (36) |
-| R4 · Resultados reales y verificables | ✅ | `resultados-pruebas.txt`; `pytest -v` reproducible |
+| R4 · Resultados reales y verificables | ✅ | `resultados-pruebas-python.txt`; `pytest -v` reproducible |
 | R4 · Las pruebas detectan errores reales | ✅ | `tests/mutacion.py`: 16/16 mutantes detectados |
 | No se avanzó al tercer parcial ni posteriores | ✅ | Sin Docker, sin base de datos, sin API REST ni interfaz de usuario |

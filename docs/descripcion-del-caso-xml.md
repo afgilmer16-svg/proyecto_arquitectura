@@ -17,7 +17,7 @@ El primer parcial dejó especificado el sistema (fase Spec-First): casos de uso,
 
 ## 2. Contexto técnico del sistema
 
-El generador del XML es una pieza del sistema de facturación de ABC Software Corp. Se ubica donde lo define la arquitectura del primer parcial ([feature 0003](../../specs/features/0003-arquitectura-mvc-hexagonal/design.md)): un monolito MVC con núcleo desacoplado por puertos, preparado para evolucionar a hexagonal.
+El generador del XML es una pieza del sistema de facturación de ABC Software Corp. Se ubica donde lo define la arquitectura del primer parcial ([feature 0003](../specs/features/0003-arquitectura-mvc-hexagonal/design.md)): un monolito MVC con núcleo desacoplado por puertos, preparado para evolucionar a hexagonal.
 
 ### 2.1 Dónde encaja el generador
 
@@ -43,7 +43,7 @@ flowchart LR
 
 | Componente | Función |
 |---|---|
-| **Java 21** | Lenguaje del generador: es el stack del backend definido en el primer parcial (ADR-001) y el que recomendó el docente para usar JAXB. Razones en el [ADR-0006](../../specs/adr/0006-generador-ubl-java-jaxb.md). |
+| **Java 21** | Lenguaje del generador: es el stack del backend definido en el primer parcial (ADR-001) y el que recomendó el docente para usar JAXB. Razones en el [ADR-0006](../specs/adr/0006-generador-ubl-java-jaxb.md). |
 | **JAXB (xjc)** | Genera ≈ 1 240 clases Java desde `UBL-Invoice-2.1.xsd` en cada compilación; el XML se arma llenando esos objetos, sin plantillas. |
 | **Maven** | Compila, genera las clases desde el XSD, ejecuta las pruebas y exige cobertura mínima (incluye el Maven Wrapper). |
 | **Python 3.10+** | Prototipo de referencia (ADR-0005) y herramientas de verificación; sirve de oráculo en la regresión cruzada. |
@@ -115,5 +115,5 @@ Uso:
 
 ```powershell
 $env:PYTHONPATH = "src"
-python -m facturacion_xml docs\segundo-parcial\ejemplos\factura-abarrotes.json salida\F001-00000001.xml --correlativo 1
+python -m facturacion_xml docs\ejemplos\factura-abarrotes.json salida\F001-00000001.xml --correlativo 1
 ```

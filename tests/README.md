@@ -1,6 +1,6 @@
 # tests/
 
-> Estas son las pruebas del **prototipo en Python** y de los contratos. Las pruebas de la implementación principal (Java + JAXB) están en [`generador-java/src/test/java`](../generador-java/src/test/java/pe/abc/facturacion/) y se ejecutan con `cd generador-java && ./mvnw verify` (resultados: [`resultados-pruebas-java.txt`](../docs/segundo-parcial/resultados-pruebas-java.txt)).
+> Estas son las pruebas del **prototipo en Python** y de los contratos. Las pruebas de la implementación principal (Java + JAXB) están en [`generador-java/src/test/java`](../generador-java/src/test/java/pe/abc/facturacion/) y se ejecutan con `cd generador-java && ./mvnw verify` (resultados: [`resultados-pruebas-java.txt`](../docs/resultados-pruebas-java.txt)).
 
 | Archivo | Qué prueba |
 |---|---|
@@ -19,4 +19,4 @@ pytest -v
 pytest --cov=facturacion_xml   # exige 90 % (.coveragerc); hoy 95 %
 ```
 
-Resultados de la última ejecución: [`docs/segundo-parcial/resultados-pruebas.txt`](../docs/segundo-parcial/resultados-pruebas.txt).
+Resultados de la última ejecución: [`docs/resultados-pruebas-python.txt`](../docs/resultados-pruebas-python.txt).

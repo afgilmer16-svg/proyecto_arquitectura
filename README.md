@@ -38,12 +38,12 @@ El **primer parcial** fue la fase Spec-First: reglas, contratos de datos, valida
 
 | Requisito | Dónde está |
 |---|---|
-| 1. Descripción del caso (contexto técnico, codificación, categorías 1001–1004) | [`docs/segundo-parcial/01-descripcion-caso.md`](docs/segundo-parcial/01-descripcion-caso.md) |
+| 1. Descripción del caso (contexto técnico, codificación, categorías 1001–1004) | [`docs/descripcion-del-caso-xml.md`](docs/descripcion-del-caso-xml.md) |
 | 2. Generación del XML a partir del XSD Invoice 2.1 | [`generador-java/`](generador-java/) (Java 21 + JAXB: las clases se generan del XSD en cada compilación) · XSD en [`docs/referencias/ubl/`](docs/referencias/ubl/) |
 | 3. Lenguaje del dominio (Java, el stack del primer parcial) | [ADR-0006](specs/adr/0006-generador-ubl-java-jaxb.md) · prototipo de referencia en Python: [ADR-0005](specs/adr/0005-generador-ubl-python-lxml.md) |
-| 4. Pruebas unitarias de generación | [`GeneradorFacturaXmlTest`](generador-java/src/test/java/pe/abc/facturacion/infraestructura/ubl/GeneradorFacturaXmlTest.java) · [`RegresionCruzadaTest`](generador-java/src/test/java/pe/abc/facturacion/infraestructura/ubl/RegresionCruzadaTest.java) · [resultados Java](docs/segundo-parcial/resultados-pruebas-java.txt) · prototipo Python: [`tests/test_generador_xml.py`](tests/test_generador_xml.py) |
-| Documentación técnica | [`docs/segundo-parcial/02-documentacion-tecnica.md`](docs/segundo-parcial/02-documentacion-tecnica.md) |
-| Informe de correcciones y verificación | [`docs/segundo-parcial/03-informe-correcciones.md`](docs/segundo-parcial/03-informe-correcciones.md) |
+| 4. Pruebas unitarias de generación | [`GeneradorFacturaXmlTest`](generador-java/src/test/java/pe/abc/facturacion/infraestructura/ubl/GeneradorFacturaXmlTest.java) · [`RegresionCruzadaTest`](generador-java/src/test/java/pe/abc/facturacion/infraestructura/ubl/RegresionCruzadaTest.java) · [resultados Java](docs/resultados-pruebas-java.txt) · prototipo Python: [`tests/test_generador_xml.py`](tests/test_generador_xml.py) |
+| Documentación técnica | [`docs/documentacion-tecnica-xml.md`](docs/documentacion-tecnica-xml.md) |
+| Informe de correcciones y verificación | [`docs/informe-correcciones-xml.md`](docs/informe-correcciones-xml.md) |
 | Feature | [`specs/features/0008-generacion-xml-ubl/`](specs/features/0008-generacion-xml-ubl/) |
 | Contrato de la entrada (JSON Schema 2020-12) y ejemplos válidos e inválidos | [`specs/schemas/`](specs/schemas/factura-entrada.schema.json) · [`specs/ejemplos/`](specs/ejemplos/) |
 | Reglas de arquitectura, cobertura mínima del 90 % y CI | [`tests/test_arquitectura.py`](tests/test_arquitectura.py) · [`.coveragerc`](.coveragerc) · [`.github/workflows/python.yml`](.github/workflows/python.yml) |
@@ -61,7 +61,7 @@ El prototipo en Python sigue disponible (PowerShell, desde la raíz):
 ```powershell
 pip install -r requirements.txt
 $env:PYTHONPATH = "src"
-python -m facturacion_xml docs\segundo-parcial\ejemplos\factura-abarrotes.json salida\F001-00000001.xml --correlativo 1
+python -m facturacion_xml docs\ejemplos\factura-abarrotes.json salida\F001-00000001.xml --correlativo 1
 ```
 
 ## Restricciones del enunciado (sección 2) y casos de uso (sección 3)
@@ -90,7 +90,9 @@ proyecto_arquitectura/
 │   ├── enunciado.md · analisis-problema.md · caso.md · glosario.md
 │   ├── pendientes-verificacion.md        ← datos "Por verificar" y su fuente
 │   ├── retroalimentacion-docente.md      ← observaciones del docente y su estado
-│   ├── segundo-parcial/                  ← descripción del caso, documentación técnica, informe, ejemplos
+│   ├── descripcion-del-caso-xml.md · documentacion-tecnica-xml.md · informe-correcciones-xml.md
+│   ├── ejemplos/                         ← entrada JSON y XML de ejemplo
+│   ├── resultados-pruebas-java.txt · resultados-pruebas-python.txt
 │   └── referencias/
 │       ├── ubl/                          ← XSD oficiales de UBL 2.1 (14 archivos)
 │       └── sunat/                        ← Guía XML de factura y manual del programador
