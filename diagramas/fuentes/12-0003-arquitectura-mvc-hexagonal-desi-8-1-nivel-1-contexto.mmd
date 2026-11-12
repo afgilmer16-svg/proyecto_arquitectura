@@ -1,0 +1,19 @@
+flowchart TB
+    cajero["Cajero / Vendedor"]
+    contador["Contador / Administrador"]
+    almacenero["Almacenero"]
+    cliente["Cliente (adquirente)"]
+    sistema["Sistema de Facturación Electrónica\nABC Software Corp"]
+    ose["OSE\n(Operador de Servicios Electrónicos)"]
+    sunat["SUNAT\n(padrón RUC, recepción directa)"]
+    legado["Sistema antiguo de abarrotes\n(archivos CSV / DBF)"]
+
+    cajero -->|emite comprobantes| sistema
+    contador -->|bajas, resúmenes, libros| sistema
+    almacenero -->|productos y stock| sistema
+    sistema -->|XML firmado en ZIP / CDR| ose
+    ose -->|valida y reenvía| sunat
+    sistema -.->|contingencia: envío directo| sunat
+    sistema -->|consulta RUC| sunat
+    sistema -->|PDF, XML, CDR| cliente
+    legado -->|importación histórica| sistema

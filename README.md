@@ -45,6 +45,9 @@ El **primer parcial** fue la fase Spec-First: reglas, contratos de datos, valida
 | Documentación técnica | [`docs/segundo-parcial/02-documentacion-tecnica.md`](docs/segundo-parcial/02-documentacion-tecnica.md) |
 | Informe de correcciones y verificación | [`docs/segundo-parcial/03-informe-correcciones.md`](docs/segundo-parcial/03-informe-correcciones.md) |
 | Feature | [`specs/features/0008-generacion-xml-ubl/`](specs/features/0008-generacion-xml-ubl/) |
+| Contrato de la entrada (JSON Schema 2020-12) y ejemplos válidos e inválidos | [`specs/schemas/`](specs/schemas/factura-entrada.schema.json) · [`specs/ejemplos/`](specs/ejemplos/) |
+| Reglas de arquitectura, cobertura mínima del 90 % y CI | [`tests/test_arquitectura.py`](tests/test_arquitectura.py) · [`.coveragerc`](.coveragerc) · [`.github/workflows/pruebas.yml`](.github/workflows/pruebas.yml) |
+| Diagramas Mermaid como fuente (`.mmd`) y matriz de trazabilidad en CSV | [`diagramas/fuentes/`](diagramas/fuentes/) · [`specs/trazabilidad/csv/`](specs/trazabilidad/csv/) · [`tools/`](tools/) |
 
 Generar un XML de ejemplo (PowerShell, desde la raíz):
 
@@ -103,7 +106,16 @@ proyecto_arquitectura/
 │   └── facturacion_xml/                  ← generador XML UBL 2.1 (segundo parcial)
 ├── tests/
 │   ├── test_contratos.py                 ← valida los contratos
-│   └── test_generador_xml.py             ← pruebas unitarias de generación
+│   ├── test_generador_xml.py             ← pruebas unitarias de generación
+│   ├── test_verificacion_integral.py     ← 300 comprobantes aleatorios, regresión, trazabilidad
+│   ├── test_esquemas_y_ejemplos.py       ← JSON Schema + ejemplos válidos e inválidos
+│   ├── test_arquitectura.py              ← reglas de dependencias entre módulos
+│   ├── test_herramientas_y_derivados.py  ← .mmd y CSV al día con sus fuentes
+│   └── mutacion.py                       ← 16 mutantes
+├── tools/                                ← extraer_diagramas.py · exportar_matriz.py
+├── diagramas/fuentes/                    ← 18 diagramas Mermaid (.mmd)
+├── .github/workflows/pruebas.yml         ← CI: pruebas, cobertura y mutación
+├── .coveragerc · redocly.yaml
 ├── .gitignore
 ├── README.md
 └── requirements.txt
@@ -114,7 +126,11 @@ proyecto_arquitectura/
 ```bash
 pip install -r requirements.txt
 pytest -v
+pytest --cov=facturacion_xml     # cobertura (mínimo 90 %, definido en .coveragerc)
+python tests/mutacion.py         # 16 errores introducidos a propósito: todos deben detectarse
 ```
+
+El mismo conjunto corre en GitHub Actions en cada `push` ([`pruebas.yml`](.github/workflows/pruebas.yml)).
 
 Para ver el contrato como documentación, pega `specs/contracts/facturacion-api.yaml` en [editor.swagger.io](https://editor.swagger.io). Para ver los diagramas, abre cualquier `design.md` con la vista previa de Markdown (`Ctrl + Shift + V`).
 

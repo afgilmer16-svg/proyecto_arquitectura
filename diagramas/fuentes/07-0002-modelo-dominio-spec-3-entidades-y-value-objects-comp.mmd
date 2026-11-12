@@ -1,0 +1,86 @@
+classDiagram
+    class Emisor {
+        <<Entity>>
+        +Ruc ruc
+        +String razonSocial
+        +String nombreComercial
+        +String ubigeo
+        +String direccionFiscal
+    }
+
+    class TotalesComprobante {
+        <<Value Object>>
+        +Dinero totalValorVenta
+        +Dinero totalPrecioVenta
+        +Dinero totalOperacionesGravadas
+        +Dinero totalOperacionesExoneradas
+        +Dinero totalOperacionesInafectas
+        +Dinero totalIgv
+        +Dinero totalIsc
+        +Dinero totalIcbper
+        +Dinero totalImpuestos
+        +Dinero descuentosGlobales
+        +Dinero cargosGlobales
+        +Dinero importeTotal
+    }
+
+    class FormaPago {
+        <<Value Object>>
+        +TipoFormaPago tipo
+        +Dinero montoNetoPendiente
+        +List~Cuota~ cuotas
+    }
+
+    class CdrRespuesta {
+        <<Value Object>>
+        +String codigoRespuesta
+        +String descripcion
+        +List~String~ observaciones
+        +Instant fechaRecepcion
+        +byte[] xmlCdr
+    }
+
+    class Serie {
+        <<Entity>>
+        +UUID id
+        +TipoComprobante tipoComprobante
+        +String codigoSerie
+        +Integer correlativoActual
+        +Boolean activa
+        +siguienteCorrelativo()
+    }
+
+    class Producto {
+        <<Entity>>
+        +UUID id
+        +String codigo
+        +String codigoLegado
+        +String descripcion
+        +UnidadMedida unidadMedida
+        +TipoAfectacionIgv afectacionIgv
+        +SistemaIsc sistemaIsc
+        +Boolean afectoIcbper
+        +String codigoTipoExistencia
+        +Boolean activo
+    }
+
+    class MovimientoAlmacen {
+        <<Entity>>
+        +UUID id
+        +UUID productoId
+        +TipoMovimiento tipo
+        +BigDecimal cantidad
+        +Instant fechaMovimiento
+        +UUID comprobanteId
+        +Origen origen
+        +String codigoEstablecimiento
+        +String tipoOperacionPle
+        +String tipoDocumentoSoporte
+    }
+
+    ComprobantePago "1" --> "1" Emisor
+    ComprobantePago "1" *-- "1" TotalesComprobante
+    ComprobantePago "1" o-- "0..1" FormaPago
+    ComprobantePago "1" o-- "0..1" CdrRespuesta
+    ComprobantePago ..> Serie : asigna correlativo
+    MovimientoAlmacen "*" --> "1" Producto

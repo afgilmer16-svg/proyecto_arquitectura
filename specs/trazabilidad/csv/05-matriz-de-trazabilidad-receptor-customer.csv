@@ -1,0 +1,5 @@
+﻿Dato SUNAT,Catálogo / Norma,XPath UBL 2.1,Campo DTO,Regla de validación
+Tipo de documento del receptor,Cat. 06,`/Invoice/cac:AccountingCustomerParty/cac:Party/cac:PartyIdentification/cbc:ID/@schemeID`,`receptor.tipo_documento`,"Enum Cat. 06: `""6""` RUC, `""1""` DNI, `""4""` Carné Extranjería, `""7""` Pasaporte, `""0""` Sin documento. En factura (tipo `01`) el receptor debe tener RUC (`""6""`). **O/C**"
+Número de documento del receptor,Cat. 06,`/Invoice/cac:AccountingCustomerParty/cac:Party/cac:PartyIdentification/cbc:ID`,`receptor.numero_documento`,Longitud y formato según tipo: RUC = 11 dígitos + módulo 11; DNI = 8 dígitos; Pasaporte ≤ 12 caracteres. **O/C**
+Razón social / nombres del receptor,Guía XML SUNAT,`/Invoice/cac:AccountingCustomerParty/cac:Party/cac:PartyLegalEntity/cbc:RegistrationName`,`receptor.razon_social`,No vacío cuando el receptor tiene documento. **O/C**
+Dirección del receptor,Guía XML SUNAT,`/Invoice/cac:AccountingCustomerParty/cac:Party/cac:PartyLegalEntity/cac:RegistrationAddress/cac:AddressLine/cbc:Line`,`receptor.direccion`,Texto; recomendado cuando el receptor tiene RUC. **C/OP**

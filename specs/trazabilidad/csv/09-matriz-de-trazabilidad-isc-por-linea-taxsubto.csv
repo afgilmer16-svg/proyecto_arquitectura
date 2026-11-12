@@ -1,0 +1,9 @@
+﻿Dato SUNAT,Catálogo / Norma,XPath UBL 2.1,Campo DTO,Regla de validación
+Sistema de cálculo ISC,Cat. 08,`/Invoice/cac:InvoiceLine/cac:TaxTotal/cac:TaxSubtotal[.../cbc:ID='2000']/cac:TaxCategory/cbc:TierRange`,`items[].sistema_isc`,"Enum Cat. 08: `""01""` Al valor, `""02""` Específico, `""03""` Al valor según PVP. Requerido si el ítem está afecto a ISC. **C**"
+Base imponible ISC,Cat. 05 / TUO,`.../cbc:TaxableAmount` con `@currencyID`,*(calculado por dominio)*,Sistema `01`: base = valor de venta; Sistema `02`: base = cantidad × monto físico; Sistema `03`: base derivada del PVP. **C**
+Tasa ISC (sistemas 01 y 03),TUO ISC,`.../cac:TaxCategory/cbc:Percent`,`items[].tasa_isc`,Porcentaje según el bien y fecha; dato del catálogo vigente. Solo para sistemas `01` y `03`. **C**
+Monto fijo por unidad (sistema 02),TUO ISC,`.../cac:TaxCategory/cbc:PerUnitAmount` con `@currencyID`,`items[].monto_fijo_isc`,Importe fijo normativo vigente por unidad física. Solo para sistema `02`. **C**
+Volumen / cantidad base (sistema 02),TUO ISC,`.../cbc:BaseUnitMeasure` con `@unitCode` (Cat. 03),`items[].unidad_base_isc`,Cantidad física en la unidad normativa del bien. **C**
+PVP sugerido (sistema 03),TUO ISC,⚠️ Por verificar: elemento exacto en perfil SUNAT para consignar PVP,`items[].precio_venta_publico_sugerido`,Precio de venta al público sugerido del fabricante. **C** ⚠️
+Monto ISC de la línea,Cat. 05,`.../cbc:TaxAmount` con `@currencyID`,*(calculado por dominio)*,Resultado de la fórmula del sistema aplicado; redondeo a 2 decimales. **C**
+Código tributo ISC,Cat. 05,"`.../cac:TaxScheme/cbc:ID=""2000""`, `Name=""ISC""`, `TaxTypeCode=""EXC""`",*(constante servidor)*,Fijo. **C**

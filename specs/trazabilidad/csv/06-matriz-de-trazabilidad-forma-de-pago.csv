@@ -1,0 +1,5 @@
+﻿Dato SUNAT,Catálogo / Norma,XPath UBL 2.1,Campo DTO,Regla de validación
+Indicador de pago,RS 000193-2020 / guía XML,"`/Invoice/cac:PaymentTerms/cbc:ID` con valor `""FormaPago""`",*(derivado de `forma_pago.tipo`)*,"Siempre presente; valor literal `""FormaPago""`. **O**"
+Tipo de pago (Contado / Crédito),RS 000193-2020,`/Invoice/cac:PaymentTerms/cbc:PaymentMeansID`,`forma_pago.tipo`,"`""Contado""` o `""Credito""`. Si es `""Credito""`, debe haber al menos una cuota. **O**"
+Monto neto pendiente (crédito),RS 000193-2020,`/Invoice/cac:PaymentTerms/cbc:Amount` con `@currencyID`,`forma_pago.monto_neto_pendiente`,"Requerido cuando tipo es `""Credito""`; `> 0`; misma moneda del documento. **C**"
+Cuotas de pago,RS 000193-2020,"`/Invoice/cac:PaymentTerms[cbc:PaymentMeansID='Cuota001']/cbc:Amount` y `cbc:PaymentDueDate` (cada cuota repite `cbc:ID='FormaPago'`; numeración `Cuota001`, `Cuota002`…; ⚠️ Por verificar contra la guía posterior a la RS 193-2020)",`forma_pago.cuotas[].monto` / `fecha_vencimiento`,Fecha de vencimiento ≥ fecha de emisión; suma de cuotas = monto neto pendiente. **C**

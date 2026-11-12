@@ -1,0 +1,22 @@
+﻿Campo PLE 14.1,Fuente,Mapeo al dominio,Regla
+Período tributario (`YYYYMM`),PLE / guía SUNAT,`ComprobantePago.fechaEmision` → año-mes,**O**
+CUO,PLE,`ComprobantePago.id` (UUID convertido a correlativo de libro),**O**
+Número correlativo del asiento,PLE,Correlativo de registro contable,Asignado al cierre del período. **O**
+Fecha de emisión,PLE,`ComprobantePago.fechaEmision`,Formato `DD/MM/YYYY`. **O**
+Fecha de vencimiento (crédito),PLE,`FormaPago.cuotas[0].fechaVencimiento`,**C**
+Tipo de comprobante,Cat. 01 / PLE,`ComprobantePago.tipoComprobante`,Código Cat. 01. **O**
+Serie,RS 097-2012,`ComprobantePago.serie`,4 caracteres. **O**
+Número,RS 097-2012,`ComprobantePago.correlativo`,Entero 1–99 999 999. **O**
+Tipo doc. identidad del cliente,Cat. 06 / PLE,`ClienteReceptor.tipoDocumento`,**O**
+Número de identidad del cliente,Cat. 06 / PLE,`ClienteReceptor.numeroDocumento`,**O**
+Apellidos y nombres / razón social,PLE,`ClienteReceptor.razonSocialNombres`,**O**
+Base imponible op. gravadas,PLE,Suma `LineExtensionAmount` gravados,**O/C**
+IGV y/o IPM,PLE,Total IGV de cabecera,**O/C**
+Base imponible op. exoneradas,PLE,"Suma `LineExtensionAmount` exonerados (`""20""`)",**C**
+Base imponible op. inafectas,PLE,"Suma `LineExtensionAmount` inafectos (`""30""`)",**C**
+ISC,PLE,Total ISC de cabecera,**C**
+ICBPER,PLE,Total ICBPER de cabecera,**C**
+Importe total del comprobante,PLE,`LegalMonetaryTotal/cbc:PayableAmount`,**O**
+Código de moneda,Cat. 02 / PLE,`ComprobantePago.moneda`,**O**
+Tipo de cambio (si moneda ≠ PEN),SUNAT / SBS,TC publicado por SBS fecha de operación,**C**
+Estado del comprobante,PLE,"`EstadoComprobante` → código PLE: `""1""` vigente, `""2""` anulado, `""8""` baja",**O**

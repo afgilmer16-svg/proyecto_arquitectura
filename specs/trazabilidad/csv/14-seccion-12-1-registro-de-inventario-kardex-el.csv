@@ -1,0 +1,24 @@
+﻿Campo PLE 12.1,Fuente,Mapeo al dominio,Regla
+Período (`YYYYMM`),RS 234-2006 / PLE,`MovimientoAlmacen.fechaMovimiento` → mes,**O**
+CUO,PLE,`MovimientoAlmacen.id`,**O**
+Código del establecimiento,RS 234-2006,`MovimientoAlmacen.codigoEstablecimiento`,**O**
+Tipo de existencia (Tabla 5 PLE),Tabla 5 SUNAT,`Producto.codigoTipoExistencia`,"Ej. `""01""` Mercaderías, `""02""` Productos terminados. **O**"
+Tipo de operación (Tabla 12 PLE),Tabla 12 SUNAT,`MovimientoAlmacen.tipoOperacionPle`,"Ej. `""16""` Ventas, `""20""` Compras. **O**"
+Tipo doc. soporte (Tabla 10 PLE),Tabla 10 SUNAT,Derivado del `tipoComprobante`,Código Tabla 10 PLE. **O**
+Número del documento de soporte,RS 234-2006,`MovimientoAlmacen.comprobanteId` → `serie-correlativo`,**O**
+Código de producto (interno),RS 234-2006,`Producto.codigo`,SKU interno único. **O**
+Descripción del producto,RS 234-2006,`Producto.descripcion`,**O**
+Código de unidad de medida (Tabla 6 PLE),Tabla 6 SUNAT,`Producto.unidadMedida` → equivalencia Tabla 6,La Tabla 6 PLE puede diferir del Cat. 03 UBL; mantener tabla de equivalencias. **O**
+Entrada (ingresos en unidades físicas),RS 234-2006,`MovimientoAlmacen.cantidad` cuando `tipo=INGRESO`,Decimal exacto ≥ 0. **O**
+Salida (egresos en unidades físicas),RS 234-2006,`MovimientoAlmacen.cantidad` cuando `tipo=SALIDA`,Decimal exacto ≥ 0. **O**
+Saldo final (unidades físicas),RS 234-2006,`Σ ingresos − Σ salidas` por producto y establecimiento,No se fuerza; recalculado. **O**
+Estado del asiento,PLE,"`""1""` vigente, `""8""` anulado",**O**
+
+Código Cat. 03,Descripción UBL,Código Tabla 6 PLE,Descripción PLE
+`NIU`,Unidad,`006`,Unidad
+`KGM`,Kilogramo,`003`,Kilogramo
+`BX`,Caja,`058`,Caja
+`LTR`,Litro,`056`,Litro
+`BG`,Bolsa,`057`,Bolsa
+`GLL`,Galón,⚠️ Por verificar,⚠️ Por verificar
+`SA`,Saco,⚠️ Por verificar,⚠️ Por verificar

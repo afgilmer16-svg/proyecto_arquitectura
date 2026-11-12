@@ -1,0 +1,20 @@
+sequenceDiagram
+    autonumber
+    actor Cajero
+    participant UI as App (adaptador)
+    participant Cola as Cola local (SQLite)
+    participant Sync as Sincronizador
+    participant API as API central
+    participant UC as EmitirComprobanteUseCase
+
+    Cajero->>UI: Registra la venta sin red
+    UI->>Cola: guardar comando (UUID, PENDIENTE)
+    UI-->>Cajero: "Registrado localmente"
+    Note over Cola,Sync: Recupera la red
+    Sync->>Cola: tomar pendientes por serie, en orden
+    Sync->>API: POST /comprobantes (Idempotency-Key = UUID)
+    API->>UC: emitir (asigna correlativo)
+    UC-->>API: ComprobanteResponse
+    API-->>Sync: 201 (o resultado previo si el UUID ya existía)
+    Sync->>Cola: CONFIRMADO (o ERROR con motivo)
+    Sync-->>UI: actualizar estado

@@ -1,0 +1,6 @@
+# Configuracion de lint del contrato (Redocly CLI).
+# Uso: npx.cmd @redocly/cli lint specs/contracts/facturacion-api.yaml
+extends:
+  - recommended
+rules:
+  no-server-example.com: off   # localhost se usa a proposito como servidor de desarrollo

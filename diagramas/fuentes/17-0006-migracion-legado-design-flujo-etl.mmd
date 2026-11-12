@@ -1,0 +1,14 @@
+flowchart LR
+    A[Fuente legado<br/>CSV, DBF o BD] --> B[Extracción inmutable<br/>snapshot + hash]
+    B --> C[Área staging<br/>valor original + legado_id]
+    C --> D[Normalización<br/>fechas, números, texto, claves]
+    D --> E{Validación<br/>estructural y de negocio}
+    E -->|Válido| F[Resolución de Producto<br/>y Comprobante histórico]
+    F --> G[Carga transaccional<br/>entidades + auditoría]
+    G --> H[Conciliación<br/>conteos, sumas y saldos]
+    H --> I{¿Cuadra?}
+    I -->|Sí| J[Cerrar lote<br/>reporte y hashes]
+    I -->|No| K[Revertir o bloquear lote<br/>investigación]
+    E -->|Inválido| Q[Cuarentena<br/>error + dato original]
+    Q --> R[Corrección autorizada<br/>y reproceso idempotente]
+    G -.-> X[Sin XML, firma ni envío<br/>OSE/SUNAT]

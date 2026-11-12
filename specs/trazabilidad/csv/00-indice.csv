@@ -1,0 +1,13 @@
+﻿archivo,seccion,titulo,filas
+03-matriz-de-trazabilidad-cabecera-del-comproban.csv,3,Matriz de trazabilidad — Cabecera del comprobante,9
+04-matriz-de-trazabilidad-emisor-supplier.csv,4,Matriz de trazabilidad — Emisor (Supplier),7
+05-matriz-de-trazabilidad-receptor-customer.csv,5,Matriz de trazabilidad — Receptor (Customer),4
+06-matriz-de-trazabilidad-forma-de-pago.csv,6,Matriz de trazabilidad — Forma de pago,4
+07-matriz-de-trazabilidad-linea-de-detalle-invoi.csv,7,Matriz de trazabilidad — Línea de detalle (InvoiceLine),9
+08-matriz-de-trazabilidad-igv-por-linea-taxsubto.csv,8,Matriz de trazabilidad — IGV por línea (TaxSubtotal ID=1000),4
+09-matriz-de-trazabilidad-isc-por-linea-taxsubto.csv,9,Matriz de trazabilidad — ISC por línea (TaxSubtotal ID=2000),8
+10-matriz-de-trazabilidad-icbper-por-linea-taxsu.csv,10,Matriz de trazabilidad — ICBPER por línea (TaxSubtotal ID=7152),4
+11-matriz-de-trazabilidad-taxtotal-cabecera.csv,11,Matriz de trazabilidad — TaxTotal (cabecera),4
+12-matriz-de-trazabilidad-legalmonetarytotal.csv,12,Matriz de trazabilidad — LegalMonetaryTotal,5
+13-seccion-14-1-registro-de-ventas-libro-electro.csv,13,Sección 14.1 — Registro de ventas (Libro Electrónico PLE / SIRE),21
+14-seccion-12-1-registro-de-inventario-kardex-el.csv,14,Sección 12.1 — Registro de inventario (Kardex electrónico PLE),21

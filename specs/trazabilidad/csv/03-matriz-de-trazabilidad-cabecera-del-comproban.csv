@@ -1,0 +1,10 @@
+﻿Dato SUNAT,Catálogo / Norma,XPath UBL 2.1 (con atributos),Campo DTO,Regla de validación
+Versión UBL,UBL 2.1 / guía XML SUNAT,`/Invoice/cbc:UBLVersionID`,*(constante en servidor)*,"Valor fijo `""2.1""`. No expuesto al cliente. **O**"
+Versión de personalización peruana,Perfil SUNAT,`/Invoice/cbc:CustomizationID`,*(constante en servidor)*,"Valor `""2.0""` según guía XML SUNAT vigente. **O**"
+Tipo de operación,Cat. 51,"`/Invoice/cbc:ProfileID` con `@schemeName=""SUNAT:Identificador de Tipo de Operación""` `@schemeAgencyName=""PE:SUNAT""` `@schemeURI` (la guía v1.0 consigna `urn:pe:gob:sunat:cpe:see:gem:catalogos:catalogo17`; ⚠️ Por verificar si la URI vigente es `catalogo51`)","`tipo_operacion` (default `""0101""`)","Código Cat. 51, ej. `""0101""` venta interna. **O** en factura/boleta"
+Tipo de comprobante,Cat. 01,"`/Invoice/cbc:InvoiceTypeCode` con `@listAgencyName=""PE:SUNAT""` `@listURI=""urn:pe:gob:sunat:cpe:see:gem:catalogos:catalogo01""` `@listID=""0101""`",`tipo_comprobante`,"Enum `""01""` (Factura), `""03""` (Boleta); patrón `^(0[13])$`. **O**"
+Serie y correlativo (ID del comprobante),RS 097-2012 / guía SEE,`/Invoice/cbc:ID`,"*(concatenado en servidor:* `serie + ""-"" + correlativo`*)*","Serie: `^[FB][A-Z0-9]{3}$` (F para facturas, B para boletas). Correlativo asignado atómicamente por el servidor; entero 1–99 999 999. El cliente **no** envía correlativo. **O**"
+Fecha de emisión,Guía XML SUNAT,`/Invoice/cbc:IssueDate`,`fecha_emision`,ISO 8601 `YYYY-MM-DD`; no futura; dentro de plazo de envío vigente. **O**
+Hora de emisión,Guía XML SUNAT,`/Invoice/cbc:IssueTime`,`hora_emision`,Formato `HH:mm:ss`; zona horaria `America/Lima`. **O**
+Código de moneda,Cat. 02,"`/Invoice/cbc:DocumentCurrencyCode` con `@listID=""ISO 4217 Alpha""`",`moneda`,"Enum ISO 4217: `""PEN""`, `""USD""`. Todos los `@currencyID` del documento deben coincidir. **O**"
+Cantidad de líneas,Guía XML SUNAT (p. 5),`/Invoice/cbc:LineCountNumeric`,*(calculado en servidor)*,Igual al número de `cac:InvoiceLine`. **O**

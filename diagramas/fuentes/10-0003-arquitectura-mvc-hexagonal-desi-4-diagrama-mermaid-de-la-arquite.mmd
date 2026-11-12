@@ -1,0 +1,145 @@
+flowchart LR
+    subgraph ADAPTERS_IN["ADAPTADORES CONDUCTORES (PRIMARIOS / DRIVING)"]
+        direction TB
+        A_REST["🌐 Controlador REST API\n(OpenAPI 3.1 / Webhooks)"]
+        A_POS["💻 Interfaz POS Desktop\n(Compose Desktop)"]
+        A_MOB["📱 Interfaz Móvil Preventa\n(Compose Android)"]
+        A_KAFKA_IN["📥 Consumidor Eventos Kafka/RabbitMQ\n(Evento: VentaCobradaEvent)"]
+        A_JOB["⏱️ Scheduler / Cron Job Asíncrono\n(Consultas CDR pendientes)"]
+        A_CLI["⌨️ Interfaz CLI\n(Migración y tareas operativas)"]
+    end
+
+    subgraph HEXAGON["HEXÁGONO DE LA APLICACIÓN (NÚCLEO DEL SISTEMA)"]
+        direction TB
+        
+        subgraph PORTS_IN["Puertos de Entrada (Casos de Uso)"]
+            P_UC1["EmitirComprobanteUseCase"]
+            P_UC2["AnularComprobanteUseCase"]
+            P_UC3["ConsultarEstadoUseCase"]
+            P_UC4["MigrarLegadoUseCase"]
+            P_UC5["GestionarMaestrosUseCase"]
+            P_UC6["GenerarLibrosElectronicosUseCase"]
+        end
+
+        subgraph CORE_DOMAIN["NÚCLEO DE DOMINIO (INDEPENDIENTE)"]
+            direction TB
+            subgraph AGGREGATES["Agregados y Entidades"]
+                AGG_Comp["ComprobantePago\n(Factura / Boleta)"]
+                AGG_Nota["NotaCredito / NotaDebito"]
+                ENT_Item["ItemComprobante"]
+                ENT_Cliente["ClienteReceptor"]
+            end
+            
+            subgraph DOM_SERVICES["Servicios de Dominio"]
+                SVC_Tax["CalculadorImpuestosService\n(Reglas SUNAT IGV/ISC/ICBPER)"]
+                SVC_Rule["ReglasFiscalesService\n(Valida montos, series, fechas)"]
+            end
+
+            subgraph VALUE_OBJECTS["Value Objects"]
+                VO_Ruc["Ruc (11 dígitos, Mod11)"]
+                VO_Money["Dinero (Moneda, Tasa)"]
+                VO_Serie["SerieCorrelativo (F001-XXXX)"]
+                VO_Estado["EstadoFiscal (CDR Status)"]
+            end
+        end
+
+        subgraph PORTS_OUT["Puertos de Salida (Interfaces de Infraestructura)"]
+            P_Out_Repo["ComprobanteRepository"]
+            P_Out_Xml["GeneradorXmlUblPort"]
+            P_Out_Sign["FirmaDigitalPort"]
+            P_Out_Ose["EnvioOsePort\n(Alt: EnvioSunatDirectoPort)"]
+            P_Out_Ruc["ValidadorRucPort"]
+            P_Out_Cat["CatalogoSunatPort"]
+            P_Out_Notif["NotificadorClientePort"]
+            P_Out_Leg["LegadoReaderPort"]
+            P_Out_Lib["LibroElectronicoPort"]
+            P_Out_Kdx["KardexElectronicoPort"]
+        end
+    end
+
+    subgraph ADAPTERS_OUT["ADAPTADORES CONDUCIDOS (SECUNDARIOS / DRIVEN)"]
+        direction TB
+        A_SQL["🗄️ PostgreSQL Adapter\n(Transacciones y datos)"]
+        A_S3["📦 MinIO / S3 Object Storage\n(Archivos XML firmados y CDRs)"]
+        A_UBL["📄 Serializador OASIS UBL 2.1\n(lxml + validación XSD / Schematron)"]
+        A_HSM["🔐 Cloud KMS / HSM Adapter\n(Firma Digital XMLDSig X.509)"]
+        A_SOAP_OSE["☁️ Cliente Web Service OSE\n(SOAP con CDR response)"]
+        A_SOAP_SUNAT["🏛️ Cliente Web Service SUNAT Directo\n(Contingencia ante caída OSE)"]
+        A_REDIS_RUC["⚡ API Consulta RUC + Redis Cache\n(Padrón tributario SUNAT)"]
+        A_REDIS_CAT["📚 Cache Catálogos SUNAT Anexo 8\n(Memoria compartida / JSON)"]
+        A_MAIL["✉️ Notificador Email / WhatsApp\n(Envío de PDF y XML al adquirente)"]
+        A_LEG_ETL["🔄 Lector ETL Archivos Legado\n(CSV / DBase migración)"]
+        A_PLE["📑 Adaptadores PLE\n(TXT 14.1 y 12.1)"]
+    end
+
+    %% Inbound Connections (Driving Adapters to Inbound Ports)
+    A_REST --> P_UC1
+    A_REST --> P_UC2
+    A_REST --> P_UC3
+    A_POS --> P_UC1
+    A_MOB --> P_UC1
+    A_KAFKA_IN --> P_UC1
+    A_JOB --> P_UC3
+    A_CLI --> P_UC4
+    A_REST --> P_UC6
+    A_JOB --> P_UC6
+
+    %% Ports Inbound to Domain
+    P_UC1 --> AGG_Comp
+    P_UC1 --> SVC_Tax
+    P_UC1 --> SVC_Rule
+    P_UC2 --> AGG_Nota
+    P_UC3 --> AGG_Comp
+    P_UC4 --> AGG_Comp
+
+    %% Domain to Outbound Ports
+    P_UC1 --> P_Out_Repo
+    P_UC1 --> P_Out_Xml
+    P_UC1 --> P_Out_Sign
+    P_UC1 --> P_Out_Ose
+    P_UC1 --> P_Out_Ruc
+    P_UC1 --> P_Out_Cat
+    P_UC1 --> P_Out_Notif
+
+    P_UC2 --> P_Out_Repo
+    P_UC2 --> P_Out_Xml
+    P_UC2 --> P_Out_Sign
+    P_UC2 --> P_Out_Ose
+
+    P_UC3 --> P_Out_Repo
+    P_UC3 --> P_Out_Ose
+
+    P_UC4 --> P_Out_Leg
+    P_UC4 --> P_Out_Repo
+
+    P_UC6 --> P_Out_Repo
+    P_UC6 --> P_Out_Lib
+    P_UC6 --> P_Out_Kdx
+
+    %% Outbound Ports to Driven Adapters (Implementation)
+    A_SQL -.->|implementa| P_Out_Repo
+    A_S3 -.->|almacena docs| P_Out_Repo
+    A_UBL -.->|implementa| P_Out_Xml
+    A_HSM -.->|implementa| P_Out_Sign
+    A_SOAP_OSE -.->|implementa canal principal| P_Out_Ose
+    A_SOAP_SUNAT -.->|implementa canal contingencia| P_Out_Ose
+    A_REDIS_RUC -.->|implementa| P_Out_Ruc
+    A_REDIS_CAT -.->|implementa| P_Out_Cat
+    A_MAIL -.->|implementa| P_Out_Notif
+    A_LEG_ETL -.->|implementa| P_Out_Leg
+    A_PLE -.->|implementa| P_Out_Lib
+    A_PLE -.->|implementa| P_Out_Kdx
+
+    classDef driver fill:#e3f2fd,stroke:#1565c0,stroke-width:2px;
+    classDef portIn fill:#e8f8f5,stroke:#1abc9c,stroke-width:2px;
+    classDef core fill:#fff8e1,stroke:#f39c12,stroke-width:3px;
+    classDef portOut fill:#fef9e7,stroke:#d4ac0d,stroke-width:2px;
+    classDef driven fill:#fbeee6,stroke:#e67e22,stroke-width:2px;
+
+    class A_REST,A_POS,A_MOB,A_KAFKA_IN,A_JOB,A_CLI driver;
+    class P_UC1,P_UC2,P_UC3,P_UC4,P_UC5 portIn;
+    class AGG_Comp,AGG_Nota,ENT_Item,ENT_Cliente,SVC_Tax,SVC_Rule,VO_Ruc,VO_Money,VO_Serie,VO_Estado core;
+    class P_Out_Repo,P_Out_Xml,P_Out_Sign,P_Out_Ose,P_Out_Ruc,P_Out_Cat,P_Out_Notif,P_Out_Leg portOut;
+    class A_SQL,A_S3,A_UBL,A_HSM,A_SOAP_OSE,A_SOAP_SUNAT,A_REDIS_RUC,A_REDIS_CAT,A_MAIL,A_LEG_ETL,A_PLE driven;
+    class P_UC6 portIn;
+    class P_Out_Lib,P_Out_Kdx portOut;

@@ -1,0 +1,15 @@
+sequenceDiagram
+    participant C as Cliente (API / CLI)
+    participant M as modelo.factura_desde_dict
+    participant K as calculo.calcular_totales
+    participant G as GeneradorFacturaUbl
+    participant V as ValidadorXsd
+    C->>M: datos (EmitirComprobanteRequest) + correlativo
+    M-->>C: DatosFacturaInvalidosError [todos los errores]
+    M->>G: Factura validada
+    G->>K: importes por línea y totales
+    K-->>G: ISC, IGV, ICBPER, totales (Decimal)
+    G->>G: árbol lxml en orden XSD
+    G->>V: validar(xml)
+    V-->>C: XmlNoConformeXsdError [errores del XSD]
+    V-->>C: XML UTF-8 válido

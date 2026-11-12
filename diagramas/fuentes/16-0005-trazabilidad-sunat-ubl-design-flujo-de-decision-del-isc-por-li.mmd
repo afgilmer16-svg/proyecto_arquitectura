@@ -1,0 +1,11 @@
+flowchart TD
+    A[Línea del comprobante] --> B{¿Producto afecto a ISC?}
+    B -- No --> Z[Sin TaxSubtotal 2000]
+    B -- Sí --> C{sistema_isc · Cat. 08}
+    C -- "01 Al valor" --> D["base = valor de venta<br/>ISC = base × tasa_isc"]
+    C -- "02 Específico" --> E["ISC = cantidad en unidad_base_isc × monto_fijo_isc"]
+    C -- "03 Al valor según PVP" --> F["base = cantidad × PVP × 1/(1 + IGV + IPM)<br/>ISC = base × tasa_isc"]
+    D --> G["TaxSubtotal: TaxScheme/ID = 2000 · Name = ISC · TaxTypeCode = EXC<br/>TaxCategory/TierRange = código Cat. 08"]
+    E --> G
+    F --> G
+    G --> H["La base del IGV incluye el ISC de la línea"]

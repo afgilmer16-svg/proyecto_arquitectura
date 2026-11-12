@@ -1,0 +1,35 @@
+{
+  "tipo_comprobante": "01",
+  "serie": "F001",
+  "tipo_operacion": "0101",
+  "fecha_emision": "2026-11-11",
+  "hora_emision": "10:30:00",
+  "moneda": "PEN",
+  "forma_pago": {
+    "tipo": "Contado"
+  },
+  "emisor": {
+    "ruc": "20601234566",
+    "razon_social": "ABC SOFTWARE CORP S.A.C.",
+    "nombre_comercial": "DISTRIBUIDORA DE ABARROTES ABC",
+    "direccion": "Av. Universitaria 123, Tingo María, Huánuco",
+    "ubigeo": "100601"
+  },
+  "receptor": {
+    "tipo_documento": "6",
+    "numero_documento": "20555555556",
+    "razon_social": "COMERCIALIZADORA SAN JUAN S.A.C.",
+    "direccion": "Jr. Comercio 456, Rupa Rupa, Leoncio Prado"
+  },
+  "items": [
+    {
+      "numero_linea": 1,
+      "codigo_producto": "PROD-ARR-01",
+      "descripcion": "Arroz Extra Costeño Saco 50 kg",
+      "unidad_medida": "SA",
+      "cantidad": "2",
+      "valor_unitario": "140.00",
+      "tipo_afectacion_igv": "10"
+    }
+  ]
+}

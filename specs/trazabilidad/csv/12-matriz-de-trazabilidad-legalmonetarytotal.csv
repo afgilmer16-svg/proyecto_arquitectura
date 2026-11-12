@@ -1,0 +1,6 @@
+﻿Dato SUNAT,Catálogo / Norma,XPath UBL 2.1,Campo DTO,Regla de validación
+Total valor de venta (antes de impuestos),Guía XML SUNAT,`/Invoice/cac:LegalMonetaryTotal/cbc:LineExtensionAmount` con `@currencyID`,*(suma server)*,`= Σ LineExtensionAmount de líneas`. **O**
+Total precio de venta con impuestos,Guía XML SUNAT,`/Invoice/cac:LegalMonetaryTotal/cbc:TaxInclusiveAmount` con `@currencyID`,*(calculado server)*,`= LineExtensionAmount + TaxTotal`. **O**
+Descuentos globales,Cat. 53,`/Invoice/cac:LegalMonetaryTotal/cbc:AllowanceTotalAmount`,*(calculado server)*,Suma de descuentos globales. **C**
+Cargos globales,Cat. 53,`/Invoice/cac:LegalMonetaryTotal/cbc:ChargeTotalAmount`,*(calculado server)*,Suma de cargos globales. **C**
+Importe total a pagar,Guía XML SUNAT,`/Invoice/cac:LegalMonetaryTotal/cbc:PayableAmount` con `@currencyID`,*(calculado server)*,`= TaxInclusiveAmount − AllowanceTotalAmount + ChargeTotalAmount`; ≥ 0. **O**

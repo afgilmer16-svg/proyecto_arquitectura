@@ -1,0 +1,37 @@
+classDiagram
+    class Detraccion {
+        <<Value Object>>
+        +String codigoBienServicio
+        +BigDecimal porcentaje
+        +Dinero monto
+        +String cuentaBancoNacion
+    }
+    class Cuota {
+        <<Value Object>>
+        +Integer numero
+        +Dinero monto
+        +LocalDate fechaVencimiento
+    }
+    class NotaModificatoria {
+        <<Aggregate Root>>
+        +UUID id
+        +SerieCorrelativo serieCorrelativo
+        +String codigoMotivo
+        +String sustento
+        +DocumentoReferencia comprobanteAfectado
+        +List~ItemComprobante~ items
+        +TotalesComprobante totales
+        +EstadoComprobante estado
+    }
+    class DocumentoReferencia {
+        <<Value Object>>
+        +TipoComprobante tipo
+        +String serie
+        +Integer correlativo
+        +LocalDate fechaEmision
+    }
+    NotaModificatoria <|-- NotaCredito
+    NotaModificatoria <|-- NotaDebito
+    NotaModificatoria "1" --> "1" DocumentoReferencia
+    Factura "1" o-- "0..1" Detraccion
+    FormaPago "1" *-- "0..*" Cuota

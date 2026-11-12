@@ -1,0 +1,44 @@
+{
+  "tipo_comprobante": "03",
+  "serie": "B001",
+  "tipo_operacion": "0101",
+  "fecha_emision": "2026-11-11",
+  "hora_emision": "18:05:00",
+  "moneda": "PEN",
+  "forma_pago": {
+    "tipo": "Contado"
+  },
+  "emisor": {
+    "ruc": "20601234565",
+    "razon_social": "ABC SOFTWARE CORP S.A.C.",
+    "nombre_comercial": "DISTRIBUIDORA DE ABARROTES ABC",
+    "direccion": "Av. Universitaria 123, Tingo María, Huánuco",
+    "ubigeo": "100601"
+  },
+  "receptor": {
+    "tipo_documento": "1",
+    "numero_documento": "12345678",
+    "razon_social": "JUAN PEREZ QUISPE"
+  },
+  "items": [
+    {
+      "numero_linea": 1,
+      "codigo_producto": "PROD-ARR-01",
+      "descripcion": "Arroz Extra Costeño 1 kg",
+      "unidad_medida": "KGM",
+      "cantidad": "3",
+      "valor_unitario": "3.50",
+      "tipo_afectacion_igv": "10"
+    },
+    {
+      "numero_linea": 2,
+      "codigo_producto": "PROD-BOL-03",
+      "descripcion": "Bolsa plástica 50x70 cm",
+      "unidad_medida": "NIU",
+      "cantidad": "2",
+      "valor_unitario": "0.10",
+      "tipo_afectacion_igv": "10",
+      "cantidad_bolsas": 2
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+stateDiagram-v2
+    [*] --> EMITIDO: correlativo asignado,<br/>totales calculados, XML generado
+    EMITIDO --> FIRMADO: firma XMLDSig
+    FIRMADO --> ACEPTADO: CDR código 0<br/>(con o sin observaciones 4000+)
+    FIRMADO --> RECHAZADO: CDR 2000–3999
+    ACEPTADO --> DE_BAJA: comunicación de baja aceptada
+    RECHAZADO --> [*]: se emite uno nuevo<br/>con otro correlativo
+    DE_BAJA --> [*]

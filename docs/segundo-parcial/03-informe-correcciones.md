@@ -30,6 +30,20 @@
 | E-13 | 4 elementos que emite el generador no figuraban en la matriz 0005 (`LineCountNumeric`, `AddressTypeCode`, `Country`, `IdentificationCode`). | Prueba de trazabilidad elemento ↔ matriz. | Filas agregadas a la matriz 0005 (§3 y §4). |
 | E-14 | Ninguna prueba demostraba que `generar()` valida contra el XSD **antes de entregar** el XML: la prueba con ese nombre validaba por fuera. | Prueba de mutación M04 (quitar la validación): la suite seguía en verde. | Nueva prueba que rompe el árbol dentro del generador y exige `XmlNoConformeXsdError`, más una prueba con un validador espía. M04 ahora se detecta. |
 
+### 1.2 Mejoras de ingeniería agregadas antes de la entrega (2026-11-11, tercera ronda)
+
+Tras comparar el proyecto con otro trabajo del curso se agregaron complementos que no cambian el generador:
+
+| # | Mejora | Evidencia |
+|---|---|---|
+| M-01 | **Clon limpio en Windows**: `core.autocrlf` convertía el XML de ejemplo a CRLF y fallaba una prueba. Se agregó `.gitattributes` (LF) y la prueba tolera CRLF. | `.gitattributes`, `TestRegresion` |
+| M-02 | **Integración continua** en GitHub Actions (Python 3.10 y 3.12): pruebas, cobertura y mutación. | `.github/workflows/pruebas.yml` |
+| M-03 | **Cobertura mínima del 90 %** (hoy 95 %). | `.coveragerc`, `pytest-cov` en `requirements.txt` |
+| M-04 | **JSON Schema 2020-12** de la entrada (capa 1) y **12 ejemplos inválidos** + 4 válidos adicionales como archivos. Una prueba comprueba que el esquema y el modelo Python no se contradicen. | `specs/schemas/`, `specs/ejemplos/`, `tests/test_esquemas_y_ejemplos.py` |
+| M-05 | **Reglas de arquitectura** ejecutables (núcleo sin infraestructura, `lxml` solo en adaptadores, sin ciclos, sin `float`). | `tests/test_arquitectura.py` |
+| M-06 | **Diagramas `.mmd`** como fuente (18) y **matriz 0005 en CSV** (12 archivos + índice), regenerables y vigilados por pruebas. | `tools/`, `diagramas/fuentes/`, `specs/trazabilidad/csv/` |
+| M-07 | `redocly.yaml` para el lint del contrato. | `redocly.yaml` |
+
 ## 2. Observaciones del docente atendidas
 
 | Observación del docente | Cómo se atendió en este parcial | Evidencia |
@@ -97,9 +111,8 @@
 
 | Ejecución | Resultado |
 |---|---|
-| `pytest -v` (suite completa, con `openapi-spec-validator` 0.9.0 real, Windows 11 / Python 3.12.7) | **415 aprobadas, 0 fallidas**. Salida completa en [`resultados-pruebas.txt`](resultados-pruebas.txt). |
+| `pytest -v` (suite completa, con `openapi-spec-validator` 0.9.0 real, Windows 11 / Python 3.12.7) | **460 aprobadas, 0 fallidas**. Salida completa en [`resultados-pruebas.txt`](resultados-pruebas.txt). |
 | `python tests/mutacion.py` | **16 de 16 mutantes detectados**. |
-| `pytest` (suite completa) | **415 aprobadas, 0 fallidas**, con `openapi-spec-validator` sustituido por un validador estructural propio porque el entorno de trabajo no tenía acceso a PyPI (en la PC del equipo esa prueba ya pasó con la librería real). |
 | CLI con el ejemplo | XML generado y validado: `docs/segundo-parcial/ejemplos/F001-00000001.xml`. |
 | CLI con correlativo `0` | Rechazado con mensaje claro y código de salida 1. |
 | Los 18 diagramas Mermaid del proyecto | Se renderizan sin errores. |

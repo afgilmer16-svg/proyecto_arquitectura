@@ -1,0 +1,10 @@
+flowchart LR
+    A["JSON / dict<br/>EmitirComprobanteRequest"] --> B["factura_desde_dict()<br/>modelo.py"]
+    C["correlativo<br/>(asignado por la serie)"] --> B
+    B -- "datos inválidos" --> E1["DatosFacturaInvalidosError"]
+    B --> D["calcular_totales()<br/>calculo.py<br/>ISC → IGV → ICBPER"]
+    D --> G["GeneradorFacturaUbl<br/>generador_ubl.py<br/>árbol lxml en orden XSD"]
+    G --> V["ValidadorXsd<br/>UBL-Invoice-2.1.xsd"]
+    V -- "no cumple" --> E2["XmlNoConformeXsdError"]
+    V -- "válido" --> X["XML UTF-8<br/>F001-00000001"]
+    X -. "parcial posterior" .-> F["Firmador / OSE"]

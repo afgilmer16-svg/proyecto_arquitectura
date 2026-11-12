@@ -1,0 +1,5 @@
+﻿Dato SUNAT,Catálogo / Norma,XPath UBL 2.1,Campo DTO,Regla de validación
+Total IGV del comprobante,Cat. 05,`/Invoice/cac:TaxTotal/cac:TaxSubtotal[.../cbc:ID='1000']/cbc:TaxAmount`,*(calculado servidor)*,Suma de IGV de líneas redondeada a 2 decimales. **O**
+Total ISC del comprobante,Cat. 05,`/Invoice/cac:TaxTotal/cac:TaxSubtotal[.../cbc:ID='2000']/cbc:TaxAmount`,*(calculado servidor)*,Suma de ISC de líneas. **C**
+Total ICBPER del comprobante,Cat. 05,`/Invoice/cac:TaxTotal/cac:TaxSubtotal[.../cbc:ID='7152']/cbc:TaxAmount`,*(calculado servidor)*,Suma de ICBPER de líneas. **C**
+Total tributos del comprobante,Guía XML SUNAT,`/Invoice/cac:TaxTotal/cbc:TaxAmount` con `@currencyID`,*(calculado servidor)*,`= total_IGV + total_ISC + total_ICBPER`. **O**

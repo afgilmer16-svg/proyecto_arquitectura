@@ -1,0 +1,123 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://abc-software.example/schemas/factura-entrada.schema.json",
+  "title": "Entrada del generador XML UBL 2.1 (factura y boleta)",
+  "description": "Capa 1 de validacion: forma de los datos. Las reglas que dependen de calculos o de digitos verificadores (RUC modulo 11, boleta mayor a S/ 700, suma de cuotas) las aplica el modelo en Python. El correlativo NO forma parte de la entrada: lo asigna el servidor.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["tipo_comprobante", "serie", "fecha_emision", "emisor", "receptor", "items"],
+  "properties": {
+    "tipo_comprobante": { "enum": ["01", "03"], "description": "Catalogo 01: 01 factura, 03 boleta" },
+    "serie": { "type": "string", "pattern": "^[FB][A-Z0-9]{3}$" },
+    "tipo_operacion": { "const": "0101", "description": "Catalogo 51: venta interna" },
+    "fecha_emision": { "type": "string", "format": "date" },
+    "hora_emision": { "type": "string", "pattern": "^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$" },
+    "moneda": { "enum": ["PEN", "USD"], "description": "Catalogo 02" },
+    "forma_pago": { "$ref": "#/$defs/formaPago" },
+    "emisor": { "$ref": "#/$defs/emisor" },
+    "receptor": { "$ref": "#/$defs/receptor" },
+    "items": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/item" } }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "tipo_comprobante": { "const": "01" } }, "required": ["tipo_comprobante"] },
+      "then": {
+        "properties": {
+          "serie": { "pattern": "^F" },
+          "receptor": { "properties": { "tipo_documento": { "const": "6" } } }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "tipo_comprobante": { "const": "03" } }, "required": ["tipo_comprobante"] },
+      "then": { "properties": { "serie": { "pattern": "^B" } } }
+    }
+  ],
+  "$defs": {
+    "decimal": { "type": "string", "pattern": "^[0-9]+(\\.[0-9]{1,10})?$", "description": "Importe exacto en texto, nunca number/float" },
+    "tasa": { "type": "string", "pattern": "^[0-9]{1,3}\\.[0-9]{2}$" },
+    "unidadMedida": { "enum": ["NIU", "ZZ", "KGM", "GRM", "TNE", "LTR", "MLT", "GLL", "MTR", "BX", "BG", "SA", "PK", "DZN", "CS"], "description": "Catalogo 03" },
+    "emisor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ruc", "razon_social", "direccion", "ubigeo"],
+      "properties": {
+        "ruc": { "type": "string", "pattern": "^[0-9]{11}$" },
+        "razon_social": { "type": "string", "minLength": 1, "maxLength": 100 },
+        "nombre_comercial": { "type": "string", "maxLength": 100 },
+        "direccion": { "type": "string", "minLength": 1, "maxLength": 200 },
+        "ubigeo": { "type": "string", "pattern": "^[0-9]{6}$" }
+      }
+    },
+    "receptor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["tipo_documento", "numero_documento", "razon_social"],
+      "properties": {
+        "tipo_documento": { "enum": ["0", "1", "4", "6", "7"], "description": "Catalogo 06" },
+        "numero_documento": { "type": "string", "minLength": 1 },
+        "razon_social": { "type": "string", "minLength": 1, "maxLength": 100 },
+        "direccion": { "type": "string", "maxLength": 200 }
+      }
+    },
+    "formaPago": {
+      "type": "object",
+      "required": ["tipo"],
+      "properties": { "tipo": { "enum": ["Contado", "Credito"] } },
+      "if": { "properties": { "tipo": { "const": "Credito" } } },
+      "then": {
+        "additionalProperties": false,
+        "required": ["tipo", "monto_neto_pendiente", "cuotas"],
+        "properties": {
+          "tipo": true,
+          "monto_neto_pendiente": { "$ref": "#/$defs/decimal" },
+          "cuotas": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["monto", "fecha_vencimiento"],
+              "properties": {
+                "monto": { "$ref": "#/$defs/decimal" },
+                "fecha_vencimiento": { "type": "string", "format": "date" }
+              }
+            }
+          }
+        }
+      },
+      "else": { "additionalProperties": false, "properties": { "tipo": true } }
+    },
+    "item": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["numero_linea", "codigo_producto", "descripcion", "unidad_medida", "cantidad", "valor_unitario", "tipo_afectacion_igv"],
+      "properties": {
+        "numero_linea": { "type": "integer", "minimum": 1 },
+        "codigo_producto": { "type": "string", "minLength": 1, "maxLength": 30 },
+        "descripcion": { "type": "string", "minLength": 1, "maxLength": 250 },
+        "unidad_medida": { "$ref": "#/$defs/unidadMedida" },
+        "cantidad": { "$ref": "#/$defs/decimal" },
+        "valor_unitario": { "$ref": "#/$defs/decimal" },
+        "tipo_afectacion_igv": { "enum": ["10", "20", "21", "30", "31", "32", "33", "34", "35", "36", "37"], "description": "Catalogo 07 admitido en este parcial" },
+        "cantidad_bolsas": { "type": "integer", "minimum": 1, "description": "ICBPER" },
+        "sistema_isc": { "enum": ["01", "02", "03"], "description": "Catalogo 08" },
+        "tasa_isc": { "$ref": "#/$defs/tasa" },
+        "monto_fijo_isc": { "$ref": "#/$defs/decimal" },
+        "unidad_base_isc": { "$ref": "#/$defs/unidadMedida" },
+        "precio_venta_publico_sugerido": { "$ref": "#/$defs/decimal" }
+      },
+      "dependentRequired": {
+        "tasa_isc": ["sistema_isc"],
+        "monto_fijo_isc": ["sistema_isc"],
+        "unidad_base_isc": ["sistema_isc"],
+        "precio_venta_publico_sugerido": ["sistema_isc"]
+      },
+      "allOf": [
+        { "if": { "properties": { "sistema_isc": { "const": "01" } }, "required": ["sistema_isc"] }, "then": { "required": ["tasa_isc"] } },
+        { "if": { "properties": { "sistema_isc": { "const": "02" } }, "required": ["sistema_isc"] }, "then": { "required": ["monto_fijo_isc", "unidad_base_isc"] } },
+        { "if": { "properties": { "sistema_isc": { "const": "03" } }, "required": ["sistema_isc"] }, "then": { "required": ["tasa_isc", "precio_venta_publico_sugerido"] } }
+      ]
+    }
+  }
+}

@@ -1,0 +1,5 @@
+﻿Dato SUNAT,Catálogo / Norma,XPath UBL 2.1,Campo DTO,Regla de validación
+Número de bolsas plásticas,Ley 30884 / guía XML,"`.../cbc:BaseUnitMeasure` con `@unitCode=""NIU""`",`items[].cantidad_bolsas`,Entero ≥ 1; distintas de la cantidad comercial del ítem. **C**
+Importe por bolsa (parametrizado),Ley 30884 / D.S. vigente,"`.../cac:TaxCategory/cbc:PerUnitAmount` con `@currencyID=""PEN""`",*(del catálogo vigente por fecha)*,⚠️ **S/ 0.50** desde 01/01/2023. No codificar como constante; parametrizar por fecha de vigencia en `CatalogoSunatPort`. **C**
+Monto ICBPER de la línea,Ley 30884,"`.../cbc:TaxAmount` con `@currencyID=""PEN""`",*(calculado: cantidad_bolsas × importe_vigente)*,`= BaseUnitMeasure × PerUnitAmount`; redondeo a 2 decimales. **C**
+Código tributo ICBPER,Cat. 05,"`.../cac:TaxScheme/cbc:ID=""7152""`, `Name=""ICBPER""`, `TaxTypeCode=""OTH""`",*(constante servidor)*,Fijo. **C**

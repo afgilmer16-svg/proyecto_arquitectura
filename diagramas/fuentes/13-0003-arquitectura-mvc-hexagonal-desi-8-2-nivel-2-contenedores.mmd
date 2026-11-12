@@ -1,0 +1,33 @@
+flowchart TB
+    subgraph clientes["Clientes (adaptadores de entrada, ADR-003)"]
+        desktop["App Desktop Windows\nCompose Desktop (MSI)"]
+        android["App Android\nCompose (APK)"]
+        backoffice["Backoffice web\n(ver ADR-004)"]
+        cli["CLI de migración y libros"]
+    end
+
+    subgraph monolito["Monolito modular (JVM) — ADR-001"]
+        api["API REST\nOpenAPI 3.1 (JWT)"]
+        app["Aplicación\ncasos de uso + puertos de entrada"]
+        dominio["Dominio\nentidades, impuestos, reglas fiscales"]
+        infra["Infraestructura\nadaptadores de salida"]
+    end
+
+    bd[("Base de datos\nPostgreSQL / SQLite local")]
+    almacen[("Almacén de archivos\nXML, CDR, PDF")]
+    ose["OSE"]
+    sunat["SUNAT"]
+    kms["Almacén de claves / HSM\n(certificado X.509)"]
+
+    desktop --> api
+    android --> api
+    backoffice --> api
+    cli --> app
+    api --> app --> dominio
+    app --> infra
+    infra --> bd
+    infra --> almacen
+    infra -->|SOAP| ose
+    infra -.->|contingencia| sunat
+    infra -->|firma| kms
+    ose --> sunat

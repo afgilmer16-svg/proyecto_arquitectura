@@ -30,9 +30,11 @@
 - [x] 310 pruebas de verificación integral (`tests/test_verificacion_integral.py`), ejecutadas: 310 aprobadas
 - [x] Pruebas de mutación (`tests/mutacion.py`): 16/16 detectados
 - [x] XML de ejemplo generado y validado (`docs/segundo-parcial/ejemplos/F001-00000001.xml`)
-- [x] Ejecutar `pytest -v` en la PC del equipo y guardar el resultado: 415 aprobadas (`docs/segundo-parcial/resultados-pruebas.txt`)
+- [x] Ejecutar `pytest -v` en la PC del equipo y guardar el resultado: 460 aprobadas (`docs/segundo-parcial/resultados-pruebas.txt`)
 - [x] Confirmar los 3 XSD de firma contra `docs.oasis-open.org`: SHA-256 idénticos
 - [ ] Contrastar los puntos "Por verificar" con el anexo de validaciones vigente de SUNAT
+
+- [x] CI de GitHub Actions, cobertura mínima del 90 %, JSON Schema de la entrada, ejemplos inválidos, reglas de arquitectura, `.mmd` y CSV de la matriz (mejoras M-01 a M-07 del informe)
 
 ## Notas de progreso
 

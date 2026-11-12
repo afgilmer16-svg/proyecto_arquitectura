@@ -212,7 +212,7 @@ pytest -v
 
 | Verificación | Resultado | Evidencia |
 |---|---|---|
-| `pytest -v` (suite completa: generador + verificación + contratos, con `openapi-spec-validator` 0.9.0 real) | **415 aprobadas, 0 fallidas** | [`resultados-pruebas.txt`](resultados-pruebas.txt) (Windows 11, Python 3.12.7) |
+| `pytest -v` (suite completa: generador + verificación + contratos, con `openapi-spec-validator` 0.9.0 real) | **460 aprobadas, 0 fallidas** | [`resultados-pruebas.txt`](resultados-pruebas.txt) (Windows 11, Python 3.12.7) |
 | `python tests/mutacion.py` | **16 de 16 mutantes detectados** | [`resultados-pruebas.txt`](resultados-pruebas.txt) |
 | XML de ejemplo con las 4 categorías, ISC e ICBPER | Válido contra `UBL-Invoice-2.1.xsd` | [`ejemplos/F001-00000001.xml`](ejemplos/F001-00000001.xml) |
 | Cuadre del ejemplo | Valor de venta 1 955.50 + tributos 386.85 = **2 342.35** | §8.1 |

@@ -1,0 +1,11 @@
+# Cobertura del generador. Minimo exigido: 90 % (el CI falla si baja).
+[run]
+source = src/facturacion_xml
+branch = false
+
+[report]
+fail_under = 90
+show_missing = true
+exclude_lines =
+    pragma: no cover
+    if __name__ == .__main__.:

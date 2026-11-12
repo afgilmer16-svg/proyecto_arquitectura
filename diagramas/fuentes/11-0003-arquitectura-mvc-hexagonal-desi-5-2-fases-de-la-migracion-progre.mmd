@@ -1,0 +1,15 @@
+gantt
+    title Cronograma de Transición Arquitectónica (Strangler Fig)
+    dateFormat  YYYY-MM-DD
+    section Fase 1: Monolito Hexagonal
+    Monolito modular desacoplado con interfaces      :active, 2026-10-22, 2026-11-15
+    Validación de puertos y pruebas de contrato      :2026-11-10, 2026-11-30
+    section Fase 2: Extracción Comunicaciones Fiscales
+    Extracción Servicio Envío OSE y Firma Digital    :2026-12-01, 2026-12-20
+    Implementación de Colas (RabbitMQ) y Circuit Breaker :2026-12-15, 2027-01-10
+    section Fase 3: Extracción Servicios de Apoyo
+    Microservicio Consulta RUC y Catálogos SUNAT     :2027-01-10, 2027-01-30
+    Caché distribuida Redis para padrón tributario   :2027-01-20, 2027-02-10
+    section Fase 4: Microservicios Core
+    Microservicio de Emisión y Facturación Central   :2027-02-10, 2027-03-05
+    POS de tienda offline con sincronización eventual:2027-02-25, 2027-03-25

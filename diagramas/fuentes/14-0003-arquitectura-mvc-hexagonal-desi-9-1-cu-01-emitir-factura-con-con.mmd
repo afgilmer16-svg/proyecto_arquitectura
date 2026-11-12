@@ -1,0 +1,33 @@
+sequenceDiagram
+    autonumber
+    actor Cajero
+    participant UI as App Desktop (adaptador)
+    participant UC as EmitirComprobanteUseCase
+    participant Dom as Dominio (impuestos y reglas)
+    participant Ruc as ValidadorRucPort
+    participant Rep as ComprobanteRepository
+    participant Xml as GeneradorXmlUblPort
+    participant Fir as FirmaDigitalPort
+    participant Ose as EnvioOsePort (OSE)
+    participant Sun as Contingencia SUNAT
+
+    Cajero->>UI: Ingresa ítems y RUC del cliente
+    UI->>UC: emitir(solicitud)
+    UC->>Ruc: validar(ruc)
+    Ruc-->>UC: ACTIVO y HABIDO
+    UC->>Dom: calcular impuestos (ISC, IGV, ICBPER) y validar reglas
+    Dom-->>UC: totales
+    UC->>Rep: reservar correlativo (atómico) y guardar EMITIDO
+    UC->>Xml: generar UBL 2.1 (lxml) y validar contra XSD
+    UC->>Fir: firmar XMLDSig
+    UC->>Rep: estado FIRMADO
+    UC->>Ose: enviar ZIP
+    alt OSE responde
+        Ose-->>UC: CDR
+    else OSE no disponible tras reintentos
+        UC->>Sun: enviar ZIP (contingencia, ADR-002)
+        Sun-->>UC: CDR
+    end
+    UC->>Rep: ACEPTADO / RECHAZADO y guardar XML + CDR
+    UC-->>UI: ComprobanteResponse
+    UI-->>Cajero: Representación impresa con QR

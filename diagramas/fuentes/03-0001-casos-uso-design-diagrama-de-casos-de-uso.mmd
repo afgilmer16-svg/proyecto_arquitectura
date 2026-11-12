@@ -1,0 +1,36 @@
+flowchart LR
+    Cajero(["👤 Cajero / Vendedor"])
+    Almacenero(["👤 Almacenero"])
+    Contador(["👤 Contador / Administrador"])
+    Cliente(["👤 Cliente / Adquirente"])
+    OSE(["🖥️ OSE / SUNAT"])
+
+    subgraph Sistema["Sistema de Facturación Electrónica — ABC Software Corp"]
+        CU01(["CU-01 Emitir factura"])
+        CU02(["CU-02 Emitir boleta"])
+        CU03(["CU-03 Nota de crédito"])
+        CU04(["CU-04 Nota de débito"])
+        CU05(["CU-05 Consultar comprobante y CDR"])
+        CU06(["CU-06 Descargar XML / PDF / CDR"])
+        CU07(["CU-07 Comunicación de baja"])
+        CU08(["CU-08 Resumen diario"])
+        CU09(["CU-09 Validar RUC"])
+        CU10(["CU-10 Gestionar clientes"])
+        CU11(["CU-11 Gestionar productos"])
+        CU12(["CU-12 Gestionar series"])
+        CU13(["CU-13 Consultar catálogos"])
+        CU14(["CU-14 Migrar legado"])
+        CU15(["CU-15 Registro de ventas PLE 14.1"])
+        CU16(["CU-16 Inventario permanente PLE 12.1"])
+    end
+
+    Cajero --> CU01 & CU02 & CU05 & CU10
+    Almacenero --> CU11 & CU16
+    Contador --> CU03 & CU04 & CU07 & CU08 & CU12 & CU14 & CU15 & CU05
+    Cliente --> CU06
+    CU01 -. include .-> CU09
+    CU01 -. include .-> CU13
+    CU02 -. include .-> CU13
+    CU01 & CU02 & CU03 & CU04 --> OSE
+    CU07 & CU08 --> OSE
+    CU09 --> OSE

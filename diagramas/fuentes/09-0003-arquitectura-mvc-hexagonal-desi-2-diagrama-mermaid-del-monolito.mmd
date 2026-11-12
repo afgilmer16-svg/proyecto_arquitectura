@@ -1,0 +1,144 @@
+flowchart TD
+    subgraph UI["Capa de Presentación / Vistas (Clientes)"]
+        UI_Desktop["💻 Desktop POS (Cajeros Tienda)\nCompose Desktop (MSI) — ADR-003"]
+        UI_Mobile["📱 Mobile App (Preventa / Repartidores)\nCompose Android (APK) — ADR-003"]
+        UI_Web["🌐 Web Backoffice (Administración / Contabilidad)\nSPA web (tecnología por definir)"]
+        UI_CLI["⌨️ CLI / Batch Runner\nHerramienta de Migración Legado"]
+    end
+
+    subgraph Controllers["Capa de Controladores (MVC)"]
+        C_Comprobante["ComprobanteController\n(REST / HTTP / Desktop Events)"]
+        C_Anulacion["AnulacionBajaController\n(REST / HTTP)"]
+        C_Consulta["ConsultaEstadoController\n(REST / Polling)"]
+        C_Validacion["ContribuyenteController\n(REST / HTTP)"]
+        C_Catalogos["CatalogoSunatController\n(REST / HTTP)"]
+        C_CRUD["MaestrosController\n(Clientes, Productos, Series)"]
+        C_Migracion["MigracionLegadoController\n(CLI / REST)"]
+        C_Libros["LibrosElectronicosController\n(REST / CLI)"]
+    end
+
+    subgraph Application["Capa de Aplicación (Servicios / Casos de Uso)"]
+        UC_Emitir["EmitirComprobanteService\n(CU-01 / CU-02)"]
+        UC_Anular["AnularComprobanteService\n(CU-03 / CU-04 / CU-07)"]
+        UC_Consultar["ConsultarEstadoService\n(CU-05 / CU-06)"]
+        UC_BajaResumen["GestionarBajasResumenesService\n(CU-07 / CU-08)"]
+        UC_ValidarRuc["ValidarContribuyenteService\n(CU-09)"]
+        UC_Maestros["GestionarMaestrosService\n(CU-10 / CU-11 / CU-12)"]
+        UC_Catalogos["ConsultarCatalogosService\n(CU-13)"]
+        UC_Migrar["MigrarLegadoService\n(CU-14)"]
+        UC_Libros["GenerarLibrosElectronicosService\n(CU-15 / CU-16)"]
+    end
+
+    subgraph Domain["Capa de Dominio (Núcleo de Negocio)"]
+        subgraph Entities["Entidades y Agregados"]
+            E_Comprobante["ComprobantePago\n(Factura / Boleta)"]
+            E_Nota["NotaModificatoria\n(Crédito / Débito)"]
+            E_Item["ItemComprobante"]
+            E_Tributo["TributoDesglosado\n(IGV 1000, ISC 2000, ICBPER 7152)"]
+            E_Cliente["ClienteReceptor"]
+            E_Serie["SerieCorrelativo"]
+        end
+
+        subgraph ValueObjects["Value Objects"]
+            VO_RUC["Ruc / Dni (Validados)"]
+            VO_Money["MontoMonetario (Moneda PEN/USD)"]
+            VO_Estado["EstadoComprobante\n(EMITIDO, FIRMADO, ACEPTADO, RECHAZADO, DE_BAJA)"]
+            VO_Hash["CodigoHashSha256"]
+        end
+
+        subgraph DomainServices["Servicios de Dominio"]
+            DS_Calc["CalculadorImpuestosDomainService\n(Base, IGV 18%, ICBPER, Redondeo SUNAT)"]
+            DS_Val["ValidadorReglasFiscalesDomainService\n(RS 097-2012, RS 234-2006)"]
+        end
+
+        subgraph PortsOut["Puertos de Salida (Interfaces)"]
+            P_Repo["ComprobanteRepository"]
+            P_Xml["GeneradorXmlUblPort"]
+            P_Firma["FirmaDigitalPort"]
+            P_Ose["EnvioOsePort\n(Alt: EnvioSunatDirectoPort)"]
+            P_Ruc["ValidadorRucPort"]
+            P_Cat["CatalogoSunatPort"]
+            P_Legado["LegadoReaderPort"]
+            P_Libro["LibroElectronicoPort"]
+            P_Kardex["KardexElectronicoPort"]
+        end
+    end
+
+    subgraph Infrastructure["Capa de Infraestructura (Adaptadores Iniciales en Monolito)"]
+        A_Repo["SqliteComprobanteRepository /\nPostgreSQLJdbcRepository"]
+        A_Xml["LxmlUblAdapter\n(lxml + validación contra el XSD UBL 2.1, ADR-0005)"]
+        A_Firma["LocalPkcs12XmlDsigAdapter\n(Almacén .p12 en disco local)"]
+        A_Ose["OseSoapClientAdapter\n(Fallback: SunatDirectoSoapAdapter)"]
+        A_Ruc["AlgoritmoModulo11PadronLocalAdapter\n(Validación RUC offline/sqlite)"]
+        A_Cat["EmbeddedJsonCatalogoSunatAdapter\n(Tablas Anexo 8 estáticas en memoria)"]
+        A_Legado["CsvLegacyFileReaderAdapter\n(Archivos planos del sistema antiguo)"]
+        A_Libro["PleTxtRegistroVentasAdapter /\nPleTxtKardex121Adapter"]
+    end
+
+    %% Relaciones de control y dependencia
+    UI_Desktop --> C_Comprobante
+    UI_Mobile --> C_Comprobante
+    UI_Web --> C_CRUD
+    UI_Web --> C_Anulacion
+    UI_Web --> C_Consulta
+    UI_CLI --> C_Migracion
+    UI_Web --> C_Libros
+
+    C_Comprobante --> UC_Emitir
+    C_Anulacion --> UC_Anular
+    C_Consulta --> UC_Consultar
+    C_Validacion --> UC_ValidarRuc
+    C_Catalogos --> UC_Catalogos
+    C_CRUD --> UC_Maestros
+    C_Migracion --> UC_Migrar
+    C_Libros --> UC_Libros
+
+    UC_Emitir --> DS_Calc
+    UC_Emitir --> DS_Val
+    UC_Emitir --> E_Comprobante
+    UC_Emitir --> P_Repo
+    UC_Emitir --> P_Xml
+    UC_Emitir --> P_Firma
+    UC_Emitir --> P_Ose
+    UC_Emitir --> P_Ruc
+    UC_Emitir --> P_Cat
+
+    UC_Anular --> P_Repo
+    UC_Anular --> P_Xml
+    UC_Anular --> P_Firma
+    UC_Anular --> P_Ose
+
+    UC_Consultar --> P_Repo
+    UC_Consultar --> P_Ose
+
+    UC_Migrar --> P_Legado
+    UC_Migrar --> P_Repo
+
+    %% Inversión de dependencias (DIP): Los adaptadores implementan las interfaces del dominio
+    A_Repo -.->|implementa| P_Repo
+    A_Xml -.->|implementa| P_Xml
+    A_Firma -.->|implementa| P_Firma
+    A_Ose -.->|implementa| P_Ose
+    A_Ruc -.->|implementa| P_Ruc
+    A_Cat -.->|implementa| P_Cat
+    A_Legado -.->|implementa| P_Legado
+    UC_Libros --> P_Repo
+    UC_Libros --> P_Libro
+    UC_Libros --> P_Kardex
+    A_Libro -.->|implementa| P_Libro
+    A_Libro -.->|implementa| P_Kardex
+
+    classDef ui fill:#e1f5fe,stroke:#0288d1,stroke-width:2px;
+    classDef controller fill:#ede7f6,stroke:#512da8,stroke-width:2px;
+    classDef app fill:#e8f5e9,stroke:#388e3c,stroke-width:2px;
+    classDef domain fill:#fff3e0,stroke:#f57c00,stroke-width:2px;
+    classDef infra fill:#fbe9e7,stroke:#d84315,stroke-width:2px;
+
+    class UI_Desktop,UI_Mobile,UI_Web,UI_CLI ui;
+    class C_Comprobante,C_Anulacion,C_Consulta,C_Validacion,C_Catalogos,C_CRUD,C_Migracion controller;
+    class UC_Emitir,UC_Anular,UC_Consultar,UC_BajaResumen,UC_ValidarRuc,UC_Maestros,UC_Catalogos,UC_Migrar app;
+    class E_Comprobante,E_Nota,E_Item,E_Tributo,E_Cliente,E_Serie,VO_RUC,VO_Money,VO_Estado,VO_Hash,DS_Calc,DS_Val,P_Repo,P_Xml,P_Firma,P_Ose,P_Ruc,P_Cat,P_Legado domain;
+    class A_Repo,A_Xml,A_Firma,A_Ose,A_Ruc,A_Cat,A_Legado,A_Libro infra;
+    class C_Libros controller;
+    class UC_Libros app;
+    class P_Libro,P_Kardex domain;
