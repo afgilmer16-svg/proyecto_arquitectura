@@ -35,6 +35,8 @@
 | # | Error encontrado | Cómo se detectó | Corrección |
 |---|---|---|---|
 | E-15 | La raíz del XML declaraba solo `cac` y `cbc`. Al marcar "Firmar", el OSE-DEMO de Nubefact insertó `ext:UBLExtensions` y respondió **error 0306**: *The prefix "ext" for element "ext:UBLExtensions" is not bound*. | Prueba manual de los XML de `docs/ejemplos` y `specs/ejemplos/xml-referencia` en probar-xml.nubefact.com. | Los dos generadores declaran en la raíz `ext`, `ds`, `ccts`, `qdt`, `udt` y `xsi`, igual que la Guía XML de SUNAT. Pruebas nuevas: `tests/test_prefijos_del_firmador.py` y `PrefijosDelFirmadorTest`. XML de ejemplo regenerados. |
+| E-16 | El nombre del tributo (`cbc:Name`) de exonerada, inafecta y gratuita era `EXONERADO`, `INAFECTO` y `GRATUITO`. El OSE-DEMO respondió **error 3051** (*Nombre de tributo no corresponde al código de tributo de la línea*, línea 5 = la exonerada). | Segunda prueba en probar-xml.nubefact.com. | Se usan los nombres cortos del Catálogo 05: `9997` EXO, `9998` INA, `9996` GRA (`IGV`, `ISC` e `ICBPER` ya coincidían). Corregido en Python, Java, pruebas y documentos. |
+| E-17 | El OSE-DEMO respondió **error 2010** (*El contribuyente no está activo*) para el RUC del emisor `20601234565`. | Misma prueba. | **No es un defecto del XML:** el RUC de los ejemplos es ficticio (válido por módulo 11, pero no figura como activo en el padrón del OSE). Para esa prueba hace falta un RUC que el OSE-DEMO reconozca. |
 
 ### 1.2 Mejoras de ingeniería agregadas antes de la entrega (2026-11-11, tercera ronda)
 

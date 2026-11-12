@@ -12,9 +12,9 @@ public record TributoUbl(String codigo, String nombre, String tipoCodigo, String
 
     public static final TributoUbl IGV = new TributoUbl("1000", "IGV", "VAT", "S");
     public static final TributoUbl ISC = new TributoUbl("2000", "ISC", "EXC", "S");
-    public static final TributoUbl EXONERADO = new TributoUbl("9997", "EXONERADO", "VAT", "E");
-    public static final TributoUbl INAFECTO = new TributoUbl("9998", "INAFECTO", "FRE", "O");
-    public static final TributoUbl GRATUITO = new TributoUbl("9996", "GRATUITO", "FRE", "Z");
+    public static final TributoUbl EXONERADO = new TributoUbl("9997", "EXO", "VAT", "E");
+    public static final TributoUbl INAFECTO = new TributoUbl("9998", "INA", "FRE", "O");
+    public static final TributoUbl GRATUITO = new TributoUbl("9996", "GRA", "FRE", "Z");
     /** Catalogo 05 vigente (la guia v1.0 de 2017 es anterior a la Ley 30884). */
     public static final TributoUbl ICBPER = new TributoUbl("7152", "ICBPER", "OTH", null);
 

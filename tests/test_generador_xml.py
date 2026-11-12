@@ -242,9 +242,9 @@ class TestDatosEnEtiquetas:
 class TestCategoriasDeOperacion:
     @pytest.mark.parametrize("numero, tributo, nombre, tipo, categoria, afectacion, base", [
         (1, "1000", "IGV", "VAT", "S", "10", "1400.00"),          # 1001 gravada
-        (6, "9998", "INAFECTO", "FRE", "O", "30", "24.00"),        # 1002 inafecta
-        (5, "9997", "EXONERADO", "VAT", "E", "20", "22.50"),       # 1003 exonerada
-        (7, "9996", "GRATUITO", "FRE", "Z", "31", "6.00"),         # 1004 gratuita
+        (6, "9998", "INA", "FRE", "O", "30", "24.00"),        # 1002 inafecta
+        (5, "9997", "EXO", "VAT", "E", "20", "22.50"),       # 1003 exonerada
+        (7, "9996", "GRA", "FRE", "Z", "31", "6.00"),         # 1004 gratuita
     ])
     def test_cada_categoria_usa_su_tributo_del_catalogo_05(self, datos, numero, tributo, nombre, tipo, categoria,
                                                            afectacion, base):

@@ -76,9 +76,9 @@ En la facturación electrónica peruana, el comprobante **es** el XML. La repres
 | Concepto visto en clase | Cómo se refleja en el XML UBL 2.1 |
 |---|---|
 | **1001 Gravada** | `TaxSubtotal` con tributo `1000` IGV (categoría `S`). IGV del **18 %**, o del **10 %** solo cuando se indica el régimen de restaurantes y hoteles visto en clase. |
-| **1002 Inafecta** | `TaxSubtotal` con tributo `9998` INAFECTO (categoría `O`), sin IGV. |
-| **1003 Exonerada** | `TaxSubtotal` con tributo `9997` EXONERADO (categoría `E`), sin IGV. |
-| **1004 Gratuita** | `TaxSubtotal` con tributo `9996` GRATUITO (categoría `Z`), valor referencial con `PriceTypeCode = 02`; no suma al importe a pagar. |
+| **1002 Inafecta** | `TaxSubtotal` con tributo `9998` INA (categoría `O`), sin IGV. |
+| **1003 Exonerada** | `TaxSubtotal` con tributo `9997` EXO (categoría `E`), sin IGV. |
+| **1004 Gratuita** | `TaxSubtotal` con tributo `9996` GRA (categoría `Z`), valor referencial con `PriceTypeCode = 02`; no suma al importe a pagar. |
 
 Los códigos 1001–1004 vienen del Catálogo 14 de SUNAT, que en UBL 2.0 iba en `sac:AdditionalMonetaryTotal`. **Ese elemento no existe en el XSD de UBL 2.1**, así que no se genera: en UBL 2.1 cada categoría se informa como un `TaxSubtotal` con su propio tributo (Guía XML SUNAT, §23–26). Las tasas del 18 % y del 10 % se tratan como parámetros (`RegimenIgv`), no como una regla universal.
 

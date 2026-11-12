@@ -53,25 +53,25 @@ Consider removing this setting from your plugin configuration.
 [INFO]  T E S T S
 [INFO] -------------------------------------------------------
 [INFO] Running pe.abc.facturacion.AplicacionTest
-[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 5.752 s -- in pe.abc.facturacion.AplicacionTest
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 7.715 s -- in pe.abc.facturacion.AplicacionTest
 [INFO] Running pe.abc.facturacion.DependenciasEntreCapasTest
-[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 4.293 s -- in pe.abc.facturacion.DependenciasEntreCapasTest
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 7.304 s -- in pe.abc.facturacion.DependenciasEntreCapasTest
 [INFO] Running pe.abc.facturacion.dominio.CalculoDeImportesTest
-[INFO] Tests run: 22, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.181 s -- in pe.abc.facturacion.dominio.CalculoDeImportesTest
+[INFO] Tests run: 22, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.207 s -- in pe.abc.facturacion.dominio.CalculoDeImportesTest
 [INFO] Running pe.abc.facturacion.dominio.LectorFacturaTest
-[INFO] Tests run: 24, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.193 s -- in pe.abc.facturacion.dominio.LectorFacturaTest
+[INFO] Tests run: 24, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.194 s -- in pe.abc.facturacion.dominio.LectorFacturaTest
 [INFO] Running pe.abc.facturacion.dominio.RucYNumeroLetrasTest
-[INFO] Tests run: 29, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.136 s -- in pe.abc.facturacion.dominio.RucYNumeroLetrasTest
+[INFO] Tests run: 29, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.140 s -- in pe.abc.facturacion.dominio.RucYNumeroLetrasTest
 [INFO] Running pe.abc.facturacion.infraestructura.entrada.EntradaTest
-[INFO] Tests run: 23, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.226 s -- in pe.abc.facturacion.infraestructura.entrada.EntradaTest
+[INFO] Tests run: 23, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.270 s -- in pe.abc.facturacion.infraestructura.entrada.EntradaTest
 [INFO] Running pe.abc.facturacion.infraestructura.ubl.GeneradorFacturaXmlTest
-[INFO] Tests run: 23, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.836 s -- in pe.abc.facturacion.infraestructura.ubl.GeneradorFacturaXmlTest
+[INFO] Tests run: 23, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.020 s -- in pe.abc.facturacion.infraestructura.ubl.GeneradorFacturaXmlTest
 [INFO] Running pe.abc.facturacion.infraestructura.ubl.PrefijosDelFirmadorTest
-[INFO] Tests run: 10, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.473 s -- in pe.abc.facturacion.infraestructura.ubl.PrefijosDelFirmadorTest
+[INFO] Tests run: 10, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.396 s -- in pe.abc.facturacion.infraestructura.ubl.PrefijosDelFirmadorTest
 [INFO] Running pe.abc.facturacion.infraestructura.ubl.RegresionCruzadaTest
-[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.763 s -- in pe.abc.facturacion.infraestructura.ubl.RegresionCruzadaTest
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.917 s -- in pe.abc.facturacion.infraestructura.ubl.RegresionCruzadaTest
 [INFO] Running pe.abc.facturacion.infraestructura.ubl.ValidadorXsdTest
-[INFO] Tests run: 10, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.294 s -- in pe.abc.facturacion.infraestructura.ubl.ValidadorXsdTest
+[INFO] Tests run: 10, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.349 s -- in pe.abc.facturacion.infraestructura.ubl.ValidadorXsdTest
 [INFO] 
 [INFO] Results:
 [INFO] 
@@ -92,6 +92,6 @@ Consider removing this setting from your plugin configuration.
 [INFO] ------------------------------------------------------------------------
 [INFO] BUILD SUCCESS
 [INFO] ------------------------------------------------------------------------
-[INFO] Total time:  50.602 s
-[INFO] Finished at: 2026-11-12T12:27:55-05:00
+[INFO] Total time:  01:05 min
+[INFO] Finished at: 2026-11-12T16:36:45-05:00
 [INFO] ------------------------------------------------------------------------

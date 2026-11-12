@@ -116,9 +116,9 @@ Cada `cac:InvoiceLine` lleva `cbc:ID`, `cbc:InvoicedQuantity` (`@unitCode` del C
 | Categoría (clase) | Afectación (Cat. 07) | `TaxCategory/cbc:ID` | `TaxScheme` (Cat. 05) | `Percent` |
 |---|---|---|---|---|
 | 1001 Gravada | 10 | S | 1000 · IGV · VAT | 18.00 o 10.00 |
-| 1002 Inafecta | 30 | O | 9998 · INAFECTO · FRE | 0.00 |
-| 1003 Exonerada | 20 | E | 9997 · EXONERADO · VAT | 0.00 |
-| 1004 Gratuita | 21, 31–37 | Z | 9996 · GRATUITO · FRE | 0.00 |
+| 1002 Inafecta | 30 | O | 9998 · INA · FRE | 0.00 |
+| 1003 Exonerada | 20 | E | 9997 · EXO · VAT | 0.00 |
+| 1004 Gratuita | 21, 31–37 | Z | 9996 · GRA · FRE | 0.00 |
 | ISC | (con gravada) | S | 2000 · ISC · EXC + `TierRange` (Cat. 08) | tasa ISC |
 | ICBPER | (cualquiera) | — | 7152 · ICBPER · OTH + `PerUnitAmount` | — |
 

@@ -43,7 +43,7 @@ A partir de los datos de un comprobante (DTO `EmitirComprobanteRequest` del cont
 | RF-XML-03 | Validar el XML contra el XSD antes de entregarlo; si no cumple, rechazarlo con la lista de errores. | Docente |
 | RF-XML-04 | Ubicar cada dato en el XPath definido en la matriz 0005. | Matriz 0005 |
 | RF-XML-05 | Calcular IGV, ISC e ICBPER en el dominio, con decimales exactos; el cliente no envía impuestos ni totales. | 0002, docente |
-| RF-XML-06 | Informar cada categoría con su tributo del Catálogo 05: 1000 IGV (S), 9997 EXONERADO (E), 9998 INAFECTO (O) y 9996 GRATUITO (Z). | F-05 §23–26 |
+| RF-XML-06 | Informar cada categoría con su tributo del Catálogo 05: 1000 IGV (S), 9997 EXO (E), 9998 INA (O) y 9996 GRA (Z). | F-05 §23–26 |
 | RF-XML-07 | Rechazar datos faltantes o inválidos con un mensaje por problema, indicando la ruta del campo. | Segundo parcial |
 | RF-XML-08 | Leer la entrada como UTF-8 y detectar archivos guardados en WIN1252. | Clase (codificación) |
 

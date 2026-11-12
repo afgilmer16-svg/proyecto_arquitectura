@@ -22,7 +22,7 @@ Este documento registra qué dato "Por verificar" ya se contrastó con una fuent
 
 | Dato | Valor | Dónde aplicarlo |
 |---|---|---|
-| Tributos por tipo de operación | Gravada `1000`/`IGV`/`VAT`; exonerada `9997`/`EXONERADO`/`VAT`; inafecta `9998`/`INAFECTO`/`FRE`; gratuita `9996`/`GRATUITO`/`FRE`; ISC `2000`/`ISC`/`EXC`; otros `9999`/`OTH`. Categorías UN/ECE 5305: `S`, `E`, `O`, `Z` | Spec 0005, sección 18.1 |
+| Tributos por tipo de operación | Gravada `1000`/`IGV`/`VAT`; exonerada `9997`/`EXO`/`VAT`; inafecta `9998`/`INA`/`FRE`; gratuita `9996`/`GRATUITO`/`FRE`; ISC `2000`/`ISC`/`EXC`; otros `9999`/`OTH`. Categorías UN/ECE 5305: `S`, `E`, `O`, `Z` | Spec 0005, sección 18.1 |
 | Ubicación de `TierRange` | `.../cac:TaxSubtotal/cac:TaxCategory/cbc:TierRange` con valores `01`, `02`, `03` | Spec 0005 |
 | Atributos de `ProfileID` | `schemeName`, `schemeAgencyName="PE:SUNAT"`, `schemeURI` (la guía usa `catalogo17`) | Spec 0005, fila "Tipo de operación" |
 | Atributos de unidad de medida | `unitCode`, `unitCodeListID="UN/ECE rec 20"`, `unitCodeListAgencyName` | Spec 0005 |
@@ -50,7 +50,7 @@ Este documento registra qué dato "Por verificar" ya se contrastó con una fuent
 | Dato | Decisión tomada | Qué falta |
 |---|---|---|
 | 3 XSD de firma agregados (`UBL-xmldsig-core-schema-2.1.xsd`, `UBL-XAdESv132-2.1.xsd`, `UBL-XAdESv141-2.1.xsd`) | Copias OS 2.1 de `thegreenter/ubl-validator`, con SHA-256 en `docs/referencias/ubl/README.md` | Ninguna: el 2026-11-11 se compararon con `docs.oasis-open.org` y los SHA-256 coinciden byte a byte (también el de `UBL-Invoice-2.1.xsd`). |
-| Línea gratuita | Tributo `9996` GRATUITO (`Z`), `LineExtensionAmount` = valor referencial, `PriceTypeCode` `02`, `Price` `0.00`, sin sumar al total | Contrastar con el anexo de validaciones vigente; el ejemplo de la guía v1.0 usa `9998` en la línea y `LineExtensionAmount` `0.00`. |
+| Línea gratuita | Tributo `9996` GRA (`Z`), `LineExtensionAmount` = valor referencial, `PriceTypeCode` `02`, `Price` `0.00`, sin sumar al total | Contrastar con el anexo de validaciones vigente; el ejemplo de la guía v1.0 usa `9998` en la línea y `LineExtensionAmount` `0.00`. |
 | `Percent` en líneas no gravadas | `0.00` (matriz 0005 §8) | La guía v1.0 muestra `18.00` en exoneradas e inafectas. |
 | Cuotas de crédito | `cbc:ID` = `FormaPago`, `cbc:PaymentMeansID` = `Cuota001`…, `cbc:Amount`, `cbc:PaymentDueDate` | Guía posterior a la RS 193-2020. |
 | ICBPER | Tributo `7152` / `ICBPER` / `OTH`; `BaseUnitMeasure` en `TaxSubtotal` y `PerUnitAmount` en `TaxCategory`; importe por año (0.10 en 2019 a 0.50 desde 2023) | Guía SUNAT de ICBPER y Catálogo 05 vigente. |

@@ -101,7 +101,7 @@
         <cbc:ID schemeID="UN/ECE 5305" schemeName="Tax Category Identifier" schemeAgencyName="United Nations Economic Commission for Europe">E</cbc:ID>
         <cac:TaxScheme>
           <cbc:ID schemeID="UN/ECE 5153" schemeAgencyID="6">9997</cbc:ID>
-          <cbc:Name>EXONERADO</cbc:Name>
+          <cbc:Name>EXO</cbc:Name>
           <cbc:TaxTypeCode>VAT</cbc:TaxTypeCode>
         </cac:TaxScheme>
       </cac:TaxCategory>
@@ -113,7 +113,7 @@
         <cbc:ID schemeID="UN/ECE 5305" schemeName="Tax Category Identifier" schemeAgencyName="United Nations Economic Commission for Europe">O</cbc:ID>
         <cac:TaxScheme>
           <cbc:ID schemeID="UN/ECE 5153" schemeAgencyID="6">9998</cbc:ID>
-          <cbc:Name>INAFECTO</cbc:Name>
+          <cbc:Name>INA</cbc:Name>
           <cbc:TaxTypeCode>FRE</cbc:TaxTypeCode>
         </cac:TaxScheme>
       </cac:TaxCategory>
@@ -125,7 +125,7 @@
         <cbc:ID schemeID="UN/ECE 5305" schemeName="Tax Category Identifier" schemeAgencyName="United Nations Economic Commission for Europe">Z</cbc:ID>
         <cac:TaxScheme>
           <cbc:ID schemeID="UN/ECE 5153" schemeAgencyID="6">9996</cbc:ID>
-          <cbc:Name>GRATUITO</cbc:Name>
+          <cbc:Name>GRA</cbc:Name>
           <cbc:TaxTypeCode>FRE</cbc:TaxTypeCode>
         </cac:TaxScheme>
       </cac:TaxCategory>
@@ -341,7 +341,7 @@
           <cbc:TaxExemptionReasonCode listAgencyName="PE:SUNAT" listName="SUNAT:Codigo de Tipo de Afectación del IGV" listURI="urn:pe:gob:sunat:cpe:see:gem:catalogos:catalogo07">20</cbc:TaxExemptionReasonCode>
           <cac:TaxScheme>
             <cbc:ID schemeID="UN/ECE 5153" schemeAgencyID="6">9997</cbc:ID>
-            <cbc:Name>EXONERADO</cbc:Name>
+            <cbc:Name>EXO</cbc:Name>
             <cbc:TaxTypeCode>VAT</cbc:TaxTypeCode>
           </cac:TaxScheme>
         </cac:TaxCategory>
@@ -378,7 +378,7 @@
           <cbc:TaxExemptionReasonCode listAgencyName="PE:SUNAT" listName="SUNAT:Codigo de Tipo de Afectación del IGV" listURI="urn:pe:gob:sunat:cpe:see:gem:catalogos:catalogo07">30</cbc:TaxExemptionReasonCode>
           <cac:TaxScheme>
             <cbc:ID schemeID="UN/ECE 5153" schemeAgencyID="6">9998</cbc:ID>
-            <cbc:Name>INAFECTO</cbc:Name>
+            <cbc:Name>INA</cbc:Name>
             <cbc:TaxTypeCode>FRE</cbc:TaxTypeCode>
           </cac:TaxScheme>
         </cac:TaxCategory>
@@ -415,7 +415,7 @@
           <cbc:TaxExemptionReasonCode listAgencyName="PE:SUNAT" listName="SUNAT:Codigo de Tipo de Afectación del IGV" listURI="urn:pe:gob:sunat:cpe:see:gem:catalogos:catalogo07">31</cbc:TaxExemptionReasonCode>
           <cac:TaxScheme>
             <cbc:ID schemeID="UN/ECE 5153" schemeAgencyID="6">9996</cbc:ID>
-            <cbc:Name>GRATUITO</cbc:Name>
+            <cbc:Name>GRA</cbc:Name>
             <cbc:TaxTypeCode>FRE</cbc:TaxTypeCode>
           </cac:TaxScheme>
         </cac:TaxCategory>

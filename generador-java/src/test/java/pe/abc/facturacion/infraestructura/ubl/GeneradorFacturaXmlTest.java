@@ -154,7 +154,7 @@ class GeneradorFacturaXmlTest {
     }
 
     @ParameterizedTest(name = "afectacion {0} -> tributo {1} {2} {3} categoria {4}")
-    @CsvSource({"10,1000,IGV,VAT,S", "20,9997,EXONERADO,VAT,E", "30,9998,INAFECTO,FRE,O", "31,9996,GRATUITO,FRE,Z"})
+    @CsvSource({"10,1000,IGV,VAT,S", "20,9997,EXO,VAT,E", "30,9998,INA,FRE,O", "31,9996,GRA,FRE,Z"})
     void cadaCategoriaUsaSuTributoDelCatalogo05(String afectacion, String codigo, String nombre, String tipo,
                                                 String categoria) {
         XmlPrueba doc = new XmlPrueba(servicio.generar(unaLinea(afectacion, "10.00"), 1));

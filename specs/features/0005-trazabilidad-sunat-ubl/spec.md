@@ -355,9 +355,9 @@ Cada tipo de afectación se informa en su propio `cac:TaxSubtotal`, con `TaxSche
 | Operación | `TaxCategory/cbc:ID` (UN/ECE 5305) | `TaxScheme/cbc:ID` | `TaxScheme/cbc:Name` | `TaxScheme/cbc:TaxTypeCode` | Afectación (Cat. 07) |
 |---|---|---|---|---|---|
 | Gravada con IGV | `S` | `1000` | `IGV` | `VAT` | `10`–`17` |
-| Exonerada | `E` | `9997` | `EXONERADO` | `VAT` | `20`, `21` |
-| Inafecta | `O` | `9998` | `INAFECTO` | `FRE` | `30`–`37` |
-| Gratuita | `Z` | `9996` | `GRATUITO` | `FRE` | transferencias gratuitas |
+| Exonerada | `E` | `9997` | `EXO` | `VAT` | `20`, `21` |
+| Inafecta | `O` | `9998` | `INA` | `FRE` | `30`–`37` |
+| Gratuita | `Z` | `9996` | `GRA` | `FRE` | transferencias gratuitas |
 | ISC | `S` | `2000` | `ISC` | `EXC` | con `cbc:TierRange` (Cat. 08) |
 | Otros tributos | — | `9999` | `OTROS` | `OTH` | — |
 

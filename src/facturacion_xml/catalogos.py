@@ -132,9 +132,9 @@ class Tributo:
 
 IGV = Tributo("1000", "IGV", "VAT", "S")
 ISC = Tributo("2000", "ISC", "EXC", "S")
-EXONERADO = Tributo("9997", "EXONERADO", "VAT", "E")
-INAFECTO = Tributo("9998", "INAFECTO", "FRE", "O")
-GRATUITO = Tributo("9996", "GRATUITO", "FRE", "Z")
+EXONERADO = Tributo("9997", "EXO", "VAT", "E")
+INAFECTO = Tributo("9998", "INA", "FRE", "O")
+GRATUITO = Tributo("9996", "GRA", "FRE", "Z")
 # ICBPER: Catálogo 05 vigente (la guía v1.0 de 2017 es anterior a la Ley 30884).
 ICBPER = Tributo("7152", "ICBPER", "OTH", None)
 
