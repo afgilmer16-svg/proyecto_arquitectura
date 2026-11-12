@@ -1,0 +1,40 @@
+name: Java - compilar y probar el generador
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  generador-java:
+    name: Generador con JDK ${{ matrix.jdk }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        jdk: ["21", "24"]
+    steps:
+      - name: Descargar el repositorio
+        uses: actions/checkout@v4
+
+      - name: Preparar JDK ${{ matrix.jdk }}
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: ${{ matrix.jdk }}
+          cache: maven
+
+      - name: Compilar (JAXB lee el XSD) y ejecutar pruebas con JaCoCo
+        working-directory: generador-java
+        run: ./mvnw --batch-mode --no-transfer-progress verify
+
+      - name: Guardar el informe de cobertura
+        if: matrix.jdk == '21'
+        uses: actions/upload-artifact@v4
+        with:
+          name: informe-jacoco
+          path: generador-java/target/site/jacoco

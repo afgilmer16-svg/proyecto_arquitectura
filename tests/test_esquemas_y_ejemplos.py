@@ -1,4 +1,4 @@
-"""Capa 1 (JSON Schema) y ejemplos validos/invalidos del generador.
+"""Control de forma (JSON Schema) y ejemplos validos/invalidos del generador.
 
 - Cada ejemplo de ``specs/ejemplos/validos`` cumple el esquema y genera un XML valido contra el XSD.
 - Cada ejemplo de ``specs/ejemplos/invalidos`` es rechazado y con el motivo esperado.
@@ -22,18 +22,18 @@ EJEMPLO_PARCIAL = RAIZ / "docs" / "segundo-parcial" / "ejemplos" / "factura-abar
 
 # archivo -> (lo rechaza el esquema JSON?, texto que debe aparecer en el error del modelo)
 INVALIDOS_ESPERADOS = {
-    "i01-boleta-con-serie-de-factura": (True, "serie"),
-    "i02-factura-a-cliente-con-dni": (True, "receptor.tipo_documento"),
-    "i03-ruc-con-digito-verificador-incorrecto": (False, "emisor.ruc"),
-    "i04-unidad-fuera-del-catalogo": (True, "unidad_medida"),
-    "i05-importe-como-numero-flotante": (True, "valor_unitario"),
-    "i06-credito-sin-cuotas": (True, "forma_pago"),
-    "i07-isc-al-valor-sin-tasa": (True, "tasa_isc"),
-    "i08-cliente-envia-correlativo": (True, "correlativo"),
-    "i09-afectacion-ivap-no-soportada": (True, "tipo_afectacion_igv"),
-    "i10-boleta-mayor-a-700-sin-documento": (False, "boleta"),
-    "i11-suma-de-cuotas-distinta-al-pendiente": (False, "cuotas"),
-    "i12-cuota-vence-antes-de-la-emision": (False, "fecha_vencimiento"),
+    "rechazo-01-boleta-serie-f": (True, "serie"),
+    "rechazo-02-factura-sin-ruc-del-cliente": (True, "receptor.tipo_documento"),
+    "rechazo-03-ruc-emisor-mal-digito": (False, "emisor.ruc"),
+    "rechazo-04-unidad-de-medida-desconocida": (True, "unidad_medida"),
+    "rechazo-05-importe-numerico": (True, "valor_unitario"),
+    "rechazo-06-credito-sin-cuotas": (True, "forma_pago"),
+    "rechazo-07-isc-sin-tasa": (True, "tasa_isc"),
+    "rechazo-08-correlativo-en-la-entrada": (True, "correlativo"),
+    "rechazo-09-afectacion-ivap": (True, "tipo_afectacion_igv"),
+    "rechazo-10-boleta-grande-sin-comprador": (False, "boleta"),
+    "rechazo-11-cuotas-no-suman": (False, "cuotas"),
+    "rechazo-12-cuota-vencida": (False, "fecha_vencimiento"),
 }
 
 

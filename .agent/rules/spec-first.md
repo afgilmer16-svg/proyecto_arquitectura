@@ -8,7 +8,7 @@
 > **No se escribe lógica de negocio hasta que la especificación esté completa y verificada.**
 
 Todo artefacto en este repositorio es una especificación, una referencia normativa o una decisión de arquitectura — **nunca código ejecutable de producción**.  
-Solo hay código de features **APROBADAS**. Hoy la única es la 0008 (generador XML UBL 2.1, segundo parcial): la implementación principal está en `servidor/` (Java 21 + JAXB, ADR-006) y el prototipo de referencia en `src/facturacion_xml/` (Python, ADR-005). `tests/` contiene las pruebas de los contratos (`test_contratos.py`) y las pruebas unitarias de generación (`test_generador_xml.py`). Ninguna prueba se marca como aprobada sin haberla ejecutado.
+Solo hay código de features **APROBADAS**. Hoy la única es la 0008 (generador XML UBL 2.1, segundo parcial): la implementación principal está en `generador-java/` (Java 21 + JAXB, ADR-006) y el prototipo de referencia en `src/facturacion_xml/` (Python, ADR-005). `tests/` contiene las pruebas de los contratos (`test_contratos.py`) y las pruebas unitarias de generación (`test_generador_xml.py`). Ninguna prueba se marca como aprobada sin haberla ejecutado.
 
 ---
 
@@ -123,8 +123,8 @@ Cada `spec.md` o `design.md` en `specs/features/` debe comenzar con:
 
 ## 9. Prohibiciones explícitas
 
-- ❌ No agregar archivos `.js`, `.ts`, `.java`, `.py`, `.cs` u otros lenguajes de implementación fuera de `servidor/`, `src/`, `tests/` y `tools/`.
-- ❌ No implementar en `servidor/` ni en `src/` nada fuera de la feature 0008 hasta que el docente habilite el siguiente parcial (base de datos, API REST, interfaz de usuario, despliegue).
+- ❌ No agregar archivos `.js`, `.ts`, `.java`, `.py`, `.cs` u otros lenguajes de implementación fuera de `generador-java/`, `src/`, `tests/` y `tools/`.
+- ❌ No implementar en `generador-java/` ni en `src/` nada fuera de la feature 0008 hasta que el docente habilite el siguiente parcial (base de datos, API REST, interfaz de usuario, despliegue).
 - ❌ No modificar los XSD de `docs/referencias/ubl/` ni reemplazarlos por esquemas hechos a mano.
 - ❌ No agregar archivos con credenciales (`.pfx`, `.p12`, `.env`, claves de API).
 - ❌ No inventar valores de catálogo sin citar la fuente normativa.

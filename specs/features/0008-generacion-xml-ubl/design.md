@@ -12,7 +12,7 @@
 
 ## Contexto de diseño
 
-El generador implementa el puerto de salida `GeneradorXmlUblPort` de la arquitectura ([0003](../0003-arquitectura-mvc-hexagonal/design.md)). La implementación principal es `GeneradorUblJaxbAdapter` en Java 21 con clases JAXB generadas desde el XSD ([ADR-0006](../../adr/0006-generador-ubl-java-jaxb.md), código en [`servidor/`](../../../servidor/)); no depende de base de datos ni de servidor web: recibe datos y devuelve bytes. El prototipo en Python ([ADR-0005](../../adr/0005-generador-ubl-python-lxml.md)) se conserva como referencia y como oráculo de la regresión cruzada.
+El generador implementa el puerto de salida `GeneradorXmlUblPort` de la arquitectura ([0003](../0003-arquitectura-mvc-hexagonal/design.md)). La implementación principal es `GeneradorUblJaxbAdapter` en Java 21 con clases JAXB generadas desde el XSD ([ADR-0006](../../adr/0006-generador-ubl-java-jaxb.md), código en [`generador-java/`](../../../generador-java/)); no depende de base de datos ni de servidor web: recibe datos y devuelve bytes. El prototipo en Python ([ADR-0005](../../adr/0005-generador-ubl-python-lxml.md)) se conserva como referencia y como oráculo de la regresión cruzada.
 
 ## Decisiones de diseño
 

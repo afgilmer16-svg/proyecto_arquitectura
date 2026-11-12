@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://abc-software.example/schemas/factura-entrada.schema.json",
   "title": "Entrada del generador XML UBL 2.1 (factura y boleta)",
-  "description": "Capa 1 de validacion: forma de los datos. Las reglas que dependen de calculos o de digitos verificadores (RUC modulo 11, boleta mayor a S/ 700, suma de cuotas) las aplica el modelo en Python. El correlativo NO forma parte de la entrada: lo asigna el servidor.",
+  "description": "Control de forma de los datos de entrada. Las reglas que dependen de calculos o de digitos verificadores (RUC modulo 11, boleta mayor a S/ 700, suma de cuotas) las aplica el modelo en Python. El correlativo NO forma parte de la entrada: lo asigna el servidor.",
   "type": "object",
   "additionalProperties": false,
   "required": ["tipo_comprobante", "serie", "fecha_emision", "emisor", "receptor", "items"],

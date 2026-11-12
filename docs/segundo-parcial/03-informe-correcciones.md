@@ -37,16 +37,16 @@ Tras comparar el proyecto con otro trabajo del curso se agregaron complementos q
 | # | Mejora | Evidencia |
 |---|---|---|
 | M-01 | **Clon limpio en Windows**: `core.autocrlf` convertía el XML de ejemplo a CRLF y fallaba una prueba. Se agregó `.gitattributes` (LF) y la prueba tolera CRLF. | `.gitattributes`, `TestRegresion` |
-| M-02 | **Integración continua** en GitHub Actions (Python 3.10 y 3.12): pruebas, cobertura y mutación. | `.github/workflows/pruebas.yml` |
+| M-02 | **Integración continua** en GitHub Actions (Python 3.10 y 3.12): pruebas, cobertura y mutación. | `.github/workflows/python.yml` |
 | M-03 | **Cobertura mínima del 90 %** (hoy 95 %). | `.coveragerc`, `pytest-cov` en `requirements.txt` |
-| M-04 | **JSON Schema 2020-12** de la entrada (capa 1) y **12 ejemplos inválidos** + 4 válidos adicionales como archivos. Una prueba comprueba que el esquema y el modelo Python no se contradicen. | `specs/schemas/`, `specs/ejemplos/`, `tests/test_esquemas_y_ejemplos.py` |
+| M-04 | **JSON Schema 2020-12** de la entrada y **12 ejemplos inválidos** + 4 válidos adicionales como archivos. Una prueba comprueba que el esquema y el modelo Python no se contradicen. | `specs/schemas/`, `specs/ejemplos/`, `tests/test_esquemas_y_ejemplos.py` |
 | M-05 | **Reglas de arquitectura** ejecutables (núcleo sin infraestructura, `lxml` solo en adaptadores, sin ciclos, sin `float`). | `tests/test_arquitectura.py` |
 | M-06 | **Diagramas `.mmd`** como fuente (18) y **matriz 0005 en CSV** (12 archivos + índice), regenerables y vigilados por pruebas. | `tools/`, `diagramas/fuentes/`, `specs/trazabilidad/csv/` |
 | M-07 | `redocly.yaml` para el lint del contrato. | `redocly.yaml` |
-| M-08 | **Adaptador principal en Java 21 con JAXB**: las clases se generan desde `UBL-Invoice-2.1.xsd` en cada compilación (≈ 1 240), como recomendó el docente y como pide la continuidad con el primer parcial (backend Java). | `servidor/`, ADR-0006 |
+| M-08 | **Adaptador principal en Java 21 con JAXB**: las clases se generan desde `UBL-Invoice-2.1.xsd` en cada compilación (≈ 1 240), como recomendó el docente y como pide la continuidad con el primer parcial (backend Java). | `generador-java/`, ADR-0006 |
 | M-09 | **Regresión cruzada**: el XML Java es idéntico al del prototipo Python en 5 ejemplos. | `RegresionCruzadaTest`, `specs/ejemplos/xml-referencia/` |
 | M-10 | **152 pruebas Java** (generación, XSD, dominio, entrada, CLI, arquitectura) con cobertura del 97 % y mínimo del 90 % en el build. | `resultados-pruebas-java.txt` |
-| M-11 | CI de Java con Maven Wrapper (solo requiere JDK 21). | `.github/workflows/servidor.yml`, `servidor/mvnw` |
+| M-11 | CI de Java con Maven Wrapper (solo requiere JDK 21). | `.github/workflows/java.yml`, `generador-java/mvnw` |
 
 ## 2. Observaciones del docente atendidas
 

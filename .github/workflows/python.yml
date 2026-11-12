@@ -1,0 +1,44 @@
+name: Python - prototipo, contratos y mutacion
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  prototipo-python:
+    name: Python ${{ matrix.python }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.10", "3.12"]
+    steps:
+      - name: Descargar el repositorio
+        uses: actions/checkout@v4
+
+      - name: Preparar Python ${{ matrix.python }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+          cache: pip
+
+      - name: Instalar requirements.txt
+        run: python -m pip install -r requirements.txt
+
+      - name: Ejecutar pytest con cobertura (minimo en .coveragerc)
+        run: python -m pytest -v --cov=facturacion_xml --cov-report=term-missing --cov-report=xml
+
+      - name: Ejecutar las pruebas de mutacion
+        run: python tests/mutacion.py
+
+      - name: Guardar coverage.xml
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-python-${{ matrix.python }}
+          path: coverage.xml

@@ -1,6 +1,6 @@
 # src — Código fuente
 
-> La implementación principal del generador (Java 21 + JAXB, ADR-006) está en [`../servidor/`](../servidor/). Esta carpeta conserva el **prototipo en Python** (ADR-005), usado como referencia: la regresión cruzada comprueba que ambos producen el mismo XML.
+> La implementación principal del generador (Java 21 + JAXB, ADR-006) está en [`../generador-java/`](../generador-java/). Esta carpeta conserva el **prototipo en Python** (ADR-005), usado como referencia: la regresión cruzada comprueba que ambos producen el mismo XML.
 
 Según las reglas **Spec-First** del proyecto (`.agent/rules/spec-first.md`), aquí solo hay código de features **aprobadas**.
 

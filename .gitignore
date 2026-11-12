@@ -69,8 +69,8 @@ gilmer_50.docx
 # Salidas del generador XML (los ejemplos versionados están en docs/segundo-parcial/ejemplos/)
 salida/
 
-# Java (servidor/)
-servidor/target/
+# Java (generador-java/)
+generador-java/target/
 *.class
 *.jar
-!servidor/.mvn/wrapper/maven-wrapper.jar
+!generador-java/.mvn/wrapper/maven-wrapper.jar

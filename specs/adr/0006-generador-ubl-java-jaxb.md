@@ -19,13 +19,13 @@ Antes de esta decisión se construyó un prototipo en Python con lxml (ADR-005).
 
 ## Decisión
 
-El adaptador principal es `GeneradorUblJaxbAdapter`, en Java 21, dentro de [`servidor/`](../../servidor/):
+El adaptador principal es `GeneradorUblJaxbAdapter`, en Java 21, dentro de [`generador-java/`](../../generador-java/):
 
 - **Clases generadas desde el XSD.** En cada compilación, `jaxb-maven-plugin` (xjc) genera ≈ 1 240 clases a partir de `docs/referencias/ubl/UBL-Invoice-2.1.xsd`. El XML se produce llenando esos objetos y serializándolos con JAXB; nunca con plantillas ni concatenando texto. Un elemento mal escrito o fuera de orden no compila.
 - **Un solo origen del esquema.** Los XSD se leen de `docs/referencias/ubl/` (sin copias en el repositorio); Maven los copia a `target/` con la estructura `maindoc/` + `common/` que esperan sus `schemaLocation`.
 - **Validación antes de entregar.** Cada XML se valida contra el XSD oficial (`ValidadorXsd`) y, si no cumple, se lanza `XmlNoConformeXsdException`.
 - **Hexagonal.** Puerto de salida `GeneradorXmlUblPort` (paquete `aplicacion.puerto`); dominio sin dependencias (`dominio`); caso de uso `GenerarFacturaXmlService`; adaptadores en `infraestructura` (`ubl`, `entrada`). Las reglas se verifican con ArchUnit.
-- **Contrato de entrada aplicado, no copiado.** La capa 1 valida con `specs/schemas/factura-entrada.schema.json` (JSON Schema 2020-12); la capa 2 son las reglas de dominio (`LectorFactura`); la capa 3 es el XSD.
+- **Contrato de entrada aplicado, no copiado.** El primer control valida con `specs/schemas/factura-entrada.schema.json` (JSON Schema 2020-12); el segundo son las reglas de dominio (`LectorFactura`) y el tercero es el XSD.
 - **Importes exactos.** `BigDecimal` con redondeo HALF_UP por línea; nunca `double`.
 - **Calidad exigida en el build.** `mvn verify` falla si la cobertura de líneas del código propio baja del 90 % (hoy 97 %). El CI lo ejecuta en cada `push`.
 

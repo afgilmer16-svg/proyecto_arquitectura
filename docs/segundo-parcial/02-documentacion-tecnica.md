@@ -245,63 +245,63 @@ Total de tributos: 32.40 + 349.45 + 5.00 = **386.85**. Importe a pagar: 1 955.50
 
 ## 9. Implementación principal en Java (JAXB)
 
-**Decisión**: [ADR-0006](../../specs/adr/0006-generador-ubl-java-jaxb.md). **Código**: [`servidor/`](../../servidor/).
+**Decisión**: [ADR-0006](../../specs/adr/0006-generador-ubl-java-jaxb.md). **Código**: [`generador-java/`](../../generador-java/).
 
 ### 9.1 Estructura
 
 ```
-servidor/src/main/java/pe/abc/facturacion/
+generador-java/src/main/java/pe/abc/facturacion/
 ├── Aplicacion.java                      ← línea de comandos
 ├── dominio/                             ← sin dependencias externas
-│   ├── catalogo/   Catalogos, TipoComprobante, CategoriaOperacion, SistemaIsc, RegimenIgv, Tributo…
+│   ├── catalogo/   Catalogos, ClaseComprobante, CategoriaOperacion, SistemaCalculoIsc, RegimenIgv, TributoUbl…
 │   ├── modelo/     Modelo (Factura, LineaFactura, Emisor, Receptor, FormaPago, Cuota)
-│   ├── validacion/ LectorFactura (capa 2: reglas), Ruc (módulo 11)
-│   ├── calculo/    MotorTributario (ISC → IGV → ICBPER), ImportesLinea, Totales
+│   ├── validacion/ LectorFactura (reglas), ValidadorRuc (módulo 11)
+│   ├── calculo/    CalculadoraTributaria (ISC → IGV → ICBPER), ImportesLinea, Totales
 │   ├── error/      DatosFacturaInvalidosException, XmlNoConformeXsdException, …
 │   └── NumeroLetras
 ├── aplicacion/
 │   ├── puerto/GeneradorXmlUblPort       ← puerto de salida
 │   └── GenerarFacturaXmlService         ← caso de uso
 └── infraestructura/
-    ├── ubl/     GeneradorUblJaxbAdapter (clases JAXB del XSD) · ValidadorXsd (capa 3)
-    └── entrada/ LectorJson (UTF-8 estricto) · EsquemaEntrada (capa 1: JSON Schema)
+    ├── ubl/     GeneradorUblJaxbAdapter (clases JAXB del XSD) · ValidadorXsd (esquema XML)
+    └── entrada/ LectorJson (UTF-8 estricto) · EsquemaEntrada (forma: JSON Schema)
 ```
 
 ### 9.2 Cómo se genera desde el XSD
 
 1. Maven copia los XSD de `docs/referencias/ubl/` a `target/xsd-ubl/{maindoc,common}` (la estructura que esperan sus `schemaLocation`).
 2. `jaxb-maven-plugin` ejecuta xjc sobre `UBL-Invoice-2.1.xsd` y genera ≈ 1 240 clases (`InvoiceType`, `TaxSubtotalType`, `InvoiceLineType`…) con el orden de campos de cada `xsd:sequence`.
-3. `GeneradorUblJaxbAdapter` llena esos objetos con los importes del `MotorTributario` y los serializa con JAXB (`cac:` y `cbc:` como prefijos, `Invoice` como espacio por defecto).
+3. `GeneradorUblJaxbAdapter` llena esos objetos con los importes del `CalculadoraTributaria` y los serializa con JAXB (`cac:` y `cbc:` como prefijos, `Invoice` como espacio por defecto).
 4. `ValidadorXsd` valida el resultado contra el XSD oficial **antes de entregarlo**; si no cumple, no se entrega.
 
-### 9.3 Las tres capas de validación
+### 9.3 Los tres controles de la entrada
 
-| Capa | Qué valida | Dónde |
+| Control | Qué valida | Dónde |
 |---|---|---|
-| 1 | La forma de los datos (JSON Schema 2020-12) | `specs/schemas/factura-entrada.schema.json` vía `EsquemaEntrada` |
-| 2 | Reglas de dominio: RUC módulo 11, boleta > S/ 700, suma de cuotas, ISC por sistema | `LectorFactura` |
-| 3 | El XML contra `UBL-Invoice-2.1.xsd` | `ValidadorXsd` |
+| Forma | La forma de los datos (JSON Schema 2020-12) | `specs/schemas/factura-entrada.schema.json` vía `EsquemaEntrada` |
+| Reglas | Reglas de dominio: RUC módulo 11, boleta > S/ 700, suma de cuotas, ISC por sistema | `LectorFactura` |
+| Esquema XML | El XML contra `UBL-Invoice-2.1.xsd` | `ValidadorXsd` |
 
 ### 9.4 Pruebas (Java)
 
 | Prueba | Qué demuestra |
 |---|---|
-| `GeneracionXmlUblTest` (23) | Pruebas unitarias de generación por XPath: cabecera, emisor/receptor, totales, un `TaxSubtotal` por tributo, categorías 1001–1004, ISC, ICBPER, crédito con cuotas, USD, orden de la cabecera y que no se entrega un XML inválido. |
+| `GeneradorFacturaXmlTest` (23) | Pruebas unitarias de generación por XPath: cabecera, emisor/receptor, totales, un `TaxSubtotal` por tributo, categorías 1001–1004, ISC, ICBPER, crédito con cuotas, USD, orden de la cabecera y que no se entrega un XML inválido. |
 | `RegresionCruzadaTest` (7) | El XML Java es **el mismo documento** que el del prototipo Python para los 5 ejemplos. |
 | `ValidadorXsdTest` (10) | El XSD detecta elementos faltantes, inexistentes, fuera de orden, tipos y atributos inválidos, y se identifica un esquema incompleto. |
 | `LectorFacturaTest` (24) | Las reglas de dominio, con los 12 ejemplos inválidos de `specs/ejemplos/invalidos`. |
-| `MotorTributarioTest` (22) | IGV, ISC de los 3 sistemas, gratuitas, ICBPER por año, redondeo y exactitud decimal. |
+| `CalculoDeImportesTest` (22) | IGV, ISC de los 3 sistemas, gratuitas, ICBPER por año, redondeo y exactitud decimal. |
 | `EntradaTest` (23) | Lectura UTF-8/BOM/WIN1252 y el JSON Schema contra todos los ejemplos. |
 | `AplicacionTest` (7) | Línea de comandos y códigos de salida. |
 | `RucYNumeroLetrasTest` (29) | RUC, importe en letras y catálogos. |
-| `ReglasDeArquitecturaTest` (7) | ArchUnit: dominio sin dependencias, solo el adaptador usa las clases del XSD, sin ciclos. |
+| `DependenciasEntreCapasTest` (7) | ArchUnit: dominio sin dependencias, solo el adaptador usa las clases del XSD, sin ciclos. |
 
 **Resultado**: 152 pruebas, 0 fallos, cobertura de líneas 97 % del código propio (mínimo exigido: 90 %). Salida completa en [`resultados-pruebas-java.txt`](resultados-pruebas-java.txt).
 
 ### 9.5 Ejecución
 
 ```powershell
-cd servidor
+cd generador-java
 .\mvnw.cmd verify
 ```
 

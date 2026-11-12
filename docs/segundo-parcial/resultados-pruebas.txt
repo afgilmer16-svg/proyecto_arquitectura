@@ -1,4 +1,4 @@
-Resultados reales — 2026-11-11
+Resultados reales — 2026-11-12
 Entorno: Windows 11, Python 3.12.7, pytest 9.1.1, openapi-spec-validator 0.9.0
 
 1) python -m pytest -v --cov=facturacion_xml   (suite completa)
@@ -53,18 +53,18 @@ tests/test_esquemas_y_ejemplos.py::test_ejemplo_valido_cumple_el_esquema_y_gener
 tests/test_esquemas_y_ejemplos.py::test_ejemplo_valido_cumple_el_esquema_y_genera_xml[03-factura-en-dolares-con-gratuita] PASSED [  8%]
 tests/test_esquemas_y_ejemplos.py::test_ejemplo_valido_cumple_el_esquema_y_genera_xml[04-factura-isc-especifico] PASSED [  9%]
 tests/test_esquemas_y_ejemplos.py::test_ejemplo_valido_cumple_el_esquema_y_genera_xml[factura-abarrotes] PASSED [  9%]
-tests/test_esquemas_y_ejemplos.py::test_ejemplo_invalido_es_rechazado[i01-boleta-con-serie-de-factura] PASSED [  9%]
-tests/test_esquemas_y_ejemplos.py::test_ejemplo_invalido_es_rechazado[i02-factura-a-cliente-con-dni] PASSED [  9%]
-tests/test_esquemas_y_ejemplos.py::test_ejemplo_invalido_es_rechazado[i03-ruc-con-digito-verificador-incorrecto] PASSED [ 10%]
-tests/test_esquemas_y_ejemplos.py::test_ejemplo_invalido_es_rechazado[i04-unidad-fuera-del-catalogo] PASSED [ 10%]
-tests/test_esquemas_y_ejemplos.py::test_ejemplo_invalido_es_rechazado[i05-importe-como-numero-flotante] PASSED [ 10%]
-tests/test_esquemas_y_ejemplos.py::test_ejemplo_invalido_es_rechazado[i06-credito-sin-cuotas] PASSED [ 10%]
-tests/test_esquemas_y_ejemplos.py::test_ejemplo_invalido_es_rechazado[i07-isc-al-valor-sin-tasa] PASSED [ 10%]
-tests/test_esquemas_y_ejemplos.py::test_ejemplo_invalido_es_rechazado[i08-cliente-envia-correlativo] PASSED [ 11%]
-tests/test_esquemas_y_ejemplos.py::test_ejemplo_invalido_es_rechazado[i09-afectacion-ivap-no-soportada] PASSED [ 11%]
-tests/test_esquemas_y_ejemplos.py::test_ejemplo_invalido_es_rechazado[i10-boleta-mayor-a-700-sin-documento] PASSED [ 11%]
-tests/test_esquemas_y_ejemplos.py::test_ejemplo_invalido_es_rechazado[i11-suma-de-cuotas-distinta-al-pendiente] PASSED [ 11%]
-tests/test_esquemas_y_ejemplos.py::test_ejemplo_invalido_es_rechazado[i12-cuota-vence-antes-de-la-emision] PASSED [ 11%]
+tests/test_esquemas_y_ejemplos.py::test_ejemplo_invalido_es_rechazado[rechazo-01-boleta-serie-f] PASSED [  9%]
+tests/test_esquemas_y_ejemplos.py::test_ejemplo_invalido_es_rechazado[rechazo-02-factura-sin-ruc-del-cliente] PASSED [  9%]
+tests/test_esquemas_y_ejemplos.py::test_ejemplo_invalido_es_rechazado[rechazo-03-ruc-emisor-mal-digito] PASSED [ 10%]
+tests/test_esquemas_y_ejemplos.py::test_ejemplo_invalido_es_rechazado[rechazo-04-unidad-de-medida-desconocida] PASSED [ 10%]
+tests/test_esquemas_y_ejemplos.py::test_ejemplo_invalido_es_rechazado[rechazo-05-importe-numerico] PASSED [ 10%]
+tests/test_esquemas_y_ejemplos.py::test_ejemplo_invalido_es_rechazado[rechazo-06-credito-sin-cuotas] PASSED [ 10%]
+tests/test_esquemas_y_ejemplos.py::test_ejemplo_invalido_es_rechazado[rechazo-07-isc-sin-tasa] PASSED [ 10%]
+tests/test_esquemas_y_ejemplos.py::test_ejemplo_invalido_es_rechazado[rechazo-08-correlativo-en-la-entrada] PASSED [ 11%]
+tests/test_esquemas_y_ejemplos.py::test_ejemplo_invalido_es_rechazado[rechazo-09-afectacion-ivap] PASSED [ 11%]
+tests/test_esquemas_y_ejemplos.py::test_ejemplo_invalido_es_rechazado[rechazo-10-boleta-grande-sin-comprador] PASSED [ 11%]
+tests/test_esquemas_y_ejemplos.py::test_ejemplo_invalido_es_rechazado[rechazo-11-cuotas-no-suman] PASSED [ 11%]
+tests/test_esquemas_y_ejemplos.py::test_ejemplo_invalido_es_rechazado[rechazo-12-cuota-vencida] PASSED [ 11%]
 tests/test_esquemas_y_ejemplos.py::test_el_correlativo_no_esta_en_el_esquema PASSED [ 12%]
 tests/test_esquemas_y_ejemplos.py::test_el_esquema_no_admite_numeros_para_importes PASSED [ 12%]
 tests/test_generador_xml.py::TestGeneracion::test_genera_bytes_utf8_con_declaracion_y_raiz_invoice PASSED [ 12%]
@@ -488,25 +488,25 @@ src\facturacion_xml\validador_xsd.py      53      1    98%   52
 --------------------------------------------------------------------
 TOTAL                                    772     39    95%
 Required test coverage of 90.0% reached. Total coverage: 94.95%
-============================= 460 passed in 8.49s =============================
+============================= 460 passed in 8.76s =============================
 
 2) python tests/mutacion.py
 
-DETECTADO     M01 IGV sin incluir el ISC en su base              123 failed, 337 passed in 5.25s
-DETECTADO     M02 Tasa de IGV 19 %                               245 failed, 215 passed in 5.67s
-DETECTADO     M03 Receptor antes que el emisor (orden XSD)       348 failed, 112 passed in 5.69s
-DETECTADO     M04 Sin validar contra el XSD antes de entregar    2 failed, 458 passed in 4.59s
-DETECTADO     M05 Exonerada informa Percent 18                   4 failed, 456 passed in 5.01s
-DETECTADO     M06 RUC sin dígito verificador                     3 failed, 457 passed in 4.75s
-DETECTADO     M07 ICBPER fijo 0.50 sin importar el año           1 failed, 459 passed in 5.11s
-DETECTADO     M08 Redondeo bancario (HALF_EVEN)                  19 failed, 441 passed in 5.05s
-DETECTADO     M09 Gratuitas suman al valor de venta              247 failed, 213 passed in 6.76s
-DETECTADO     M10 Serie no coherente con el tipo                 2 failed, 458 passed in 5.01s
-DETECTADO     M11 Correlativo sin ceros a la izquierda           37 failed, 423 passed in 5.38s
-DETECTADO     M12 Lectura tolerante (corrompe WIN1252)           1 failed, 459 passed in 4.79s
-DETECTADO     M13 Precio unitario redondeado a 2 decimales       236 failed, 224 passed in 5.93s
-DETECTADO     M14 ISC sistema 03 sin descontar el IGV del PVP    1 failed, 459 passed in 5.06s
-DETECTADO     M15 Gratuita con tributo 9998 en lugar de 9996     2 failed, 458 passed in 5.23s
-DETECTADO     M16 Acepta afectación 11 sin rechazarla            3 failed, 457 passed in 4.82s
+DETECTADO     M01 IGV sin incluir el ISC en su base              123 failed, 337 passed in 7.23s
+DETECTADO     M02 Tasa de IGV 19 %                               245 failed, 215 passed in 7.51s
+DETECTADO     M03 Receptor antes que el emisor (orden XSD)       348 failed, 112 passed in 7.51s
+DETECTADO     M04 Sin validar contra el XSD antes de entregar    2 failed, 458 passed in 7.59s
+DETECTADO     M05 Exonerada informa Percent 18                   4 failed, 456 passed in 7.56s
+DETECTADO     M06 RUC sin dígito verificador                     3 failed, 457 passed in 8.38s
+DETECTADO     M07 ICBPER fijo 0.50 sin importar el año           1 failed, 459 passed in 6.47s
+DETECTADO     M08 Redondeo bancario (HALF_EVEN)                  19 failed, 441 passed in 6.67s
+DETECTADO     M09 Gratuitas suman al valor de venta              247 failed, 213 passed in 7.42s
+DETECTADO     M10 Serie no coherente con el tipo                 2 failed, 458 passed in 6.53s
+DETECTADO     M11 Correlativo sin ceros a la izquierda           37 failed, 423 passed in 6.66s
+DETECTADO     M12 Lectura tolerante (corrompe WIN1252)           1 failed, 459 passed in 6.43s
+DETECTADO     M13 Precio unitario redondeado a 2 decimales       236 failed, 224 passed in 8.14s
+DETECTADO     M14 ISC sistema 03 sin descontar el IGV del PVP    1 failed, 459 passed in 6.45s
+DETECTADO     M15 Gratuita con tributo 9998 en lugar de 9996     2 failed, 458 passed in 6.38s
+DETECTADO     M16 Acepta afectación 11 sin rechazarla            3 failed, 457 passed in 6.36s
 
 Mutantes: 16 · detectados: 16 · sobrevivientes: 0

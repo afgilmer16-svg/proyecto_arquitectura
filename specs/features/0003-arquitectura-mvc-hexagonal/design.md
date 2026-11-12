@@ -464,7 +464,7 @@ src/
             ├── persistence/
             │   └── PostgresJdbcComprobanteRepository.java
             ├── ubl/
-            │   └── GeneradorUblJaxbAdapter.java ← implementado en servidor/ (Java + JAXB, ADR-0006)
+            │   └── GeneradorUblJaxbAdapter.java ← implementado en generador-java/ (Java + JAXB, ADR-0006)
             ├── security/
             │   └── LocalPkcs12FirmaAdapter.java
             ├── ose/
