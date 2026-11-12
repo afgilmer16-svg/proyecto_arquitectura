@@ -30,6 +30,12 @@
 | E-13 | 4 elementos que emite el generador no figuraban en la matriz 0005 (`LineCountNumeric`, `AddressTypeCode`, `Country`, `IdentificationCode`). | Prueba de trazabilidad elemento ↔ matriz. | Filas agregadas a la matriz 0005 (§3 y §4). |
 | E-14 | Ninguna prueba demostraba que `generar()` valida contra el XSD **antes de entregar** el XML: la prueba con ese nombre validaba por fuera. | Prueba de mutación M04 (quitar la validación): la suite seguía en verde. | Nueva prueba que rompe el árbol dentro del generador y exige `XmlNoConformeXsdError`, más una prueba con un validador espía. M04 ahora se detecta. |
 
+### 1.1 bis Error encontrado al probar en probar-xml.nubefact.com (2026-11-12)
+
+| # | Error encontrado | Cómo se detectó | Corrección |
+|---|---|---|---|
+| E-15 | La raíz del XML declaraba solo `cac` y `cbc`. Al marcar "Firmar", el OSE-DEMO de Nubefact insertó `ext:UBLExtensions` y respondió **error 0306**: *The prefix "ext" for element "ext:UBLExtensions" is not bound*. | Prueba manual de los XML de `docs/ejemplos` y `specs/ejemplos/xml-referencia` en probar-xml.nubefact.com. | Los dos generadores declaran en la raíz `ext`, `ds`, `ccts`, `qdt`, `udt` y `xsi`, igual que la Guía XML de SUNAT. Pruebas nuevas: `tests/test_prefijos_del_firmador.py` y `PrefijosDelFirmadorTest`. XML de ejemplo regenerados. |
+
 ### 1.2 Mejoras de ingeniería agregadas antes de la entrega (2026-11-11, tercera ronda)
 
 Tras comparar el proyecto con otro trabajo del curso se agregaron complementos que no cambian el generador:
@@ -45,7 +51,7 @@ Tras comparar el proyecto con otro trabajo del curso se agregaron complementos q
 | M-07 | `redocly.yaml` para el lint del contrato. | `redocly.yaml` |
 | M-08 | **Adaptador principal en Java 21 con JAXB**: las clases se generan desde `UBL-Invoice-2.1.xsd` en cada compilación (≈ 1 240), como recomendó el docente y como pide la continuidad con el primer parcial (backend Java). | `generador-java/`, ADR-0006 |
 | M-09 | **Regresión cruzada**: el XML Java es idéntico al del prototipo Python en 5 ejemplos. | `RegresionCruzadaTest`, `specs/ejemplos/xml-referencia/` |
-| M-10 | **152 pruebas Java** (generación, XSD, dominio, entrada, CLI, arquitectura) con cobertura del 97 % y mínimo del 90 % en el build. | `resultados-pruebas-java.txt` |
+| M-10 | **162 pruebas Java** (generación, XSD, dominio, entrada, CLI, arquitectura) con cobertura del 97 % y mínimo del 90 % en el build. | `resultados-pruebas-java.txt` |
 | M-11 | CI de Java con Maven Wrapper (solo requiere JDK 21). | `.github/workflows/java.yml`, `generador-java/mvnw` |
 
 ## 2. Observaciones del docente atendidas
@@ -115,7 +121,7 @@ Tras comparar el proyecto con otro trabajo del curso se agregaron complementos q
 
 | Ejecución | Resultado |
 |---|---|
-| `pytest -v` (suite completa, con `openapi-spec-validator` 0.9.0 real, Windows 11 / Python 3.12.7) | **460 aprobadas, 0 fallidas**. Salida completa en [`resultados-pruebas-python.txt`](resultados-pruebas-python.txt). |
+| `pytest -v` (suite completa, con `openapi-spec-validator` 0.9.0 real, Windows 11 / Python 3.12.7) | **471 aprobadas, 0 fallidas**. Salida completa en [`resultados-pruebas-python.txt`](resultados-pruebas-python.txt). |
 | `python tests/mutacion.py` | **16 de 16 mutantes detectados**. |
 | CLI con el ejemplo | XML generado y validado: `docs/ejemplos/F001-00000001.xml`. |
 | CLI con correlativo `0` | Rechazado con mensaje claro y código de salida 1. |

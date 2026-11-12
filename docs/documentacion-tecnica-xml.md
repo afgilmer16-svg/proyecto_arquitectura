@@ -122,7 +122,7 @@ Cada `cac:InvoiceLine` lleva `cbc:ID`, `cbc:InvoicedQuantity` (`@unitCode` del C
 | ISC | (con gravada) | S | 2000 · ISC · EXC + `TierRange` (Cat. 08) | tasa ISC |
 | ICBPER | (cualquiera) | — | 7152 · ICBPER · OTH + `PerUnitAmount` | — |
 
-**Qué no se genera y por qué**: `ext:UBLExtensions` (lo agrega el firmador; es opcional en el XSD) y `sac:AdditionalMonetaryTotal` (era de UBL 2.0; no existe en el XSD de UBL 2.1).
+**Qué no se genera y por qué**: `ext:UBLExtensions` (lo agrega el firmador; es opcional en el XSD). Aunque el bloque no se genera, la raíz **sí declara** los prefijos `ext`, `ds`, `ccts`, `qdt`, `udt` y `xsi` (como la Guía XML de SUNAT): el firmador de un OSE inserta `ext:UBLExtensions` en el XML y, si el prefijo no está declarado, responde con el error 0306 (*The prefix "ext" for element "ext:UBLExtensions" is not bound*). Hallazgo de la prueba en probar-xml.nubefact.com (E-15) y `sac:AdditionalMonetaryTotal` (era de UBL 2.0; no existe en el XSD de UBL 2.1).
 
 ## 6. Validación mediante XSD
 
@@ -214,7 +214,7 @@ pytest -v
 
 | Verificación | Resultado | Evidencia |
 |---|---|---|
-| `pytest -v` (suite completa: generador + verificación + contratos, con `openapi-spec-validator` 0.9.0 real) | **460 aprobadas, 0 fallidas** | [`resultados-pruebas-python.txt`](resultados-pruebas-python.txt) (Windows 11, Python 3.12.7) |
+| `pytest -v` (suite completa: generador + verificación + contratos, con `openapi-spec-validator` 0.9.0 real) | **471 aprobadas, 0 fallidas** | [`resultados-pruebas-python.txt`](resultados-pruebas-python.txt) (Windows 11, Python 3.12.7) |
 | `python tests/mutacion.py` | **16 de 16 mutantes detectados** | [`resultados-pruebas-python.txt`](resultados-pruebas-python.txt) |
 | XML de ejemplo con las 4 categorías, ISC e ICBPER | Válido contra `UBL-Invoice-2.1.xsd` | [`ejemplos/F001-00000001.xml`](ejemplos/F001-00000001.xml) |
 | Cuadre del ejemplo | Valor de venta 1 955.50 + tributos 386.85 = **2 342.35** | §8.1 |
@@ -296,7 +296,7 @@ generador-java/src/main/java/pe/abc/facturacion/
 | `RucYNumeroLetrasTest` (29) | RUC, importe en letras y catálogos. |
 | `DependenciasEntreCapasTest` (7) | ArchUnit: dominio sin dependencias, solo el adaptador usa las clases del XSD, sin ciclos. |
 
-**Resultado**: 152 pruebas, 0 fallos, cobertura de líneas 97 % del código propio (mínimo exigido: 90 %). Salida completa en [`resultados-pruebas-java.txt`](resultados-pruebas-java.txt).
+**Resultado**: 162 pruebas, 0 fallos, cobertura de líneas 97 % del código propio (mínimo exigido: 90 %). Salida completa en [`resultados-pruebas-java.txt`](resultados-pruebas-java.txt).
 
 ### 9.5 Ejecución
 

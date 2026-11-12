@@ -21,9 +21,18 @@ from enum import Enum
 NS_INVOICE = "urn:oasis:names:specification:ubl:schema:xsd:Invoice-2"
 NS_CAC = "urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2"
 NS_CBC = "urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2"
-# ext: (CommonExtensionComponents) y ds: (XML-DSig) los declara el firmador al
-# agregar ext:UBLExtensions; este generador no los usa.
-NSMAP = {None: NS_INVOICE, "cac": NS_CAC, "cbc": NS_CBC}
+# Prefijos que la Guia XML de SUNAT declara en la raiz del Invoice (p. 79). Aunque este generador no
+# usa ext:/ds:, **deben estar declarados**: los firmadores (por ejemplo, el de probar-xml.nubefact.com,
+# que responde con el error 0306 "The prefix ext ... is not bound") insertan ext:UBLExtensions con ds:Signature
+# dentro de un XML que ya declare esos prefijos. Declarar un prefijo sin usarlo es valido en XML y en el XSD.
+NS_EXT = "urn:oasis:names:specification:ubl:schema:xsd:CommonExtensionComponents-2"
+NS_DS = "http://www.w3.org/2000/09/xmldsig#"
+NS_CCTS = "urn:un:unece:uncefact:documentation:2"
+NS_QDT = "urn:oasis:names:specification:ubl:schema:xsd:QualifiedDatatypes-2"
+NS_UDT = "urn:un:unece:uncefact:data:specification:UnqualifiedDataTypesSchemaModule:2"
+NS_XSI = "http://www.w3.org/2001/XMLSchema-instance"
+NSMAP = {None: NS_INVOICE, "cac": NS_CAC, "cbc": NS_CBC, "ccts": NS_CCTS, "ds": NS_DS, "ext": NS_EXT,
+         "qdt": NS_QDT, "udt": NS_UDT, "xsi": NS_XSI}
 
 # Constantes de la cabecera (Guía XML SUNAT v1.0, pp. 4 y 79).
 UBL_VERSION_ID = "2.1"

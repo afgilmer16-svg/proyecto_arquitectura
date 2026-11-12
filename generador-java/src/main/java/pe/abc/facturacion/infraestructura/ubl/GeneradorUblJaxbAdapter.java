@@ -114,6 +114,11 @@ public class GeneradorUblJaxbAdapter implements GeneradorXmlUblPort {
     private static final String NS_INVOICE = "urn:oasis:names:specification:ubl:schema:xsd:Invoice-2";
     private static final String NS_CAC = "urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2";
     private static final String NS_EXT = "urn:oasis:names:specification:ubl:schema:xsd:CommonExtensionComponents-2";
+    private static final String NS_DS = "http://www.w3.org/2000/09/xmldsig#";
+    private static final String NS_CCTS = "urn:un:unece:uncefact:documentation:2";
+    private static final String NS_QDT = "urn:oasis:names:specification:ubl:schema:xsd:QualifiedDatatypes-2";
+    private static final String NS_UDT = "urn:un:unece:uncefact:data:specification:UnqualifiedDataTypesSchemaModule:2";
+    private static final String NS_XSI = "http://www.w3.org/2001/XMLSchema-instance";
     private static final String NS_CBC = "urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2";
 
     private static final JAXBContext CONTEXTO = crearContexto();
@@ -229,13 +234,20 @@ public class GeneradorUblJaxbAdapter implements GeneradorXmlUblPort {
                 case NS_CAC -> "cac";
                 case NS_CBC -> "cbc";
                 case NS_EXT -> "ext";
+                case NS_DS -> "ds";
+                case NS_CCTS -> "ccts";
+                case NS_QDT -> "qdt";
+                case NS_UDT -> "udt";
+                case NS_XSI -> "xsi";
                 default -> sugerido;
             };
         }
 
         @Override
         public String[] getPreDeclaredNamespaceUris() {
-            return new String[] {NS_CAC, NS_CBC};
+            // Se declaran en la raiz aunque no se usen: el firmador de SUNAT/OSE inserta ext:UBLExtensions
+            // y ds:Signature y necesita estos prefijos ya enlazados (error 0306 si faltan).
+            return new String[] {NS_CAC, NS_CBC, NS_CCTS, NS_DS, NS_EXT, NS_QDT, NS_UDT, NS_XSI};
         }
     }
 
