@@ -74,3 +74,8 @@ generador-java/target/
 *.class
 *.jar
 !generador-java/.mvn/wrapper/maven-wrapper.jar
+
+# Archivos generados
+.coverage
+.pytest_cache/
+__pycache__/
