@@ -13,7 +13,7 @@ PAQUETE = Path(__file__).resolve().parents[1] / "src" / "facturacion_xml"
 MODULOS = sorted(p.stem for p in PAQUETE.glob("*.py") if p.stem not in {"__init__", "__main__"})
 
 NUCLEO = {"catalogos", "modelo", "calculo", "numero_letras", "errores"}
-ADAPTADORES_LXML = {"generador_ubl", "validador_xsd"}
+ADAPTADORES_LXML = {"generador_ubl", "validador_xsd", "firmador"}
 # modulo -> modulos internos que NO puede importar
 PROHIBIDOS = {
     "catalogos": {"modelo", "calculo", "generador_ubl", "validador_xsd", "numero_letras"},
@@ -22,6 +22,7 @@ PROHIBIDOS = {
     "modelo": {"generador_ubl", "validador_xsd"},
     "calculo": {"generador_ubl", "validador_xsd"},
     "validador_xsd": {"modelo", "calculo", "generador_ubl", "catalogos"},
+    "firmador": {"modelo", "calculo", "generador_ubl", "catalogos", "validador_xsd", "numero_letras"},
 }
 EXTERNOS_PROHIBIDOS_EN_NUCLEO = {"lxml", "xml", "requests", "sqlalchemy", "psycopg2", "flask", "django"}
 

@@ -26,5 +26,9 @@ class XmlNoConformeXsdError(ErrorFacturacionXml):
         super().__init__("El XML no cumple el XSD UBL-Invoice-2.1:\n- " + "\n- ".join(self.errores))
 
 
+class FirmaDigitalError(ErrorFacturacionXml):
+    """No se pudo firmar el XML (certificado o contraseña inválidos, XML ya firmado) o la firma no se puede leer."""
+
+
 class EsquemaXsdIncompletoError(ErrorFacturacionXml):
     """Falta un archivo del esquema UBL 2.1 y el XSD no se puede compilar."""

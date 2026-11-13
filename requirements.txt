@@ -1,5 +1,6 @@
 # Generador XML UBL 2.1 (src/facturacion_xml)
 lxml>=5.0                      # construcción del XML y validación contra el XSD
+cryptography>=42               # firma digital opcional (XMLDSig, certificados .pfx)
 
 # Pruebas (tests/)
 pytest>=8.0

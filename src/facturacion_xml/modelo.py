@@ -12,7 +12,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass, field
-from datetime import date, time
+from datetime import date, datetime, time, timedelta, timezone
 from decimal import Decimal, InvalidOperation
 from typing import Any
 
@@ -23,6 +23,9 @@ _PATRON_SERIE = re.compile(r"^[FB][A-Z0-9]{3}$")
 _PATRON_DECIMAL = re.compile(r"^[0-9]+(\.[0-9]{1,10})?$")
 _PATRON_TASA = re.compile(r"^[0-9]{1,3}\.[0-9]{2}$")
 _PATRON_HORA = re.compile(r"^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$")
+# Caracteres que XML 1.0 no admite (controles salvo tab, salto de línea y retorno; sustitutos; U+FFFE/U+FFFF).
+_CARACTERES_NO_XML = re.compile("[\x00-\x08\x0b\x0c\x0e-\x1f\ud800-\udfff\ufffe\uffff]")
+_ZONA_PERU = timezone(timedelta(hours=-5))  # America/Lima: UTC-5 todo el año, sin horario de verano
 _PESOS_RUC = (5, 4, 3, 2, 7, 6, 5, 4, 3, 2)
 _PREFIJOS_RUC = ("10", "15", "16", "17", "20")
 CORRELATIVO_MAXIMO = 99_999_999
@@ -135,6 +138,9 @@ class _Lector:
             self.error(f"{ruta}{clave}", "debe ser texto")
             return None
         valor = valor.strip()
+        if _CARACTERES_NO_XML.search(valor):
+            self.error(f"{ruta}{clave}", "contiene caracteres de control que XML no admite")
+            return None
         if maximo and len(valor) > maximo:
             self.error(f"{ruta}{clave}", f"supera {maximo} caracteres")
         return valor
@@ -175,13 +181,20 @@ class _Lector:
 # --------------------------------------------------------------------------
 # Construcción del modelo
 # --------------------------------------------------------------------------
+def hoy_en_lima() -> date:
+    """Fecha actual en la zona horaria del Perú (la que SUNAT usa para validar la fecha de emisión)."""
+    return datetime.now(_ZONA_PERU).date()
+
+
 def factura_desde_dict(datos: dict[str, Any], correlativo: int,
-                       regimen_igv: cat.RegimenIgv | str = cat.RegimenIgv.GENERAL) -> Factura:
+                       regimen_igv: cat.RegimenIgv | str = cat.RegimenIgv.GENERAL,
+                       hoy: date | None = None) -> Factura:
     """Convierte el DTO de entrada en una :class:`Factura` validada.
 
     :param datos: diccionario con la forma de ``EmitirComprobanteRequest``.
     :param correlativo: número asignado por el servidor a la serie (1–99 999 999).
     :param regimen_igv: tasa de IGV aplicable (por defecto, régimen general 18 %).
+    :param hoy: fecha de referencia para rechazar emisiones futuras (por defecto, hoy en Lima).
     :raises DatosFacturaInvalidosError: con todos los problemas encontrados.
     """
     if not isinstance(datos, dict):
@@ -214,6 +227,8 @@ def factura_desde_dict(datos: dict[str, Any], correlativo: int,
 
     # Fechas, moneda y tipo de operación ------------------------------------
     fecha_emision = lec.fecha(datos, "fecha_emision", "")
+    if fecha_emision and fecha_emision > (hoy or hoy_en_lima()):
+        lec.error("fecha_emision", "no puede ser posterior a la fecha actual")
     hora = None
     hora_txt = datos.get("hora_emision")
     if hora_txt is not None:

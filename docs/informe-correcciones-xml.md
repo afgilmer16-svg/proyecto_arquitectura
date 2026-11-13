@@ -39,6 +39,24 @@
 | E-17 | El OSE-DEMO respondió **error 2010** (*El contribuyente no está activo*) para el RUC del emisor `20601234565`. | Misma prueba. | **No es un defecto del XML:** el RUC de los ejemplos es ficticio (válido por módulo 11, pero no figura como activo en el padrón del OSE). Para esa prueba hace falta un RUC que el OSE-DEMO reconozca. |
 | E-18 | Con un RUC de emisor distinto el OSE-DEMO aceptó el comprobante pero **con observaciones** (4252 `@listName` y 4255 `@schemeName` incorrectos, 18 avisos). | Tercera prueba en probar-xml.nubefact.com. | Los atributos descriptivos usan los nombres del Catálogo SUNAT: `listName="Tipo de Documento"`, `"Tipo de Precio"`, `"Afectacion del IGV"` y `schemeName="Documento de Identidad"`. Resultado: **ACEPTADA** sin observaciones. El RUC de los ejemplos pasó de `20601234565` a `20526018151` (válido por módulo 11 y reconocido por el OSE-DEMO). |
 
+### 1.1 ter Auditoría de 2026-11-12 (firma opcional, fecha, caracteres y caso de la moto)
+
+| # | Hallazgo | Corrección | Evidencia |
+|---|---|---|---|
+| E-19 | Una descripción con un carácter de control (p. ej. `\x07`) hacía fallar a lxml con un error crudo (*All strings must be XML compatible*) en vez de un error de validación. | El lector de datos rechaza los caracteres que XML 1.0 no admite, con la ruta del campo, en Python y en Java. | `tests/test_factura_moto.py`, `FechaYCaracteresTest` |
+| E-20 | La fecha de emisión no se validaba: se aceptaba `2027-12-31`. SUNAT no admite fechas futuras. | Se rechaza una fecha posterior a hoy en Lima (UTC-5). La fecha de referencia es inyectable (`hoy=`) para que las pruebas sean deterministas. El plazo de envío de 7 días **no** se valida (⚠️ Por verificar el código de error y la modalidad). | `test_factura_moto.py`, `FechaYCaracteresTest` |
+| E-21 | No había forma de firmar: solo se declaraban los prefijos para que firmara el OSE. | Firmador opcional XMLDSig *enveloped* (C14N 1.0, SHA-256, RSA-SHA256) con certificado `.pfx`, en Python (`firmador.py`, `--firmar`) y en Java (`FirmadorXmlDsigAdapter`, API estándar del JDK). El XML firmado sigue siendo válido contra el XSD. | `tests/test_firmador.py` (23 pruebas), `FirmadorXmlDsigTest`, y Java verifica una firma hecha en Python |
+| E-22 | No existía el caso de negocio de una factura de moto. | Ejemplo `05-factura-moto` (JSON, XML de referencia y pruebas): un ítem de S/ 6779.66 + IGV = S/ 8000.00, con chasis y motor en la descripción. | `tests/test_factura_moto.py`, regresión cruzada Python ↔ Java |
+| E-23 | Las pruebas de propiedades aleatorias usaban fechas de 2026 que, con la regla nueva, serían "futuras". | Esas pruebas fijan `hoy=2030-01-01`. | `test_verificacion_integral.py` |
+
+**Decisiones y límites (no se cambiaron):**
+
+- `cbc:ProfileID` (con `catalogo17`, forma de la guía 2017) **y** `InvoiceTypeCode@listID` (tipo de operación) se emiten a la vez. El OSE-DEMO aceptó el XML así; se mantiene hasta contrastarlo con la guía vigente.
+- `cbc:Percent` sigue con 2 decimales porque el contrato de entrada limita las tasas a 2 decimales.
+- `receptor.email` se acepta en la entrada pero **no se escribe** en el XML (SUNAT no lo pide en el comprobante); es dato de envío de la copia al cliente.
+- El RUC del emisor de los ejemplos (`20526018151`) se usa solo porque el OSE-DEMO lo reconoce como activo; **no es el RUC de ABC**.
+- No se generan `DueDate`, descuentos/cargos (`AllowanceCharge`), ni el código UNSPSC del producto; tampoco dirección con departamento/provincia/distrito.
+
 ### 1.2 Mejoras de ingeniería agregadas antes de la entrega (2026-11-11, tercera ronda)
 
 Tras comparar el proyecto con otro trabajo del curso se agregaron complementos que no cambian el generador:
@@ -47,14 +65,14 @@ Tras comparar el proyecto con otro trabajo del curso se agregaron complementos q
 |---|---|---|
 | M-01 | **Clon limpio en Windows**: `core.autocrlf` convertía el XML de ejemplo a CRLF y fallaba una prueba. Se agregó `.gitattributes` (LF) y la prueba tolera CRLF. | `.gitattributes`, `TestRegresion` |
 | M-02 | **Integración continua** en GitHub Actions (Python 3.10 y 3.12): pruebas, cobertura y mutación. | `.github/workflows/python.yml` |
-| M-03 | **Cobertura mínima del 90 %** (hoy 95 %). | `.coveragerc`, `pytest-cov` en `requirements.txt` |
+| M-03 | **Cobertura mínima del 90 %** (hoy 96 %). | `.coveragerc`, `pytest-cov` en `requirements.txt` |
 | M-04 | **JSON Schema 2020-12** de la entrada y **12 ejemplos inválidos** + 4 válidos adicionales como archivos. Una prueba comprueba que el esquema y el modelo Python no se contradicen. | `specs/schemas/`, `specs/ejemplos/`, `tests/test_esquemas_y_ejemplos.py` |
 | M-05 | **Reglas de arquitectura** ejecutables (núcleo sin infraestructura, `lxml` solo en adaptadores, sin ciclos, sin `float`). | `tests/test_arquitectura.py` |
 | M-06 | **Diagramas `.mmd`** como fuente (18) y **matriz 0005 en CSV** (12 archivos + índice), regenerables y vigilados por pruebas. | `tools/`, `diagramas/fuentes/`, `specs/trazabilidad/csv/` |
 | M-07 | `redocly.yaml` para el lint del contrato. | `redocly.yaml` |
 | M-08 | **Adaptador principal en Java 21 con JAXB**: las clases se generan desde `UBL-Invoice-2.1.xsd` en cada compilación (≈ 1 240), como recomendó el docente y como pide la continuidad con el primer parcial (backend Java). | `generador-java/`, ADR-0006 |
 | M-09 | **Regresión cruzada**: el XML Java es idéntico al del prototipo Python en 5 ejemplos. | `RegresionCruzadaTest`, `specs/ejemplos/xml-referencia/` |
-| M-10 | **162 pruebas Java** (generación, XSD, dominio, entrada, CLI, arquitectura) con cobertura del 97 % y mínimo del 90 % en el build. | `resultados-pruebas-java.txt` |
+| M-10 | **191 pruebas Java** (generación, XSD, dominio, entrada, firma, CLI, arquitectura) con cobertura del 98 % y mínimo del 90 % en el build. | `resultados-pruebas-java.txt` |
 | M-11 | CI de Java con Maven Wrapper (solo requiere JDK 21). | `.github/workflows/java.yml`, `generador-java/mvnw` |
 
 ## 2. Observaciones del docente atendidas
@@ -124,7 +142,7 @@ Tras comparar el proyecto con otro trabajo del curso se agregaron complementos q
 
 | Ejecución | Resultado |
 |---|---|
-| `pytest -v` (suite completa, con `openapi-spec-validator` 0.9.0 real, Windows 11 / Python 3.12.7) | **471 aprobadas, 0 fallidas**. Salida completa en [`resultados-pruebas-python.txt`](resultados-pruebas-python.txt). |
+| `pytest -v` (suite completa, con `openapi-spec-validator` 0.9.0 real, Windows 11 / Python 3.12.7) | **512 aprobadas, 0 fallidas**. Salida completa en [`resultados-pruebas-python.txt`](resultados-pruebas-python.txt). |
 | `python tests/mutacion.py` | **16 de 16 mutantes detectados**. |
 | CLI con el ejemplo | XML generado y validado: `docs/ejemplos/F001-00000001.xml`. |
 | CLI con correlativo `0` | Rechazado con mensaje claro y código de salida 1. |
@@ -136,7 +154,8 @@ Tras comparar el proyecto con otro trabajo del curso se agregaron complementos q
 |---|---|---|
 | Volver a correr `redocly lint` | Cambiaron los RUC de ejemplo del contrato. | `npx.cmd @redocly/cli lint specs/contracts/facturacion-api.yaml`. |
 | Contrastar la estructura de las gratuitas, los códigos del ICBPER y las cuotas con el anexo de validaciones vigente de SUNAT | La guía local es la v1.0 (2017), anterior a esas reglas. | Ver `docs/pendientes-verificacion.md`. |
-| Firma, envío al OSE, notas, bajas y resúmenes | Fuera del alcance del segundo parcial. | Parciales posteriores. |
+| Envío al OSE, notas, bajas y resúmenes | Fuera del alcance del segundo parcial. | Parciales posteriores. |
+| Firma con un certificado real y validación del XML firmado en el OSE | El firmador opcional está implementado y probado con certificados de prueba. Un certificado real de ABC no está en el repositorio (ni debe estarlo). | Firmar con el `.pfx` de la empresa y subir el resultado a probar-xml.nubefact.com. |
 
 ## 8. Verificación final: requisito → evidencia
 

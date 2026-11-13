@@ -1,5 +1,6 @@
 package pe.abc.facturacion.aplicacion;
 
+import java.time.LocalDate;
 import java.util.Map;
 
 import pe.abc.facturacion.aplicacion.puerto.GeneradorXmlUblPort;
@@ -22,7 +23,12 @@ public final class GenerarFacturaXmlService {
     }
 
     public byte[] generar(Map<String, Object> datos, long correlativo, RegimenIgv regimenIgv) {
-        Factura factura = LectorFactura.desdeMapa(datos, correlativo, regimenIgv);
+        return generar(datos, correlativo, regimenIgv, LectorFactura.hoyEnLima());
+    }
+
+    /** @param hoy fecha de referencia para rechazar emisiones futuras */
+    public byte[] generar(Map<String, Object> datos, long correlativo, RegimenIgv regimenIgv, LocalDate hoy) {
+        Factura factura = LectorFactura.desdeMapa(datos, correlativo, regimenIgv, hoy);
         return generador.generar(factura);
     }
 

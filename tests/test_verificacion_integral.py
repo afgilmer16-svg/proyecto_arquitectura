@@ -27,6 +27,8 @@ import pytest
 import yaml
 from lxml import etree
 
+from datetime import date
+
 from facturacion_xml import DatosFacturaInvalidosError, ValidadorXsd, generar_xml_factura
 from facturacion_xml import catalogos as cat
 
@@ -156,7 +158,7 @@ CASOS = _casos()
 @pytest.mark.parametrize("datos, correlativo", CASOS, ids=[f"caso{i:03d}" for i in range(len(CASOS))])
 def test_propiedades_de_comprobantes_aleatorios(datos, correlativo, validador):
     try:
-        xml = generar_xml_factura(datos, correlativo)
+        xml = generar_xml_factura(datos, correlativo, hoy=date(2030, 1, 1))  # fechas aleatorias de 2026: no son "futuras"
     except DatosFacturaInvalidosError as exc:
         # Única causa válida de rechazo en estos datos: boleta > S/ 700 sin identificar (no ocurre: llevan DNI).
         pytest.fail(f"datos válidos rechazados: {exc}")

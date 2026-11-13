@@ -4,6 +4,7 @@ Entorno: Windows 11, java version "24.0.1" 2025-04-15, Maven 3.9.9 (mvnw), JAXB 
 cd generador-java && ./mvnw -B verify   (genera las clases del XSD, compila, prueba y exige cobertura minima del 90 %)
 
 
+
 [INFO] Scanning for projects...
 [INFO] 
 [INFO] -----------------------< pe.abc:facturacion-xml >-----------------------
@@ -37,14 +38,14 @@ Consider removing this setting from your plugin configuration.
 [INFO] 
 [INFO] --- compiler:3.13.0:compile (default-compile) @ facturacion-xml ---
 [INFO] Recompiling the module because of changed source code.
-[INFO] Compiling 1268 source files with javac [debug release 21] to target\classes
+[INFO] Compiling 1271 source files with javac [debug release 21] to target\classes
 [INFO] 
 [INFO] --- resources:3.3.1:testResources (default-testResources) @ facturacion-xml ---
 [INFO] skip non existing resourceDirectory D:\proyecto_arquitectura\generador-java\src\test\resources
 [INFO] 
 [INFO] --- compiler:3.13.0:testCompile (default-testCompile) @ facturacion-xml ---
 [INFO] Recompiling the module because of changed dependency.
-[INFO] Compiling 12 source files with javac [debug release 21] to target\test-classes
+[INFO] Compiling 14 source files with javac [debug release 21] to target\test-classes
 [INFO] 
 [INFO] --- surefire:3.5.2:test (default-test) @ facturacion-xml ---
 [INFO] Using auto detected provider org.apache.maven.surefire.junitplatform.JUnitPlatformProvider
@@ -53,29 +54,35 @@ Consider removing this setting from your plugin configuration.
 [INFO]  T E S T S
 [INFO] -------------------------------------------------------
 [INFO] Running pe.abc.facturacion.AplicacionTest
-[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 7.715 s -- in pe.abc.facturacion.AplicacionTest
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 10.63 s -- in pe.abc.facturacion.AplicacionTest
 [INFO] Running pe.abc.facturacion.DependenciasEntreCapasTest
-[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 7.304 s -- in pe.abc.facturacion.DependenciasEntreCapasTest
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 5.854 s -- in pe.abc.facturacion.DependenciasEntreCapasTest
 [INFO] Running pe.abc.facturacion.dominio.CalculoDeImportesTest
-[INFO] Tests run: 22, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.207 s -- in pe.abc.facturacion.dominio.CalculoDeImportesTest
+[INFO] Tests run: 22, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.274 s -- in pe.abc.facturacion.dominio.CalculoDeImportesTest
+[INFO] Running pe.abc.facturacion.dominio.FechaYCaracteresTest
+[INFO] Tests run: 11, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.109 s -- in pe.abc.facturacion.dominio.FechaYCaracteresTest
 [INFO] Running pe.abc.facturacion.dominio.LectorFacturaTest
-[INFO] Tests run: 24, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.194 s -- in pe.abc.facturacion.dominio.LectorFacturaTest
+[INFO] Tests run: 24, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.245 s -- in pe.abc.facturacion.dominio.LectorFacturaTest
 [INFO] Running pe.abc.facturacion.dominio.RucYNumeroLetrasTest
-[INFO] Tests run: 29, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.140 s -- in pe.abc.facturacion.dominio.RucYNumeroLetrasTest
+[INFO] Tests run: 29, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.145 s -- in pe.abc.facturacion.dominio.RucYNumeroLetrasTest
 [INFO] Running pe.abc.facturacion.infraestructura.entrada.EntradaTest
-[INFO] Tests run: 23, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.270 s -- in pe.abc.facturacion.infraestructura.entrada.EntradaTest
+[INFO] Tests run: 24, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.333 s -- in pe.abc.facturacion.infraestructura.entrada.EntradaTest
+[INFO] Running pe.abc.facturacion.infraestructura.firma.FirmadorXmlDsigTest
+[Fatal Error] :1:10: XML document structures must start and end within the same entity.
+[Fatal Error] :1:10: DOCTYPE is disallowed when the feature "http://apache.org/xml/features/disallow-doctype-decl" set to true.
+[INFO] Tests run: 14, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 3.248 s -- in pe.abc.facturacion.infraestructura.firma.FirmadorXmlDsigTest
 [INFO] Running pe.abc.facturacion.infraestructura.ubl.GeneradorFacturaXmlTest
-[INFO] Tests run: 23, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.020 s -- in pe.abc.facturacion.infraestructura.ubl.GeneradorFacturaXmlTest
+[INFO] Tests run: 23, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.769 s -- in pe.abc.facturacion.infraestructura.ubl.GeneradorFacturaXmlTest
 [INFO] Running pe.abc.facturacion.infraestructura.ubl.PrefijosDelFirmadorTest
-[INFO] Tests run: 10, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.396 s -- in pe.abc.facturacion.infraestructura.ubl.PrefijosDelFirmadorTest
+[INFO] Tests run: 12, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.050 s -- in pe.abc.facturacion.infraestructura.ubl.PrefijosDelFirmadorTest
 [INFO] Running pe.abc.facturacion.infraestructura.ubl.RegresionCruzadaTest
-[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.917 s -- in pe.abc.facturacion.infraestructura.ubl.RegresionCruzadaTest
+[INFO] Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.900 s -- in pe.abc.facturacion.infraestructura.ubl.RegresionCruzadaTest
 [INFO] Running pe.abc.facturacion.infraestructura.ubl.ValidadorXsdTest
-[INFO] Tests run: 10, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.349 s -- in pe.abc.facturacion.infraestructura.ubl.ValidadorXsdTest
+[INFO] Tests run: 10, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.474 s -- in pe.abc.facturacion.infraestructura.ubl.ValidadorXsdTest
 [INFO] 
 [INFO] Results:
 [INFO] 
-[INFO] Tests run: 162, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 191, Failures: 0, Errors: 0, Skipped: 0
 [INFO] 
 [INFO] 
 [INFO] --- jar:3.4.1:jar (default-jar) @ facturacion-xml ---
@@ -83,15 +90,15 @@ Consider removing this setting from your plugin configuration.
 [INFO] 
 [INFO] --- jacoco:0.8.13:report (informe) @ facturacion-xml ---
 [INFO] Loading execution data file D:\proyecto_arquitectura\generador-java\target\jacoco.exec
-[INFO] Analyzed bundle 'ABC Software Corp - generador del XML UBL 2.1 (Invoice)' with 33 classes
+[INFO] Analyzed bundle 'ABC Software Corp - generador del XML UBL 2.1 (Invoice)' with 35 classes
 [INFO] 
 [INFO] --- jacoco:0.8.13:check (exigir-minimo) @ facturacion-xml ---
 [INFO] Loading execution data file D:\proyecto_arquitectura\generador-java\target\jacoco.exec
-[INFO] Analyzed bundle 'facturacion-xml' with 33 classes
+[INFO] Analyzed bundle 'facturacion-xml' with 35 classes
 [INFO] All coverage checks have been met.
 [INFO] ------------------------------------------------------------------------
 [INFO] BUILD SUCCESS
 [INFO] ------------------------------------------------------------------------
-[INFO] Total time:  01:05 min
-[INFO] Finished at: 2026-11-12T16:36:45-05:00
+[INFO] Total time:  01:51 min
+[INFO] Finished at: 2026-11-12T19:35:08-05:00
 [INFO] ------------------------------------------------------------------------

@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
@@ -45,7 +46,35 @@ public final class LectorFactura {
     /** Umbral para identificar al comprador en boletas; el monto vigente esta "Por verificar". */
     public static final BigDecimal UMBRAL_IDENTIFICACION_BOLETA = new BigDecimal("700.00");
 
+    /** Zona horaria del Peru (UTC-5 todo el ano, sin horario de verano): la que SUNAT usa para la fecha de emision. */
+    private static final ZoneOffset ZONA_PERU = ZoneOffset.ofHours(-5);
+
     private LectorFactura() {
+    }
+
+    /** Fecha actual en Lima. */
+    public static LocalDate hoyEnLima() {
+        return LocalDate.now(ZONA_PERU);
+    }
+
+    /** XML 1.0 no admite controles (salvo tab, salto de linea y retorno), sustitutos sueltos ni U+FFFE/U+FFFF. */
+    public static boolean tieneCaracteresNoXml(String texto) {
+        for (int i = 0; i < texto.length(); i++) {
+            char c = texto.charAt(i);
+            if ((c < 0x20 && c != '\t' && c != '\n' && c != '\r') || c == 0xFFFE || c == 0xFFFF) {
+                return true;
+            }
+            if (Character.isHighSurrogate(c)) {
+                if (i + 1 < texto.length() && Character.isLowSurrogate(texto.charAt(i + 1))) {
+                    i++;
+                } else {
+                    return true;
+                }
+            } else if (Character.isLowSurrogate(c)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     // ---------------------------------------------------------------- utilidades
@@ -69,6 +98,10 @@ public final class LectorFactura {
                 return null;
             }
             String limpio = s.strip();
+            if (tieneCaracteresNoXml(limpio)) {
+                error(ruta + clave, "contiene caracteres de control que XML no admite");
+                return null;
+            }
             if (maximo != null && limpio.length() > maximo) {
                 error(ruta + clave, "supera " + maximo + " caracteres");
             }
@@ -142,6 +175,13 @@ public final class LectorFactura {
      * @throws DatosFacturaInvalidosException con todos los problemas encontrados
      */
     public static Factura desdeMapa(Map<String, Object> datos, long correlativo, RegimenIgv regimenIgv) {
+        return desdeMapa(datos, correlativo, regimenIgv, hoyEnLima());
+    }
+
+    /**
+     * @param hoy fecha de referencia: no se admiten emisiones posteriores a ella (por defecto, hoy en Lima)
+     */
+    public static Factura desdeMapa(Map<String, Object> datos, long correlativo, RegimenIgv regimenIgv, LocalDate hoy) {
         if (datos == null) {
             throw new DatosFacturaInvalidosException(List.of("la entrada debe ser un objeto JSON (diccionario)"));
         }
@@ -177,6 +217,9 @@ public final class LectorFactura {
 
         // Fechas, moneda y tipo de operacion
         LocalDate fechaEmision = lec.fecha(datos, "fecha_emision", "", true);
+        if (fechaEmision != null && fechaEmision.isAfter(hoy)) {
+            lec.error("fecha_emision", "no puede ser posterior a la fecha actual");
+        }
         LocalTime hora = null;
         Object horaTxt = datos.get("hora_emision");
         if (horaTxt != null) {

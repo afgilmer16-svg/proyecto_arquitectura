@@ -14,6 +14,7 @@ XSD lo declara opcional, por lo que el XML sin firmar es válido.
 """
 from __future__ import annotations
 
+from datetime import date
 from decimal import Decimal
 from typing import Any
 
@@ -75,8 +76,9 @@ class GeneradorFacturaUbl:
         return xml
 
     def generar_desde_dict(self, datos: dict[str, Any], correlativo: int,
-                           regimen_igv: cat.RegimenIgv | str = cat.RegimenIgv.GENERAL) -> bytes:
-        return self.generar(factura_desde_dict(datos, correlativo, regimen_igv))
+                           regimen_igv: cat.RegimenIgv | str = cat.RegimenIgv.GENERAL,
+                           hoy: date | None = None) -> bytes:
+        return self.generar(factura_desde_dict(datos, correlativo, regimen_igv, hoy))
 
     # ------------------------------------------------------------ cabecera
     def _construir(self, f: Factura, t: Totales) -> etree._Element:

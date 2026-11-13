@@ -1,6 +1,7 @@
 """Línea de comandos: genera el XML de un comprobante a partir de un JSON.
 
     python -m facturacion_xml ENTRADA.json SALIDA.xml --correlativo 1 [--regimen-igv GENERAL]
+        [--firmar CERTIFICADO.pfx --clave-env VARIABLE]
 
 El JSON se lee **siempre en UTF-8**. En Windows la página de códigos por defecto
 suele ser WIN1252: si el archivo se guardó así, las tildes y la "ñ" se
@@ -11,10 +12,11 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 from pathlib import Path
 
-from . import RegimenIgv, generar_xml_factura
+from . import RegimenIgv, ValidadorXsd, firmar_xml, generar_xml_factura
 from .errores import ErrorFacturacionXml
 
 
@@ -38,15 +40,24 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("salida", type=Path, help="ruta del XML a generar")
     parser.add_argument("--correlativo", type=int, required=True, help="número asignado por la serie (1-99999999)")
     parser.add_argument("--regimen-igv", default=RegimenIgv.GENERAL.value, choices=[r.value for r in RegimenIgv])
+    parser.add_argument("--firmar", type=Path, metavar="CERTIFICADO.pfx",
+                        help="firma el XML (XMLDSig) con este certificado .pfx/.p12; es opcional")
+    parser.add_argument("--clave-env", default="FIRMA_CLAVE", metavar="VARIABLE",
+                        help="variable de entorno con la contraseña del .pfx (por defecto FIRMA_CLAVE); "
+                             "no se acepta la contraseña por argumento para no dejarla en el historial")
     args = parser.parse_args(argv)
     try:
         xml = generar_xml_factura(leer_json_utf8(args.entrada), args.correlativo, args.regimen_igv)
-    except (ErrorFacturacionXml, json.JSONDecodeError) as exc:
+        if args.firmar:
+            xml = firmar_xml(xml, args.firmar.read_bytes(), os.environ.get(args.clave_env))
+            ValidadorXsd().validar(xml)  # el XML firmado también debe seguir siendo válido
+    except (ErrorFacturacionXml, json.JSONDecodeError, OSError) as exc:
         print(f"ERROR: {exc}", file=sys.stderr)
         return 1
     args.salida.parent.mkdir(parents=True, exist_ok=True)
     args.salida.write_bytes(xml)
-    print(f"XML generado y validado contra UBL-Invoice-2.1.xsd: {args.salida}")
+    estado = "firmado y " if args.firmar else ""
+    print(f"XML generado, {estado}validado contra UBL-Invoice-2.1.xsd: {args.salida}")
     return 0
 
 

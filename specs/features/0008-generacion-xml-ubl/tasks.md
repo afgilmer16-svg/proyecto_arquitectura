@@ -30,9 +30,13 @@
 - [x] 310 pruebas de verificación integral (`tests/test_verificacion_integral.py`), ejecutadas: 310 aprobadas
 - [x] Pruebas de mutación (`tests/mutacion.py`): 16/16 detectados
 - [x] XML de ejemplo generado y validado (`docs/ejemplos/F001-00000001.xml`)
-- [x] Ejecutar `pytest -v` en la PC del equipo y guardar el resultado: 471 aprobadas (`docs/resultados-pruebas-python.txt`)
+- [x] Ejecutar `pytest -v` en la PC del equipo y guardar el resultado: 512 aprobadas (`docs/resultados-pruebas-python.txt`)
 - [x] Confirmar los 3 XSD de firma contra `docs.oasis-open.org`: SHA-256 idénticos
 - [ ] Contrastar los puntos "Por verificar" con el anexo de validaciones vigente de SUNAT
+- [x] Firma digital opcional XMLDSig (Python y Java), con pruebas y verificación cruzada Python → Java (2026-11-12)
+- [x] Fecha de emisión no futura y rechazo de caracteres que XML no admite (Python y Java)
+- [x] Ejemplo de negocio: factura de una motocicleta (`05-factura-moto`)
+- [ ] Probar el XML de la moto en probar-xml.nubefact.com (requiere el sitio web; lo hace una persona)
 
 - [x] CI de GitHub Actions, cobertura mínima del 90 %, JSON Schema de la entrada, ejemplos inválidos, reglas de arquitectura, `.mmd` y CSV de la matriz (mejoras M-01 a M-07 del informe)
 

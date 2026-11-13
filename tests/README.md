@@ -9,6 +9,8 @@
 | `test_verificacion_integral.py` | **Verificación integral** (310 pruebas): coherencia entre el contrato OpenAPI y el código, 300 comprobantes aleatorios recalculados con un oráculo independiente, regresión del ejemplo versionado y trazabilidad con la matriz 0005. |
 | `mutacion.py` | **Pruebas de mutación** (no las recoge pytest): introduce 16 errores en el generador y comprueba que la suite los detecta. `python tests/mutacion.py` |
 | `test_esquemas_y_ejemplos.py` | **Control de forma**: el JSON Schema `specs/schemas/factura-entrada.schema.json` es válido; 5 ejemplos válidos generan XML válido contra el XSD; 12 ejemplos inválidos (`specs/ejemplos/invalidos`) son rechazados con el motivo esperado. |
+| `test_firmador.py` | **Firma digital opcional** (23 pruebas): firma con un certificado de prueba creado en memoria, el XML firmado sigue válido contra el XSD, la firma se verifica, detecta alteraciones (importe, digest, SignedInfo, valor de firma), errores (clave, `.pfx`, XML mal formado, doble firma, no RSA) y la línea de comandos `--firmar`. |
+| `test_factura_moto.py` | **Caso de negocio de la moto**: importes (6779.66 + IGV = 8000.00), monto en letras, datos del vehículo, XML de referencia versionado, datos inválidos, escape de `&`, `<`, `>`, y la regla de la fecha de emisión no futura. |
 | `test_arquitectura.py` | **Reglas de arquitectura** (equivalente a ArchUnit): el núcleo no depende de infraestructura, solo los adaptadores usan `lxml`, sin ciclos de carga y sin `float` en los importes. |
 | `test_herramientas_y_derivados.py` | Los 18 diagramas `.mmd` y los CSV de la matriz 0005 coinciden con sus fuentes en Markdown. |
 | `conftest.py` | Hace importable `src/facturacion_xml` para pytest. |
@@ -16,7 +18,7 @@
 ```bash
 pip install -r requirements.txt
 pytest -v
-pytest --cov=facturacion_xml   # exige 90 % (.coveragerc); hoy 95 %
+pytest --cov=facturacion_xml   # exige 90 % (.coveragerc); hoy 96 %
 ```
 
 Resultados de la última ejecución: [`docs/resultados-pruebas-python.txt`](../docs/resultados-pruebas-python.txt).

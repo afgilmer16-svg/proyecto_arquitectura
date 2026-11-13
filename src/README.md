@@ -16,6 +16,13 @@ $env:PYTHONPATH = "src"
 python -m facturacion_xml docs\ejemplos\factura-abarrotes.json salida\F001-00000001.xml --correlativo 1
 ```
 
+Con firma digital opcional (el `.pfx` nunca se versiona; la contraseña va en una variable de entorno):
+
+```powershell
+$env:FIRMA_CLAVE = "contraseña-del-pfx"
+python -m facturacion_xml docs\ejemplos\factura-abarrotes.json salida\F001-00000001.xml --correlativo 1 --firmar certificado.pfx
+```
+
 Desde Python:
 
 ```python

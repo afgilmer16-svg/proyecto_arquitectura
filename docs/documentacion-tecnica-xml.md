@@ -122,7 +122,7 @@ Cada `cac:InvoiceLine` lleva `cbc:ID`, `cbc:InvoicedQuantity` (`@unitCode` del C
 | ISC | (con gravada) | S | 2000 · ISC · EXC + `TierRange` (Cat. 08) | tasa ISC |
 | ICBPER | (cualquiera) | — | 7152 · ICBPER · OTH + `PerUnitAmount` | — |
 
-**Qué no se genera y por qué**: `ext:UBLExtensions` (lo agrega el firmador; es opcional en el XSD). Aunque el bloque no se genera, la raíz **sí declara** los prefijos `ext`, `ds`, `ccts`, `qdt`, `udt` y `xsi` (como la Guía XML de SUNAT): el firmador de un OSE inserta `ext:UBLExtensions` en el XML y, si el prefijo no está declarado, responde con el error 0306 (*The prefix "ext" for element "ext:UBLExtensions" is not bound*). Hallazgo de la prueba en probar-xml.nubefact.com (E-15) y `sac:AdditionalMonetaryTotal` (era de UBL 2.0; no existe en el XSD de UBL 2.1).
+**Qué no se genera y por qué**: `ext:UBLExtensions` (es opcional en el XSD; lo agrega el firmador opcional de la sección 9 o el OSE). Aunque el bloque no se genera, la raíz **sí declara** los prefijos `ext`, `ds`, `ccts`, `qdt`, `udt` y `xsi` (como la Guía XML de SUNAT): el firmador de un OSE inserta `ext:UBLExtensions` en el XML y, si el prefijo no está declarado, responde con el error 0306 (*The prefix "ext" for element "ext:UBLExtensions" is not bound*). Hallazgo de la prueba en probar-xml.nubefact.com (E-15) y `sac:AdditionalMonetaryTotal` (era de UBL 2.0; no existe en el XSD de UBL 2.1).
 
 ## 6. Validación mediante XSD
 
@@ -214,7 +214,7 @@ pytest -v
 
 | Verificación | Resultado | Evidencia |
 |---|---|---|
-| `pytest -v` (suite completa: generador + verificación + contratos, con `openapi-spec-validator` 0.9.0 real) | **471 aprobadas, 0 fallidas** | [`resultados-pruebas-python.txt`](resultados-pruebas-python.txt) (Windows 11, Python 3.12.7) |
+| `pytest -v` (suite completa: generador + verificación + contratos, con `openapi-spec-validator` 0.9.0 real) | **512 aprobadas, 0 fallidas** | [`resultados-pruebas-python.txt`](resultados-pruebas-python.txt) (Windows 11, Python 3.12.7) |
 | `python tests/mutacion.py` | **16 de 16 mutantes detectados** | [`resultados-pruebas-python.txt`](resultados-pruebas-python.txt) |
 | XML de ejemplo con las 4 categorías, ISC e ICBPER | Válido contra `UBL-Invoice-2.1.xsd` | [`ejemplos/F001-00000001.xml`](ejemplos/F001-00000001.xml) |
 | Cuadre del ejemplo | Valor de venta 1 955.50 + tributos 386.85 = **2 342.35** | §8.1 |
@@ -296,7 +296,7 @@ generador-java/src/main/java/pe/abc/facturacion/
 | `RucYNumeroLetrasTest` (29) | RUC, importe en letras y catálogos. |
 | `DependenciasEntreCapasTest` (7) | ArchUnit: dominio sin dependencias, solo el adaptador usa las clases del XSD, sin ciclos. |
 
-**Resultado**: 162 pruebas, 0 fallos, cobertura de líneas 97 % del código propio (mínimo exigido: 90 %). Salida completa en [`resultados-pruebas-java.txt`](resultados-pruebas-java.txt).
+**Resultado**: 191 pruebas, 0 fallos, cobertura de líneas 98 % del código propio (mínimo exigido: 90 %). Salida completa en [`resultados-pruebas-java.txt`](resultados-pruebas-java.txt).
 
 ### 9.5 Ejecución
 
@@ -306,3 +306,43 @@ cd generador-java
 ```
 
 Solo requiere JDK 21. La primera vez descarga Maven y las dependencias.
+
+## 9. Firma digital opcional y reglas de entrada agregadas (2026-11-12)
+
+### 9.1 Firma XMLDSig (opcional)
+
+El generador entrega XML **sin firma**, válido contra el XSD. Si se necesita firmarlo existe un firmador opcional:
+
+| Dato | Valor |
+|---|---|
+| Módulos | Python: `src/facturacion_xml/firmador.py`; Java: `FirmadorXmlDsigAdapter` (puerto `FirmaDigitalPort`) |
+| Tipo | XMLDSig *enveloped*, firma en `ext:UBLExtensions/ext:UBLExtension/ext:ExtensionContent/ds:Signature` (primer hijo de la raíz) |
+| Algoritmos | C14N 1.0 inclusiva, transformación *enveloped-signature*, digest SHA-256, firma RSA-SHA256 |
+| `Id` de la firma | Fragmento de `cac:Signature/cac:DigitalSignatureAttachment/cac:ExternalReference/cbc:URI` (`#SignatureSP<RUC>`) |
+| `KeyInfo` | `ds:X509Data/ds:X509Certificate` con el certificado del `.pfx` |
+| Seguridad | La clave privada se lee del `.pfx` y se descarta; la contraseña se toma de una variable de entorno (`FIRMA_CLAVE`), no de un argumento. Nunca se versiona un `.pfx` (`.gitignore`) |
+
+```powershell
+$env:FIRMA_CLAVE = "contraseña-del-pfx"
+python -m facturacion_xml docs\ejemplos\factura-abarrotes.json salida\F001-00000001.xml --correlativo 1 --firmar certificado.pfx
+```
+
+```python
+from facturacion_xml import generar_xml_factura, firmar_xml, verificar_firma
+xml = generar_xml_factura(datos, correlativo=1)
+firmado = firmar_xml(xml, open("certificado.pfx", "rb").read(), "contraseña")
+assert verificar_firma(firmado)
+```
+
+Verificación cruzada: la firma hecha en Python se valida en Java con `javax.xml.crypto.dsig` (`specs/ejemplos/xml-firmado/`). El OSE (p. ej. probar-xml.nubefact.com) también puede firmar por su cuenta; en ese caso no hace falta este módulo. ⚠️ Por verificar: que el firmador de producción del OSE acepte esta forma exacta de firma.
+
+### 9.2 Reglas de entrada agregadas
+
+| Regla | Mensaje | Dónde |
+|---|---|---|
+| La fecha de emisión no puede ser posterior a hoy en Lima (UTC-5) | `fecha_emision: no puede ser posterior a la fecha actual` | `modelo.py`, `LectorFactura` |
+| Los textos no pueden tener caracteres que XML 1.0 no admite (controles salvo tab/LF/CR, sustitutos sueltos, U+FFFE/U+FFFF) | `<campo>: contiene caracteres de control que XML no admite` | `modelo.py`, `LectorFactura` |
+
+### 9.3 Caso de negocio: factura de una motocicleta
+
+`specs/ejemplos/validos/05-factura-moto.json`: un ítem `NIU` × 1, valor unitario 6779.66, IGV 18 % = 1220.34, **total 8000.00** ("OCHO MIL CON 00/100 SOLES"). Chasis (VIN de 17 caracteres) y motor van en `cbc:Description` (máximo 250 caracteres). XML de referencia: `specs/ejemplos/xml-referencia/05-factura-moto.xml`.
