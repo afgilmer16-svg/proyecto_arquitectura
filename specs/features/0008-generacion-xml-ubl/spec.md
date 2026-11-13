@@ -3,7 +3,7 @@
 **Feature**: Generación del XML de factura y boleta electrónica a partir del XSD UBL 2.1  
 **ID**: 0008  
 **Estado**: APROBADO (alcance del segundo parcial)  
-**Autor**: Equipo Grupo A — UNAS-FIIS  
+**Autor**: Gilmer Ayala Falcón (Grupo A, UNAS-FIIS)  
 **Fecha**: 2026-11-11  
 **Fuentes**: F-01 (`UBL-Invoice-2.1.xsd`, OASIS UBL 2.1 OS), F-05 (Guía XML Factura UBL 2.1, SUNAT v1.0), matriz [0005](../0005-trazabilidad-sunat-ubl/spec.md)  
 **Capa**: Adaptador de salida (`GeneradorXmlUblPort` → `LxmlUblAdapter`)  

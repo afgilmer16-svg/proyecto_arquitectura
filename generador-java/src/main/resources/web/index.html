@@ -1,0 +1,318 @@
+<!doctype html>
+<!-- Autor: Gilmer Ayala Falcón · UNAS-FIIS · Arquitectura de Software · Grupo A -->
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Registro de venta · XML UBL 2.1</title>
+<style>
+  :root { --fondo:#f4f5f7; --panel:#fff; --texto:#1b1f24; --suave:#5b6572; --linea:#d5d9df; --acento:#0b5cad;
+          --acento-texto:#fff; --ok:#14733b; --ok-fondo:#e4f5ea; --error:#a4262c; --error-fondo:#fdeaea; }
+  @media (prefers-color-scheme: dark) {
+    :root { --fondo:#14171b; --panel:#1d2127; --texto:#e8eaed; --suave:#9aa3ad; --linea:#3a414a; --acento:#5aa2ff;
+            --acento-texto:#07213f; --ok:#6fd49a; --ok-fondo:#14301f; --error:#ff8f94; --error-fondo:#3a1d1f; }
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; font:15px/1.45 system-ui, "Segoe UI", sans-serif; background:var(--fondo); color:var(--texto); }
+  main { max-width:960px; margin:0 auto; padding:20px 16px 48px; }
+  h1 { font-size:22px; margin:0 0 4px; }
+  h2 { font-size:16px; margin:0 0 12px; }
+  .sub { color:var(--suave); margin:0 0 18px; }
+  section { background:var(--panel); border:1px solid var(--linea); border-radius:10px; padding:16px; margin-bottom:14px; }
+  .fila { display:grid; grid-template-columns:repeat(auto-fit, minmax(210px, 1fr)); gap:12px; }
+  label { display:block; font-weight:600; font-size:13px; margin-bottom:4px; }
+  .ayuda { color:var(--suave); font-weight:400; font-size:12px; }
+  input, select, button { font:inherit; color:inherit; }
+  input[type=text], input[type=number], input[type=password], input[type=file], select {
+    width:100%; padding:8px 10px; border:1px solid var(--linea); border-radius:6px; background:var(--fondo); }
+  input:focus, select:focus, button:focus-visible { outline:2px solid var(--acento); outline-offset:1px; }
+  .con-boton { display:flex; flex-wrap:wrap; gap:8px; }
+  .con-boton input { flex:1 1 100%; min-width:0; }
+  .con-boton button { font-size:13px; padding:6px 10px; }
+  button { cursor:pointer; padding:8px 12px; border:1px solid var(--linea); border-radius:6px; background:var(--panel); }
+  button.primario { background:var(--acento); color:var(--acento-texto); border-color:var(--acento); font-weight:600; padding:10px 18px; }
+  button:disabled { opacity:.55; cursor:progress; }
+  table { width:100%; border-collapse:collapse; }
+  th { text-align:left; font-size:12px; color:var(--suave); padding:0 6px 6px; }
+  td { padding:4px 6px 4px 0; vertical-align:top; }
+  td.quitar { width:36px; }
+  .resumen { display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); gap:10px; }
+  .dato { background:var(--fondo); border:1px solid var(--linea); border-radius:8px; padding:10px; }
+  .dato b { display:block; font-size:12px; color:var(--suave); font-weight:600; }
+  .dato span { font-size:18px; font-variant-numeric:tabular-nums; }
+  #letras { margin:10px 0 0; font-weight:600; }
+  .nota { color:var(--suave); font-size:13px; margin:8px 0 0; }
+  .mensaje { border-radius:8px; padding:10px 12px; margin-top:12px; }
+  .mensaje.ok { background:var(--ok-fondo); color:var(--ok); }
+  .mensaje.error { background:var(--error-fondo); color:var(--error); }
+  .mensaje ul { margin:6px 0 0 18px; padding:0; }
+  pre { background:var(--fondo); border:1px solid var(--linea); border-radius:8px; padding:12px; overflow:auto; max-height:360px; font-size:12px; }
+  .oculto { display:none; }
+  footer { color:var(--suave); font-size:13px; text-align:center; margin-top:24px; }
+  .check { display:flex; align-items:center; gap:8px; font-weight:600; }
+  .check input { width:auto; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Registro de venta</h1>
+  <p class="sub">Escribe la venta desde cero, mira los importes al instante y descarga el XML UBL 2.1 validado contra el XSD oficial.
+     Nada viene prellenado y nada se guarda.</p>
+
+  <section aria-labelledby="t-comprobante">
+    <h2 id="t-comprobante">1. Comprobante</h2>
+    <div class="fila">
+      <div><label for="tipo">Tipo de comprobante</label>
+        <select id="tipo"><option value="01">Factura (01)</option><option value="03">Boleta (03)</option></select></div>
+      <div><label for="serie">Serie <span class="ayuda">F… factura · B… boleta</span></label>
+        <div class="con-boton"><input type="text" id="serie" maxlength="4" autocomplete="off" placeholder="F001">
+          <button type="button" id="serie-azar" title="Inventa una serie para la prueba">Serie aleatoria</button></div></div>
+      <div><label for="moneda">Moneda</label>
+        <select id="moneda"><option value="PEN">Soles (PEN)</option><option value="USD">Dólares (USD)</option></select></div>
+    </div>
+    <p class="nota">El correlativo lo asigna el servidor. La fecha y la hora son las del momento de generar (hora de Lima).</p>
+  </section>
+
+  <section aria-labelledby="t-emisor">
+    <h2 id="t-emisor">2. Emisor (quien vende)</h2>
+    <div class="fila">
+      <div><label for="e-ruc">RUC (11 dígitos)</label>
+        <div class="con-boton"><input type="text" id="e-ruc" inputmode="numeric" maxlength="11" autocomplete="off">
+          <button type="button" id="e-ruc-azar" title="RUC de 11 dígitos con dígito verificador válido (módulo 11)">Generar RUC aleatorio válido</button></div></div>
+      <div><label for="e-razon">Razón social</label><input type="text" id="e-razon" autocomplete="off"></div>
+      <div><label for="e-comercial">Nombre comercial <span class="ayuda">(opcional)</span></label><input type="text" id="e-comercial" autocomplete="off"></div>
+      <div><label for="e-direccion">Dirección</label><input type="text" id="e-direccion" autocomplete="off"></div>
+      <div><label for="e-ubigeo">Ubigeo <span class="ayuda">(6 dígitos)</span></label><input type="text" id="e-ubigeo" inputmode="numeric" maxlength="6" autocomplete="off"></div>
+    </div>
+  </section>
+
+  <section aria-labelledby="t-cliente">
+    <h2 id="t-cliente">3. Cliente (quien compra)</h2>
+    <div class="fila">
+      <div><label for="c-doc" id="c-doc-etiqueta">RUC (11 dígitos)</label>
+        <div class="con-boton"><input type="text" id="c-doc" inputmode="numeric" maxlength="11" autocomplete="off">
+          <button type="button" id="c-ruc-azar">Generar RUC aleatorio válido</button></div></div>
+      <div><label for="c-nombre" id="c-nombre-etiqueta">Razón social</label><input type="text" id="c-nombre" autocomplete="off"></div>
+      <div id="c-direccion-caja"><label for="c-direccion">Dirección <span class="ayuda">(opcional)</span></label><input type="text" id="c-direccion" autocomplete="off"></div>
+    </div>
+    <p class="nota" id="c-nota">Factura: el cliente se identifica con RUC.</p>
+  </section>
+
+  <section aria-labelledby="t-productos">
+    <h2 id="t-productos">4. Productos</h2>
+    <table>
+      <thead><tr><th>Descripción</th><th>Unidad</th><th>Cantidad</th><th>Precio unitario</th><th>Afectación IGV</th><th></th></tr></thead>
+      <tbody id="lineas"></tbody>
+    </table>
+    <p style="margin:10px 0 0"><button type="button" id="agregar">+ Agregar producto</button></p>
+    <p class="check" style="margin:12px 0 0"><input type="checkbox" id="con-igv"><label for="con-igv" style="margin:0">Los precios que escribo ya incluyen IGV</label></p>
+  </section>
+
+  <section aria-labelledby="t-resumen" aria-live="polite">
+    <h2 id="t-resumen">5. Verificación</h2>
+    <div class="resumen">
+      <div class="dato"><b>Valor sin IGV</b><span id="r-valor">—</span></div>
+      <div class="dato"><b>IGV (18 %)</b><span id="r-igv">—</span></div>
+      <div class="dato"><b>Total a pagar</b><span id="r-total">—</span></div>
+    </div>
+    <p id="letras"></p>
+    <p class="nota" id="r-nota">Agrega al menos un producto con descripción, cantidad y precio.</p>
+  </section>
+
+  <section aria-labelledby="t-generar">
+    <h2 id="t-generar">6. Generar</h2>
+    <p class="check" style="margin:0 0 8px"><input type="checkbox" id="firmar"><label for="firmar" style="margin:0">Incluir firma digital</label></p>
+    <div id="caja-firma" class="fila oculto">
+      <div><label for="pfx">Certificado (.pfx o .p12)</label><input type="file" id="pfx" accept=".pfx,.p12"></div>
+      <div><label for="clave">Contraseña del certificado</label><input type="password" id="clave" autocomplete="off"></div>
+    </div>
+    <p class="nota">Sin marcar, el XML sale sin firma y lleva el comentario «FIRMAR AQUÍ» donde la firma debe entrar. Se descarga solo y puedes probarlo en probar-xml.nubefact.com.</p>
+    <p><button type="button" id="generar" class="primario">Generar XML</button></p>
+    <div id="resultado" role="status"></div>
+    <pre id="vista-xml" class="oculto"></pre>
+  </section>
+
+  <footer>Autor: Gilmer Ayala Falcón · UNAS-FIIS · Arquitectura de Software · Grupo A</footer>
+</main>
+
+<script>
+"use strict";
+const $ = (id) => document.getElementById(id);
+const UNIDADES = [["NIU","Unidad (NIU)"],["ZZ","Servicio (ZZ)"],["KGM","Kilogramo (KGM)"],["GRM","Gramo (GRM)"],["TNE","Tonelada (TNE)"],
+  ["LTR","Litro (LTR)"],["MLT","Mililitro (MLT)"],["GLL","Galón (GLL)"],["MTR","Metro (MTR)"],["BX","Caja (BX)"],["BG","Bolsa (BG)"],
+  ["SA","Saco (SA)"],["PK","Paquete (PK)"],["DZN","Docena (DZN)"],["CS","Estuche (CS)"]];
+const AFECTACIONES = [["10","Gravado (18 %)"],["20","Exonerado"],["30","Inafecto"]];
+const DECIMAL = /^[0-9]+(\.[0-9]{1,10})?$/;
+let temporizador = null;
+
+function opciones(lista) { return lista.map(([v, t]) => `<option value="${v}">${t}</option>`).join(""); }
+
+function agregarLinea() {
+  const fila = document.createElement("tr");
+  fila.innerHTML = `
+    <td><input type="text" class="l-desc" aria-label="Descripción" autocomplete="off"></td>
+    <td><select class="l-unidad" aria-label="Unidad de medida">${opciones(UNIDADES)}</select></td>
+    <td><input type="text" class="l-cant" aria-label="Cantidad" inputmode="decimal" autocomplete="off" style="max-width:90px"></td>
+    <td><input type="text" class="l-precio" aria-label="Precio unitario" inputmode="decimal" autocomplete="off" style="max-width:120px"></td>
+    <td><select class="l-afect" aria-label="Afectación del IGV">${opciones(AFECTACIONES)}</select></td>
+    <td class="quitar"><button type="button" class="l-quitar" aria-label="Quitar producto">✕</button></td>`;
+  $("lineas").appendChild(fila);
+}
+
+function numero(texto) { return texto.trim().replace(",", "."); }
+
+/** Convierte las filas escritas en las lineas del comprobante; se ignoran las filas totalmente vacias. */
+function leerLineas() {
+  const conIgv = $("con-igv").checked;
+  const items = [];
+  for (const fila of $("lineas").children) {
+    const desc = fila.querySelector(".l-desc").value.trim();
+    const cant = numero(fila.querySelector(".l-cant").value);
+    const precio = numero(fila.querySelector(".l-precio").value);
+    if (!desc && !cant && !precio) continue;
+    const afect = fila.querySelector(".l-afect").value;
+    let valor = precio;
+    if (conIgv && afect === "10" && DECIMAL.test(precio)) valor = (parseFloat(precio) / 1.18).toFixed(10);
+    items.push({ numero_linea: items.length + 1, codigo_producto: "PROD-" + String(items.length + 1).padStart(2, "0"),
+      descripcion: desc, unidad_medida: fila.querySelector(".l-unidad").value, cantidad: cant,
+      valor_unitario: valor, tipo_afectacion_igv: afect });
+  }
+  return items;
+}
+
+function datosDelComprobante() {
+  const esFactura = $("tipo").value === "01";
+  const doc = $("c-doc").value.trim();
+  const nombre = $("c-nombre").value.trim();
+  const direccionCliente = $("c-direccion").value.trim();
+  let receptor;
+  if (esFactura) {
+    receptor = { tipo_documento: "6", numero_documento: doc, razon_social: nombre };
+    if (direccionCliente) receptor.direccion = direccionCliente;
+  } else if (doc) {
+    receptor = { tipo_documento: "1", numero_documento: doc, razon_social: nombre };
+  } else {
+    receptor = { tipo_documento: "0", numero_documento: "0", razon_social: nombre || "CLIENTES VARIOS" };
+  }
+  const emisor = { ruc: $("e-ruc").value.trim(), razon_social: $("e-razon").value.trim(),
+    direccion: $("e-direccion").value.trim(), ubigeo: $("e-ubigeo").value.trim() };
+  if ($("e-comercial").value.trim()) emisor.nombre_comercial = $("e-comercial").value.trim();
+  return { tipo_comprobante: $("tipo").value, serie: $("serie").value.trim().toUpperCase(), moneda: $("moneda").value,
+    emisor, receptor, items: leerLineas() };
+}
+
+async function pedir(ruta, cuerpo) {
+  const opciones = cuerpo === undefined ? {} : { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(cuerpo) };
+  const respuesta = await fetch(ruta, opciones);
+  return { ok: respuesta.ok, datos: await respuesta.json() };
+}
+
+function simbolo() { return $("moneda").value === "USD" ? "US$ " : "S/ "; }
+
+function limpiarResumen(nota) {
+  for (const id of ["r-valor", "r-igv", "r-total"]) $(id).textContent = "—";
+  $("letras").textContent = "";
+  $("r-nota").textContent = nota;
+}
+
+async function recalcular() {
+  const items = leerLineas();
+  if (items.length === 0) return limpiarResumen("Agrega al menos un producto con descripción, cantidad y precio.");
+  try {
+    const { ok, datos } = await pedir("/api/calcular", { moneda: $("moneda").value, items });
+    if (!ok) return limpiarResumen("Completa los productos: " + (datos.errores || []).slice(0, 2).join(" · "));
+    $("r-valor").textContent = simbolo() + datos.valor_venta;
+    $("r-igv").textContent = simbolo() + datos.igv;
+    $("r-total").textContent = simbolo() + datos.total;
+    $("letras").textContent = "Son: " + datos.letras;
+    $("r-nota").textContent = "Calculado por el servidor con la misma lógica que genera el XML.";
+  } catch (e) {
+    limpiarResumen("No se pudo calcular: ¿el servidor sigue abierto?");
+  }
+}
+
+function programarCalculo() { clearTimeout(temporizador); temporizador = setTimeout(recalcular, 300); }
+
+function aplicarTipo() {
+  const esFactura = $("tipo").value === "01";
+  $("c-doc-etiqueta").textContent = esFactura ? "RUC (11 dígitos)" : "DNI (8 dígitos)";
+  $("c-nombre-etiqueta").textContent = esFactura ? "Razón social" : "Nombre";
+  $("c-doc").maxLength = esFactura ? 11 : 8;
+  $("c-ruc-azar").classList.toggle("oculto", !esFactura);
+  $("c-direccion-caja").classList.toggle("oculto", !esFactura);
+  $("c-nota").textContent = esFactura ? "Factura: el cliente se identifica con RUC."
+    : "Boleta: el DNI es obligatorio si el total pasa de S/ 700; hasta ese monto puedes dejarlo vacío.";
+  const serie = $("serie").value;
+  if (serie) $("serie").value = (esFactura ? "F" : "B") + serie.slice(1);
+}
+
+function mostrarErrores(errores) {
+  const lista = errores.map((e) => `<li>${e.replace(/&/g, "&amp;").replace(/</g, "&lt;")}</li>`).join("");
+  $("resultado").innerHTML = `<div class="mensaje error"><b>Revisa estos datos:</b><ul>${lista}</ul></div>`;
+}
+
+function leerArchivoBase64(archivo) {
+  return new Promise((resolver, rechazar) => {
+    const lector = new FileReader();
+    lector.onload = () => resolver(String(lector.result).split(",")[1] || "");
+    lector.onerror = () => rechazar(new Error("No se pudo leer el certificado."));
+    lector.readAsDataURL(archivo);
+  });
+}
+
+async function generar() {
+  const boton = $("generar");
+  boton.disabled = true;
+  $("vista-xml").classList.add("oculto");
+  try {
+    const cuerpo = datosDelComprobante();
+    if ($("firmar").checked) {
+      const archivo = $("pfx").files[0];
+      if (!archivo) return mostrarErrores(["Para firmar hay que elegir el certificado .pfx o .p12."]);
+      cuerpo.firma = { pfx_base64: await leerArchivoBase64(archivo), clave: $("clave").value };
+    }
+    const { ok, datos } = await pedir("/api/generar", cuerpo);
+    if (!ok) return mostrarErrores(datos.errores || ["No se pudo generar el XML."]);
+    const enlace = document.createElement("a");
+    enlace.href = URL.createObjectURL(new Blob([datos.xml], { type: "application/xml" }));
+    enlace.download = datos.archivo;
+    document.body.appendChild(enlace);
+    enlace.click();
+    enlace.remove();
+    $("resultado").innerHTML = `<div class="mensaje ok"><b>${datos.comprobante}</b> generado y validado contra UBL-Invoice-2.1.xsd. ` +
+      `Descargado como <code>${datos.archivo}</code> (${datos.firmado ? "firmado" : "sin firma"}).</div>`;
+    $("vista-xml").textContent = datos.xml;
+    $("vista-xml").classList.remove("oculto");
+  } catch (e) {
+    mostrarErrores([e.message || "Error inesperado."]);
+  } finally {
+    boton.disabled = false;
+  }
+}
+
+async function rucAleatorio(destino) { destino.value = (await pedir("/api/ruc-aleatorio")).datos.ruc; programarCalculo(); }
+
+$("tipo").addEventListener("change", () => { aplicarTipo(); programarCalculo(); });
+$("moneda").addEventListener("change", programarCalculo);
+$("con-igv").addEventListener("change", programarCalculo);
+$("firmar").addEventListener("change", () => $("caja-firma").classList.toggle("oculto", !$("firmar").checked));
+$("e-ruc-azar").addEventListener("click", () => rucAleatorio($("e-ruc")));
+$("c-ruc-azar").addEventListener("click", () => rucAleatorio($("c-doc")));
+$("serie-azar").addEventListener("click", async () => { $("serie").value = (await pedir("/api/serie-aleatoria?tipo=" + $("tipo").value)).datos.serie; });
+$("agregar").addEventListener("click", agregarLinea);
+$("generar").addEventListener("click", generar);
+$("lineas").addEventListener("input", programarCalculo);
+$("lineas").addEventListener("change", programarCalculo);
+$("lineas").addEventListener("click", (evento) => {
+  const quitar = evento.target.closest(".l-quitar");
+  if (!quitar) return;
+  quitar.closest("tr").remove();
+  if ($("lineas").children.length === 0) agregarLinea();
+  programarCalculo();
+});
+
+aplicarTipo();
+agregarLinea();
+</script>
+</body>
+</html>

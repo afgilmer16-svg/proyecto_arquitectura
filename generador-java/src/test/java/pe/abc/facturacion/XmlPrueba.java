@@ -1,3 +1,4 @@
+// Autor: Gilmer Ayala Falcón · UNAS-FIIS · Arquitectura de Software · Grupo A
 package pe.abc.facturacion;
 
 import java.io.ByteArrayInputStream;

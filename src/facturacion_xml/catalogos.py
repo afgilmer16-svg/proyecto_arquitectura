@@ -1,3 +1,4 @@
+# Autor: Gilmer Ayala Falcón · UNAS-FIIS · Arquitectura de Software · Grupo A
 """Catálogos SUNAT y constantes UBL 2.1 usados por el generador.
 
 Cada valor indica su fuente. Las fuentes locales están en ``docs/referencias``:

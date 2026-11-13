@@ -2,7 +2,7 @@
 
 **Estado**: APROBADO
 **Fecha**: 2026-11-11
-**Autores**: Equipo Grupo A — UNAS-FIIS
+**Autores**: Gilmer Ayala Falcón (Grupo A, UNAS-FIIS)
 **Fuentes**: F-01 (XSD OASIS UBL 2.1), F-05 (Guía XML SUNAT v1.0), retroalimentación del docente (`docs/retroalimentacion-docente.md`)
 **Relacionado**: ADR-001, ADR-003, [ADR-005](0005-generador-ubl-python-lxml.md) (prototipo), feature [0008](../features/0008-generacion-xml-ubl/spec.md)
 **Reemplaza a**: ADR-005 como implementación principal

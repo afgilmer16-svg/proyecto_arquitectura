@@ -1,3 +1,4 @@
+# Autor: Gilmer Ayala Falcón · UNAS-FIIS · Arquitectura de Software · Grupo A
 """Firma digital opcional (XMLDSig enveloped, RSA-SHA256) del XML generado.
 
 Se crea un certificado autofirmado de prueba en memoria (nunca se guarda ni se versiona un .pfx real).
@@ -98,6 +99,8 @@ def test_firmar_no_cambia_el_resto_del_documento(xml_sin_firmar, xml_firmado):
     extensiones = raiz.find("ext:UBLExtensions", NS)
     raiz.remove(extensiones)
     original = etree.fromstring(xml_sin_firmar)
+    for marca in original.xpath("comment()"):  # la marca "FIRMAR AQUÍ" desaparece al firmar
+        original.remove(marca)
     assert etree.tostring(raiz, method="c14n") == etree.tostring(original, method="c14n")
 
 

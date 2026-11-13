@@ -3,7 +3,7 @@
 **Feature**: [Nombre de la funcionalidad]  
 **ID**: NNNN  
 **Estado**: BORRADOR | EN REVISIÓN | APROBADO  
-**Autor**: Equipo Grupo A  
+**Autor**: Gilmer Ayala Falcón (Grupo A, UNAS-FIIS)  
 **Fecha**: AAAA-MM-DD  
 **Fuentes**: [F-XX, ...]
 

@@ -8,6 +8,13 @@
   <artifactId>facturacion-xml</artifactId>
   <version>1.0.0</version>
   <packaging>jar</packaging>
+
+  <developers>
+    <developer>
+      <name>Gilmer Ayala Falcón</name>
+      <organization>UNAS-FIIS · Arquitectura de Software · Grupo A</organization>
+    </developer>
+  </developers>
   <name>ABC Software Corp - generador del XML UBL 2.1 (Invoice)</name>
 
   <properties>
@@ -92,6 +99,16 @@
     </resources>
 
     <plugins>
+      <!-- Abrir el formulario web: ver README (comando exec:java con el argumento web y el puerto). -->
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <version>3.5.0</version>
+        <configuration>
+          <mainClass>pe.abc.facturacion.Aplicacion</mainClass>
+        </configuration>
+      </plugin>
+
       <!-- Cobertura: el codigo generado por JAXB (oasis, un, org) no cuenta. -->
       <plugin>
         <groupId>org.jacoco</groupId>

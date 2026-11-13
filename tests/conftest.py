@@ -1,3 +1,4 @@
+# Autor: Gilmer Ayala Falcón · UNAS-FIIS · Arquitectura de Software · Grupo A
 """Configuración de pytest: hace importable el paquete ``src/facturacion_xml``."""
 import sys
 from pathlib import Path

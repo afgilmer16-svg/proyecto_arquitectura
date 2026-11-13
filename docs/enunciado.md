@@ -1,5 +1,7 @@
 # Enunciado del Caso — Examen de Arquitectura de Software
 
+**Autor**: Gilmer Ayala Falcón · UNAS-FIIS · Arquitectura de Software · Grupo A
+
 **Curso**: Arquitectura de Software  
 **Universidad**: UNAS-FIIS  
 **Grupo**: A  

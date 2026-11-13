@@ -1,3 +1,4 @@
+# Autor: Gilmer Ayala Falcón · UNAS-FIIS · Arquitectura de Software · Grupo A
 """Validación del XML contra el XSD oficial ``UBL-Invoice-2.1.xsd``.
 
 Los esquemas están en ``docs/referencias/ubl/`` (OASIS UBL 2.1 OS, 04-nov-2013)

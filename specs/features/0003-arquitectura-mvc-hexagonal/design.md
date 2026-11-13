@@ -6,7 +6,7 @@
 **Documento**: Arquitectura del Sistema de Facturación Electrónica  
 **Carpeta**: `specs/features/0003-arquitectura-mvc-hexagonal/`  
 **Estado**: EN REVISIÓN  
-**Autores**: Equipo Grupo A — UNAS-FIIS  
+**Autores**: Gilmer Ayala Falcón (Grupo A, UNAS-FIIS)  
 **Fecha**: 2026-10-22  
 **Fuentes Normativas**: RS N° 097-2012/SUNAT (F-03), RS N° 234-2006/SUNAT (F-04), OASIS UBL 2.1 (F-01), Catálogos SUNAT Anexo 8 (F-02)
 

@@ -1,7 +1,7 @@
 # Segundo parcial — Descripción del caso
 
 **Curso**: Arquitectura de Software · UNAS – FIIS · Grupo A  
-**Alumno**: Jorge Steven Tapullima Villar  
+**Alumno**: Gilmer Ayala Falcón  
 **Fecha**: 2026-11-11  
 **Requisito**: 1 — Descripción del caso
 
@@ -117,3 +117,44 @@ Uso:
 $env:PYTHONPATH = "src"
 python -m facturacion_xml docs\ejemplos\factura-abarrotes.json salida\F001-00000001.xml --correlativo 1
 ```
+
+---
+
+## 8. Caso de estudio: venta de una motocicleta
+
+Para demostrar el generador con una operación completa y fácil de seguir, se documenta la venta de **una motocicleta**. Los datos son ficticios; los números de RUC se inventaron con el dígito verificador por módulo 11 (así los acepta el validador).
+
+### 8.1 Qué ocurre
+
+El **12/11/2026 a las 11:15**, el concesionario **MOTOS DEL ORIENTE S.A.C.** (nombre comercial *CENTRO MOTOR TINGO MARÍA*) vende una motocicleta Honda a la empresa **TRANSPORTES SAN JUAN S.A.C.**, que la usará para repartos. La venta es al **contado** y **gravada con IGV**. Como el cliente es una empresa con RUC, corresponde una **factura** (código `01`, serie `F001`).
+
+| Dato | Valor |
+|---|---|
+| Emisor (vendedor) | MOTOS DEL ORIENTE S.A.C. · RUC `20526018151` · Av. Alameda Perú 450, Rupa Rupa, Leoncio Prado, Huánuco (ubigeo `100601`) |
+| Cliente (comprador) | TRANSPORTES SAN JUAN S.A.C. · RUC `20555555556` · Jr. Comercio 456, Rupa Rupa, Leoncio Prado |
+| Comprobante | Factura `F001-00000001` · tipo de operación `0101` (venta interna) · moneda soles (`PEN`) · pago al contado |
+| Producto | 1 unidad (`NIU`) de **MOTOCICLETA HONDA XR150L, color rojo, año 2026**, chasis `LTMKD0001R5000123`, motor `KD01E-5000123`, 150 cc (código `MOTO-XR150L`) |
+| Afectación del IGV | `10` — gravado, operación onerosa |
+
+El chasis (VIN de 17 caracteres) y el número de motor viajan en `cbc:Description` de la línea, que admite hasta 250 caracteres.
+
+### 8.2 Cómo se calculan los importes
+
+El precio de lista de la motocicleta es **S/ 8 000.00 con IGV incluido**. El generador trabaja con el **valor unitario sin IGV**:
+
+| Paso | Cuenta | Resultado |
+|---|---|---|
+| Valor de venta (sin IGV) | 8 000.00 ÷ 1.18 = 6 779.6610… → se redondea a 2 decimales | **S/ 6 779.66** |
+| IGV (18 %) | 6 779.66 × 0.18 = 1 220.3388 → se redondea | **S/ 1 220.34** |
+| Total a pagar | 6 779.66 + 1 220.34 | **S/ 8 000.00** |
+| Monto en letras | | OCHO MIL CON 00/100 SOLES |
+
+En el XML esos importes salen en `cac:LegalMonetaryTotal` (`LineExtensionAmount` 6779.66, `TaxInclusiveAmount` y `PayableAmount` 8000.00), en `cac:TaxTotal` (IGV, tributo `1000`) y en la leyenda `cbc:Note` con `languageLocaleID="1000"`.
+
+### 8.3 Cómo se genera y se comprueba
+
+1. **Datos de entrada:** [`specs/ejemplos/validos/05-factura-moto.json`](../specs/ejemplos/validos/05-factura-moto.json) (también se puede registrar desde cero en el [formulario web](../README.md#formulario-web-registrar-una-venta-desde-cero)).
+2. **XML generado:** [`specs/ejemplos/xml-referencia/05-factura-moto.xml`](../specs/ejemplos/xml-referencia/05-factura-moto.xml). El generador lo valida contra `UBL-Invoice-2.1.xsd` antes de entregarlo.
+3. **Sin firma:** el XML sale sin firmar, como se acordó, y lleva el comentario `FIRMAR AQUÍ` como primer hijo de `Invoice`, justo donde el firmador inserta `ext:UBLExtensions`. Para firmar de verdad: `--firmar CERTIFICADO.pfx` (Python), la casilla «Incluir firma digital» del formulario, o la casilla «Firmar» de Nubefact.
+4. **Pruebas unitarias:** [`tests/test_factura_moto.py`](../tests/test_factura_moto.py) (Python) y la regresión cruzada Java ↔ Python (`RegresionCruzadaTest`) fijan estos importes.
+5. **Validación externa:** el 12/11/2026 este XML (con la marca y con «Firmar» marcado) recibió en [probar-xml.nubefact.com](https://probar-xml.nubefact.com) la respuesta **«La Factura Electrónica … ha sido ACEPTADA»**, sin observaciones. Cómo repetirlo, y cómo validarlo con Notepad++, en [`validacion-con-nubefact-y-notepadpp.md`](validacion-con-nubefact-y-notepadpp.md).

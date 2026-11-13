@@ -1,5 +1,7 @@
 # Retroalimentación del docente — estado de cada observación
 
+**Autor**: Gilmer Ayala Falcón · UNAS-FIIS · Arquitectura de Software · Grupo A
+
 **Fuente**: observaciones del docente sobre la versión anterior del proyecto (nota 50/100).  
 **Revisado**: 2026-11-11
 

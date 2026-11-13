@@ -1,3 +1,4 @@
+# Autor: Gilmer Ayala Falcón · UNAS-FIIS · Arquitectura de Software · Grupo A
 """Pruebas de los contratos Spec-First.
 
 No prueban la lógica del generador (eso está en test_generador_xml.py): verifican que las

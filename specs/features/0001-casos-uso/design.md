@@ -3,7 +3,7 @@
 **Feature**: Casos de Uso del Sistema de Facturación Electrónica  
 **ID**: 0001  
 **Estado**: EN REVISIÓN  
-**Autor**: Equipo Grupo A — UNAS-FIIS  
+**Autor**: Gilmer Ayala Falcón (Grupo A, UNAS-FIIS)  
 **Fecha**: 2026-11-11  
 **Fuentes**: F-03, F-05, benchmark de Nubefact (cuenta DEMO)
 

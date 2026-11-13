@@ -2,7 +2,7 @@
 
 **Feature**: Arquitectura MVC y Hexagonal  
 **ID**: 0003  
-**Autor**: Equipo Grupo A — UNAS-FIIS  
+**Autor**: Gilmer Ayala Falcón (Grupo A, UNAS-FIIS)  
 **Fecha**: 2026-11-06
 
 ---

@@ -2,7 +2,7 @@
 
 **Estado**: PLANTILLA  
 **Fecha**: AAAA-MM-DD  
-**Autores**: Equipo Grupo A  
+**Autores**: Gilmer Ayala Falcón (Grupo A, UNAS-FIIS)  
 **Fuentes**: [F-XX, ...]
 
 ---

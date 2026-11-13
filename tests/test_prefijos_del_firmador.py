@@ -1,3 +1,4 @@
+# Autor: Gilmer Ayala Falcón · UNAS-FIIS · Arquitectura de Software · Grupo A
 """El firmador (SUNAT/OSE, p. ej. probar-xml.nubefact.com) inserta ``ext:UBLExtensions`` con ``ds:Signature``.
 
 Si la raiz del XML no declara esos prefijos, el OSE responde con el error 0306

@@ -3,7 +3,7 @@
 **Feature**: Matriz de trazabilidad SUNAT — UBL 2.1
 **ID**: 0005
 **Estado**: EN REVISIÓN
-**Autor**: Equipo Grupo A — UNAS-FIIS
+**Autor**: Gilmer Ayala Falcón (Grupo A, UNAS-FIIS)
 **Fecha**: 2026-11-05
 **Fuentes**: F-01, F-02, F-03, F-04, F-05
 

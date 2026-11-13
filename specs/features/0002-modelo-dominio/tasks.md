@@ -2,7 +2,7 @@
 
 **Feature**: Modelo de Dominio  
 **ID**: 0002  
-**Autor**: Equipo Grupo A — UNAS-FIIS  
+**Autor**: Gilmer Ayala Falcón (Grupo A, UNAS-FIIS)  
 **Fecha**: 2026-11-06
 
 ---

@@ -1,3 +1,4 @@
+# Autor: Gilmer Ayala Falcón · UNAS-FIIS · Arquitectura de Software · Grupo A
 """Modelo de entrada del generador y su validación.
 
 La entrada sigue el DTO ``EmitirComprobanteRequest`` del contrato

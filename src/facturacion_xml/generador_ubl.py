@@ -1,3 +1,4 @@
+# Autor: Gilmer Ayala Falcón · UNAS-FIIS · Arquitectura de Software · Grupo A
 """Generador del XML de factura/boleta electrónica en UBL 2.1 (``Invoice``).
 
 El documento se construye como **árbol de elementos** con lxml, no con
@@ -27,6 +28,8 @@ from .numero_letras import importe_en_letras
 from .validador_xsd import ValidadorXsd
 
 DECLARACION_XML = b'<?xml version="1.0" encoding="UTF-8"?>\n'
+# Marca para quien revise el XML: indica dónde entra la firma digital (el firmador la reemplaza por ext:UBLExtensions).
+MARCA_FIRMA = " FIRMAR AQUÍ: este XML no está firmado. El firmador inserta en este punto ext:UBLExtensions con la firma digital (XMLDSig). "
 
 
 def _cbc(padre: etree._Element, nombre: str, texto: str | None = None, **atributos: str) -> etree._Element:
@@ -70,6 +73,7 @@ class GeneradorFacturaUbl:
         """Devuelve el XML en UTF-8 con declaración. Si ``validar``, lo valida contra el XSD."""
         totales = calcular_totales(factura)
         raiz = self._construir(factura, totales)
+        raiz.insert(0, etree.Comment(MARCA_FIRMA))
         xml = DECLARACION_XML + etree.tostring(raiz, encoding="UTF-8", pretty_print=True)
         if validar:
             self.validador.validar(xml)

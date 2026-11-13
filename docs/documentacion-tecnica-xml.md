@@ -1,5 +1,7 @@
 # Segundo parcial — Documentación técnica del generador XML UBL 2.1
 
+**Autor**: Gilmer Ayala Falcón · UNAS-FIIS · Arquitectura de Software · Grupo A
+
 **Proyecto**: Facturación electrónica SUNAT — ABC Software Corp  
 **Feature**: [0008 — Generación del XML UBL 2.1](../specs/features/0008-generacion-xml-ubl/spec.md)  
 **Fecha**: 2026-11-11
@@ -214,7 +216,7 @@ pytest -v
 
 | Verificación | Resultado | Evidencia |
 |---|---|---|
-| `pytest -v` (suite completa: generador + verificación + contratos, con `openapi-spec-validator` 0.9.0 real) | **512 aprobadas, 0 fallidas** | [`resultados-pruebas-python.txt`](resultados-pruebas-python.txt) (Windows 11, Python 3.12.7) |
+| `pytest -v` (suite completa: generador + verificación + contratos, con `openapi-spec-validator` 0.9.0 real) | **517 aprobadas, 0 fallidas** | [`resultados-pruebas-python.txt`](resultados-pruebas-python.txt) (Windows 11, Python 3.12.7) |
 | `python tests/mutacion.py` | **16 de 16 mutantes detectados** | [`resultados-pruebas-python.txt`](resultados-pruebas-python.txt) |
 | XML de ejemplo con las 4 categorías, ISC e ICBPER | Válido contra `UBL-Invoice-2.1.xsd` | [`ejemplos/F001-00000001.xml`](ejemplos/F001-00000001.xml) |
 | Cuadre del ejemplo | Valor de venta 1 955.50 + tributos 386.85 = **2 342.35** | §8.1 |
@@ -296,7 +298,7 @@ generador-java/src/main/java/pe/abc/facturacion/
 | `RucYNumeroLetrasTest` (29) | RUC, importe en letras y catálogos. |
 | `DependenciasEntreCapasTest` (7) | ArchUnit: dominio sin dependencias, solo el adaptador usa las clases del XSD, sin ciclos. |
 
-**Resultado**: 191 pruebas, 0 fallos, cobertura de líneas 98 % del código propio (mínimo exigido: 90 %). Salida completa en [`resultados-pruebas-java.txt`](resultados-pruebas-java.txt).
+**Resultado**: 220 pruebas, 0 fallos, cobertura de líneas 95 % del código propio (mínimo exigido: 90 %). Salida completa en [`resultados-pruebas-java.txt`](resultados-pruebas-java.txt).
 
 ### 9.5 Ejecución
 
@@ -346,3 +348,10 @@ Verificación cruzada: la firma hecha en Python se valida en Java con `javax.xml
 ### 9.3 Caso de negocio: factura de una motocicleta
 
 `specs/ejemplos/validos/05-factura-moto.json`: un ítem `NIU` × 1, valor unitario 6779.66, IGV 18 % = 1220.34, **total 8000.00** ("OCHO MIL CON 00/100 SOLES"). Chasis (VIN de 17 caracteres) y motor van en `cbc:Description` (máximo 250 caracteres). XML de referencia: `specs/ejemplos/xml-referencia/05-factura-moto.xml`.
+
+### 9.4 Marca de firma y formulario web
+
+- **Marca `FIRMAR AQUÍ`.** El XML sin firma lleva, como primer hijo de `Invoice`, el comentario `FIRMAR AQUÍ: este XML no está firmado. El firmador inserta en este punto ext:UBLExtensions…`. Un comentario no altera la validez contra el XSD ni la lectura del OSE (Nubefact lo aceptó). Los dos firmadores (Python y Java) lo retiran al insertar la firma.
+- **Formulario web** (`pe.abc.facturacion.infraestructura.web`). `ServidorWeb` atiende con `java.net.ServerSocket` y un hilo virtual por conexión, en vez del servidor HTTP del JDK: este usa selectores NIO y en algunos Windows con software de seguridad falla con *Unable to establish loopback connection*. `ServicioFormulario` concentra la lógica (vista previa de importes, generación, firma opcional) y `ContadorCorrelativos` asigna el correlativo por serie, partiendo de un valor basado en la hora para no repetir números tras reiniciar. La página (`src/main/resources/web/index.html`) es HTML y JavaScript sin dependencias.
+- **Datos de prueba.** `GeneradorDatosDePrueba` inventa RUC (prefijo 20, módulo 11) y series `Fxxx`/`Bxxx`.
+- **Validar con Notepad++.** `tools/preparar_validacion_notepadpp.py` arma `maindoc/` + `common/` ([guía](validacion-con-nubefact-y-notepadpp.md)).

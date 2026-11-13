@@ -3,7 +3,7 @@
 **Feature**: Contratos de API RESTful y Esquemas OpenAPI 3.1  
 **ID**: 0004  
 **Estado**: EN REVISIÓN  
-**Autor**: Equipo Grupo A — UNAS-FIIS  
+**Autor**: Gilmer Ayala Falcón (Grupo A, UNAS-FIIS)  
 **Fecha**: 2026-10-22  
 **Fuentes**: RS 097-2012/SUNAT (F-03), RS 234-2006/SUNAT (F-04), OASIS UBL 2.1 (F-01), OpenAPI 3.1.0
 

@@ -1,3 +1,4 @@
+# Autor: Gilmer Ayala Falcón · UNAS-FIIS · Arquitectura de Software · Grupo A
 """Exporta las tablas de la matriz de trazabilidad (specs/features/0005/spec.md) a CSV.
 
 Uso:  python tools/exportar_matriz.py [--verificar]

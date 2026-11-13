@@ -1,5 +1,7 @@
 # design.md — 0007 Distribución multiplataforma (MSI / APK)
 
+**Autor**: Gilmer Ayala Falcón · UNAS-FIIS · Arquitectura de Software · Grupo A
+
 > Restricción **Distribución y multiplataforma** del enunciado. Decisión en [ADR-003](../../adr/0003-kotlin-multiplatform-compose.md). Complementa a [`spec.md`](spec.md).
 
 

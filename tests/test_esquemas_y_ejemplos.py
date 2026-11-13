@@ -1,3 +1,4 @@
+# Autor: Gilmer Ayala Falcón · UNAS-FIIS · Arquitectura de Software · Grupo A
 """Control de forma (JSON Schema) y ejemplos validos/invalidos del generador.
 
 - Cada ejemplo de ``specs/ejemplos/validos`` cumple el esquema y genera un XML valido contra el XSD.

@@ -2,7 +2,7 @@
 **Documento**: Glosario de términos del dominio
 **Carpeta**: docs/
 **Estado**: BORRADOR
-**Autor**: Equipo Grupo A
+**Autor**: Gilmer Ayala Falcón (Grupo A, UNAS-FIIS)
 **Fecha**: 2026-10-22
 **Fuentes**: RS 097-2012/SUNAT (F-03), RS 234-2006/SUNAT (F-04), UBL 2.1 (F-01), Catálogos SUNAT (F-02)
 ---

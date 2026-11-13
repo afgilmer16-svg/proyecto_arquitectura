@@ -1,3 +1,4 @@
+# Autor: Gilmer Ayala Falcón · UNAS-FIIS · Arquitectura de Software · Grupo A
 """Pruebas de mutación: comprueban que la suite detecta errores introducidos a propósito.
 
 Cada "mutante" copia el proyecto a una carpeta temporal, cambia una línea del
@@ -44,7 +45,7 @@ def main() -> int:
     for nombre, archivo, original, mutado in M:
         with tempfile.TemporaryDirectory() as tmp:
             copia = Path(tmp) / "proyecto"
-            shutil.copytree(RAIZ, copia, ignore=shutil.ignore_patterns("__pycache__", ".git", ".pytest_cache", "salida"))
+            shutil.copytree(RAIZ, copia, ignore=shutil.ignore_patterns("__pycache__", ".git", ".pytest_cache", "salida", "target"))
             ruta = copia / "src" / "facturacion_xml" / archivo
             texto = ruta.read_text(encoding="utf-8")
             if texto.count(original) != 1:

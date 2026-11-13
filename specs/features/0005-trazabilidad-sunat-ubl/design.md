@@ -3,7 +3,7 @@
 **Feature**: Trazabilidad SUNAT / UBL 2.1  
 **ID**: 0005  
 **Estado**: EN REVISIÓN  
-**Autor**: Equipo Grupo A — UNAS-FIIS  
+**Autor**: Gilmer Ayala Falcón (Grupo A, UNAS-FIIS)  
 **Fecha**: 2026-11-11  
 **Fuentes**: F-01 (XSD UBL 2.1), F-02 (Catálogos SUNAT), F-03, F-04, Guía XML Factura UBL 2.1 (SUNAT)  
 **Alcance:** factura, boleta, nota de crédito y nota de débito electrónicas.

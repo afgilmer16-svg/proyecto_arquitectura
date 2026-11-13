@@ -1,5 +1,7 @@
 # tests/
 
+**Autor**: Gilmer Ayala Falcón · UNAS-FIIS · Arquitectura de Software · Grupo A
+
 > Estas son las pruebas del **prototipo en Python** y de los contratos. Las pruebas de la implementación principal (Java + JAXB) están en [`generador-java/src/test/java`](../generador-java/src/test/java/pe/abc/facturacion/) y se ejecutan con `cd generador-java && ./mvnw verify` (resultados: [`resultados-pruebas-java.txt`](../docs/resultados-pruebas-java.txt)).
 
 | Archivo | Qué prueba |

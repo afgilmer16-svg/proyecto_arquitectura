@@ -1,3 +1,4 @@
+# Autor: Gilmer Ayala Falcón · UNAS-FIIS · Arquitectura de Software · Grupo A
 """Caso de negocio: factura por la venta de una motocicleta (un ítem de alto valor con datos del vehículo)."""
 import copy
 import json

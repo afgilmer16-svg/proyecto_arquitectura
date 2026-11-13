@@ -2,7 +2,7 @@
 
 **Feature**: Generación del XML UBL 2.1  
 **ID**: 0008  
-**Autor**: Equipo Grupo A — UNAS-FIIS  
+**Autor**: Gilmer Ayala Falcón (Grupo A, UNAS-FIIS)  
 **Fecha**: 2026-11-11
 
 ---
@@ -30,7 +30,7 @@
 - [x] 310 pruebas de verificación integral (`tests/test_verificacion_integral.py`), ejecutadas: 310 aprobadas
 - [x] Pruebas de mutación (`tests/mutacion.py`): 16/16 detectados
 - [x] XML de ejemplo generado y validado (`docs/ejemplos/F001-00000001.xml`)
-- [x] Ejecutar `pytest -v` en la PC del equipo y guardar el resultado: 512 aprobadas (`docs/resultados-pruebas-python.txt`)
+- [x] Ejecutar `pytest -v` en la PC del equipo y guardar el resultado: 517 aprobadas (`docs/resultados-pruebas-python.txt`)
 - [x] Confirmar los 3 XSD de firma contra `docs.oasis-open.org`: SHA-256 idénticos
 - [ ] Contrastar los puntos "Por verificar" con el anexo de validaciones vigente de SUNAT
 - [x] Firma digital opcional XMLDSig (Python y Java), con pruebas y verificación cruzada Python → Java (2026-11-12)

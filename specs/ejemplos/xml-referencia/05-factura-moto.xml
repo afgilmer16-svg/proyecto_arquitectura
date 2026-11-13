@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Invoice xmlns="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2" xmlns:cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2" xmlns:cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2" xmlns:ccts="urn:un:unece:uncefact:documentation:2" xmlns:ds="http://www.w3.org/2000/09/xmldsig#" xmlns:ext="urn:oasis:names:specification:ubl:schema:xsd:CommonExtensionComponents-2" xmlns:qdt="urn:oasis:names:specification:ubl:schema:xsd:QualifiedDatatypes-2" xmlns:udt="urn:un:unece:uncefact:data:specification:UnqualifiedDataTypesSchemaModule:2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <!-- FIRMAR AQUÍ: este XML no está firmado. El firmador inserta en este punto ext:UBLExtensions con la firma digital (XMLDSig). -->
   <cbc:UBLVersionID>2.1</cbc:UBLVersionID>
   <cbc:CustomizationID>2.0</cbc:CustomizationID>
   <cbc:ProfileID schemeName="SUNAT:Identificador de Tipo de Operación" schemeAgencyName="PE:SUNAT" schemeURI="urn:pe:gob:sunat:cpe:see:gem:catalogos:catalogo17">0101</cbc:ProfileID>
@@ -17,7 +18,7 @@
         <cbc:ID>20526018151</cbc:ID>
       </cac:PartyIdentification>
       <cac:PartyName>
-        <cbc:Name>ABC SOFTWARE CORP S.A.C.</cbc:Name>
+        <cbc:Name>MOTOS DEL ORIENTE S.A.C.</cbc:Name>
       </cac:PartyName>
     </cac:SignatoryParty>
     <cac:DigitalSignatureAttachment>
@@ -32,15 +33,15 @@
         <cbc:ID schemeID="6" schemeName="Documento de Identidad" schemeAgencyName="PE:SUNAT" schemeURI="urn:pe:gob:sunat:cpe:see:gem:catalogos:catalogo06">20526018151</cbc:ID>
       </cac:PartyIdentification>
       <cac:PartyName>
-        <cbc:Name>DISTRIBUIDORA DE ABARROTES ABC</cbc:Name>
+        <cbc:Name>CENTRO MOTOR TINGO MARÍA</cbc:Name>
       </cac:PartyName>
       <cac:PartyLegalEntity>
-        <cbc:RegistrationName>ABC SOFTWARE CORP S.A.C.</cbc:RegistrationName>
+        <cbc:RegistrationName>MOTOS DEL ORIENTE S.A.C.</cbc:RegistrationName>
         <cac:RegistrationAddress>
           <cbc:ID schemeAgencyName="PE:INEI" schemeName="Ubigeos">100601</cbc:ID>
           <cbc:AddressTypeCode>0000</cbc:AddressTypeCode>
           <cac:AddressLine>
-            <cbc:Line>Av. Universitaria 123, Tingo María, Huánuco</cbc:Line>
+            <cbc:Line>Av. Alameda Perú 450, Rupa Rupa, Leoncio Prado, Huánuco</cbc:Line>
           </cac:AddressLine>
           <cac:Country>
             <cbc:IdentificationCode listID="ISO 3166-1" listAgencyName="United Nations Economic Commission for Europe" listName="Country">PE</cbc:IdentificationCode>

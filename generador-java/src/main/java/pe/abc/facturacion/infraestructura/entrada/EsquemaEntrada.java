@@ -1,3 +1,4 @@
+// Autor: Gilmer Ayala Falcón · UNAS-FIIS · Arquitectura de Software · Grupo A
 package pe.abc.facturacion.infraestructura.entrada;
 
 import java.io.IOException;

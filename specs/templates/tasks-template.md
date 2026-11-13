@@ -2,7 +2,7 @@
 
 **Feature**: [Nombre de la funcionalidad]  
 **ID**: NNNN  
-**Autor**: Equipo Grupo A  
+**Autor**: Gilmer Ayala Falcón (Grupo A, UNAS-FIIS)  
 **Fecha**: AAAA-MM-DD
 
 ---

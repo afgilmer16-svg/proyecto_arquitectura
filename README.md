@@ -2,7 +2,7 @@
 
 **Curso**: Arquitectura de Software · Examen de medio curso (Grupo A)  
 **Universidad**: UNAS — Facultad de Ingeniería en Informática y Sistemas  
-**Alumno**: Jorge Steven Tapullima Villar  
+**Alumno / autor**: Gilmer Ayala Falcón  
 **Metodología**: Spec-First  
 **Última actualización**: 2026-11-11
 
@@ -42,6 +42,8 @@ El **primer parcial** fue la fase Spec-First: reglas, contratos de datos, valida
 | 2. Generación del XML a partir del XSD Invoice 2.1 | [`generador-java/`](generador-java/) (Java 21 + JAXB: las clases se generan del XSD en cada compilación) · XSD en [`docs/referencias/ubl/`](docs/referencias/ubl/) |
 | 3. Lenguaje del dominio (Java, el stack del primer parcial) | [ADR-0006](specs/adr/0006-generador-ubl-java-jaxb.md) · prototipo de referencia en Python: [ADR-0005](specs/adr/0005-generador-ubl-python-lxml.md) |
 | 4. Pruebas unitarias de generación | [`GeneradorFacturaXmlTest`](generador-java/src/test/java/pe/abc/facturacion/infraestructura/ubl/GeneradorFacturaXmlTest.java) · [`RegresionCruzadaTest`](generador-java/src/test/java/pe/abc/facturacion/infraestructura/ubl/RegresionCruzadaTest.java) · [resultados Java](docs/resultados-pruebas-java.txt) · prototipo Python: [`tests/test_generador_xml.py`](tests/test_generador_xml.py) |
+| Caso de estudio (venta de una motocicleta) | [`docs/descripcion-del-caso-xml.md`](docs/descripcion-del-caso-xml.md#8-caso-de-estudio-venta-de-una-motocicleta) |
+| Validar el XML en Nubefact y Notepad++ | [`docs/validacion-con-nubefact-y-notepadpp.md`](docs/validacion-con-nubefact-y-notepadpp.md) · [`docs/validacion-notepadpp/`](docs/validacion-notepadpp/) |
 | Documentación técnica | [`docs/documentacion-tecnica-xml.md`](docs/documentacion-tecnica-xml.md) |
 | Informe de correcciones y verificación | [`docs/informe-correcciones-xml.md`](docs/informe-correcciones-xml.md) |
 | Feature | [`specs/features/0008-generacion-xml-ubl/`](specs/features/0008-generacion-xml-ubl/) |
@@ -55,6 +57,25 @@ Compilar y probar con Java (solo requiere JDK 21; el Maven Wrapper descarga Mave
 cd generador-java
 .\mvnw.cmd verify   # genera las clases del XSD, corre las pruebas y exige 90 % de cobertura
 ```
+
+## Formulario web: registrar una venta desde cero
+
+El formulario abre **vacío**: no trae ningún dato prellenado ni guarda nada. Sirve para registrar una venta en vivo.
+
+```powershell
+cd generador-java
+.\mvnw.cmd compile exec:java "-Dexec.args=--web 8765"
+```
+
+(En Bash: `./mvnw compile exec:java -Dexec.args="--web 8765"`.) Después abre <http://localhost:8765/> en el navegador y cierra el servidor con `Ctrl+C`. Solo escucha en la máquina local.
+
+- **Tipo de comprobante:** Factura (pide RUC de 11 dígitos y razón social, serie `F`) o Boleta (pide DNI de 8 dígitos, obligatorio si el total pasa de S/ 700, y nombre; serie `B`).
+- **Emisor y cliente:** se escriben libremente. Junto a cada RUC hay un botón **Generar RUC aleatorio válido** (11 dígitos con dígito verificador por módulo 11) y la serie tiene su botón **Serie aleatoria**. El correlativo lo asigna el servidor, así Nubefact no responde con el error 1033 por duplicado.
+- **Productos:** descripción, unidad de medida (NIU, KGM…), cantidad y precio, tantos como se quiera. Una casilla indica si los precios ya incluyen IGV.
+- **Verificación al instante:** valor sin IGV, IGV, total a pagar y monto en letras, calculados por el servidor con la misma lógica que genera el XML.
+- **Generar XML:** valida contra el XSD Invoice 2.1 y descarga el XML **sin firma** (con el comentario `FIRMAR AQUÍ`). La casilla «Incluir firma digital» está desmarcada; al marcarla pide un certificado `.pfx` y su contraseña.
+
+Cómo validar el XML descargado: [`docs/validacion-con-nubefact-y-notepadpp.md`](docs/validacion-con-nubefact-y-notepadpp.md).
 
 El prototipo en Python sigue disponible (PowerShell, desde la raíz):
 

@@ -2,7 +2,7 @@
 
 **Estado**: APROBADO  
 **Fecha**: 2026-10-22  
-**Autores**: Equipo Grupo A — UNAS-FIIS  
+**Autores**: Gilmer Ayala Falcón (Grupo A, UNAS-FIIS)  
 **Fuentes**: RS 097-2012/SUNAT (F-03), RS 234-2006/SUNAT (F-04), OASIS UBL 2.1 (F-01)
 
 ---

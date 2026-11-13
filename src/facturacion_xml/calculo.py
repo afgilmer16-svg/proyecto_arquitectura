@@ -1,3 +1,4 @@
+# Autor: Gilmer Ayala Falcón · UNAS-FIIS · Arquitectura de Software · Grupo A
 """Cálculo de importes del comprobante con decimales exactos.
 
 Reglas (spec 0002, §5, y Guía XML SUNAT v1.0, §27):

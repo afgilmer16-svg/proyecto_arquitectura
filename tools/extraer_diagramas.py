@@ -1,3 +1,4 @@
+# Autor: Gilmer Ayala Falcón · UNAS-FIIS · Arquitectura de Software · Grupo A
 """Extrae los diagramas Mermaid de los .md a archivos .mmd (fuente unica de cada diagrama).
 
 Uso:  python tools/extraer_diagramas.py [--verificar]

@@ -1,3 +1,4 @@
+// Autor: Gilmer Ayala Falcón · UNAS-FIIS · Arquitectura de Software · Grupo A
 package pe.abc.facturacion.aplicacion.puerto;
 
 import pe.abc.facturacion.dominio.modelo.Modelo.Factura;

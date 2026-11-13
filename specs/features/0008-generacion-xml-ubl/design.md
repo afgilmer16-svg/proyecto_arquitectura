@@ -3,7 +3,7 @@
 **Feature**: Generación del XML UBL 2.1  
 **ID**: 0008  
 **Estado**: APROBADO  
-**Autor**: Equipo Grupo A — UNAS-FIIS  
+**Autor**: Gilmer Ayala Falcón (Grupo A, UNAS-FIIS)  
 **Fecha**: 2026-11-11
 
 > Complementa a [`spec.md`](spec.md). La documentación técnica completa, con la estructura del XML, la validación XSD y los resultados, está en [`docs/documentacion-tecnica-xml.md`](../../../docs/documentacion-tecnica-xml.md).

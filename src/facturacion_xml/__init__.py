@@ -1,3 +1,4 @@
+# Autor: Gilmer Ayala Falcón · UNAS-FIIS · Arquitectura de Software · Grupo A
 """Generación de XML UBL 2.1 (Invoice) para la factura y boleta electrónica peruana.
 
 Uso típico::

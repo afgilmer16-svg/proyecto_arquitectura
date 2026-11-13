@@ -1,3 +1,4 @@
+# Autor: Gilmer Ayala Falcón · UNAS-FIIS · Arquitectura de Software · Grupo A
 """Pruebas unitarias de generación del XML UBL 2.1 (Invoice).
 
 Cubren lo que pide el segundo parcial:
@@ -160,12 +161,18 @@ class TestEstructura:
 
     def test_orden_de_la_cabecera_sigue_la_secuencia_de_invoicetype(self, datos):
         raiz = generar(datos)
-        nombres = [etree.QName(hijo).localname for hijo in raiz]
+        nombres = [etree.QName(hijo).localname for hijo in raiz if isinstance(hijo.tag, str)]
         esperado = ["UBLVersionID", "CustomizationID", "ProfileID", "ID", "IssueDate", "IssueTime",
                     "InvoiceTypeCode", "Note", "DocumentCurrencyCode", "LineCountNumeric", "Signature",
                     "AccountingSupplierParty", "AccountingCustomerParty", "PaymentTerms", "TaxTotal",
                     "LegalMonetaryTotal"] + ["InvoiceLine"] * 7
         assert nombres == esperado
+
+    def test_la_marca_firmar_aqui_es_el_primer_hijo_de_la_raiz(self, datos):
+        raiz = generar(datos)
+        assert isinstance(raiz[0], etree._Comment)
+        assert "FIRMAR AQUÍ" in raiz[0].text
+        assert etree.QName(raiz[1]).localname == "UBLVersionID"
 
     def test_atributos_de_catalogos_sunat(self, datos):
         raiz = generar(datos)

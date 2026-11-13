@@ -1,3 +1,4 @@
+# Autor: Gilmer Ayala Falcón · UNAS-FIIS · Arquitectura de Software · Grupo A
 """Excepciones del generador de XML UBL 2.1."""
 from __future__ import annotations
 

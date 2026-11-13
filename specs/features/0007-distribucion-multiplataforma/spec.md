@@ -3,7 +3,7 @@
 **Feature**: Distribución Multiplataforma  
 **ID**: 0007  
 **Estado**: EN REVISIÓN  
-**Autor**: Equipo Grupo A — UNAS-FIIS  
+**Autor**: Gilmer Ayala Falcón (Grupo A, UNAS-FIIS)  
 **Fecha**: 2026-11-06  
 **Fuentes**: RS 097-2012/SUNAT (F-03), ADR-003
 

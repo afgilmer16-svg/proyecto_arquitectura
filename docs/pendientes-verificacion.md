@@ -1,5 +1,7 @@
 # Pendientes de verificación — registro de fuentes
 
+**Autor**: Gilmer Ayala Falcón · UNAS-FIIS · Arquitectura de Software · Grupo A
+
 **Fecha de la última revisión:** 2026-11-11  
 Este documento registra qué dato "Por verificar" ya se contrastó con una fuente oficial, cuál se contrastó solo en parte y cuál sigue abierto. Las fuentes son páginas y PDF públicos de SUNAT y de JetBrains/Kotlin consultados en línea ese día. Las fuentes F-01 a F-05 de `.agent/rules/spec-first.md` siguen siendo las de referencia: **conviene cotejar cada dato con el PDF original antes de la entrega.**
 
@@ -83,7 +85,7 @@ Este documento registra qué dato "Por verificar" ya se contrastó con una fuent
 ## 5. Tareas que requieren una acción humana
 
 - [ ] Descargar a `docs/referencias/sunat/` los PDF de la RS 097-2012, RS 234-2006, Anexo 8 y las guías de baja/resumen, y cotejar la sección 2 y 3 de este documento.
-- [x] Ejecutar `pytest -v` (incluye `openapi-spec-validator` real): 512 aprobadas el 2026-11-12 (`docs/resultados-pruebas-python.txt`). Queda opcional `npx @redocly/cli lint specs/contracts/facturacion-api.yaml` (requiere Node.js y descargar el paquete; no se pudo ejecutar en esta sesión).
+- [x] Ejecutar `pytest -v` (incluye `openapi-spec-validator` real): 517 aprobadas el 2026-11-12 (`docs/resultados-pruebas-python.txt`). Queda opcional `npx @redocly/cli lint specs/contracts/facturacion-api.yaml` (requiere Node.js y descargar el paquete; no se pudo ejecutar en esta sesión).
 - [ ] Obtener una muestra del sistema antiguo y confirmar los supuestos S-01 a S-11 de `specs/features/0006-migracion-legado/diccionario-legado.md`.
 - [ ] Revisión por un segundo miembro del equipo (si el examen es en equipo).
 - [ ] Confirmar `minSdk` con los dispositivos reales de preventa.

@@ -1,3 +1,4 @@
+// Autor: Gilmer Ayala Falcón · UNAS-FIIS · Arquitectura de Software · Grupo A
 package pe.abc.facturacion.infraestructura.ubl;
 
 import java.io.ByteArrayOutputStream;
@@ -219,10 +220,22 @@ public class GeneradorUblJaxbAdapter implements GeneradorXmlUblPort {
             ByteArrayOutputStream salida = new ByteArrayOutputStream();
             salida.write(DECLARACION);
             marshaller.marshal(new ObjectFactory().createInvoice(invoice), salida);
-            return salida.toByteArray();
+            return conMarcaDeFirma(salida.toByteArray());
         } catch (JAXBException | java.io.IOException e) {
             throw new ErrorFacturacionXml("No se pudo serializar el XML: " + e.getMessage(), e);
         }
+    }
+
+    /** Texto de la marca que indica donde entra la firma digital (identico al del generador Python). */
+    public static final String MARCA_FIRMA = " FIRMAR AQUÍ: este XML no está firmado. El firmador inserta en este punto ext:UBLExtensions con la firma digital (XMLDSig). ";
+
+    /** Inserta la marca como primer hijo de la raiz, donde el firmador pondra {@code ext:UBLExtensions}. */
+    private static byte[] conMarcaDeFirma(byte[] xml) {
+        String texto = new String(xml, java.nio.charset.StandardCharsets.UTF_8);
+        int raiz = texto.indexOf("<Invoice");
+        int fin = texto.indexOf('>', raiz) + 1;
+        return (texto.substring(0, fin) + "\n  <!--" + MARCA_FIRMA + "-->" + texto.substring(fin))
+                .getBytes(java.nio.charset.StandardCharsets.UTF_8);
     }
 
     /** Prefijos del documento: Invoice como espacio por defecto, y cac:/cbc: como en la Guia XML de SUNAT. */

@@ -1,5 +1,7 @@
 # design.md — 0006 Migración de datos legados
 
+**Autor**: Gilmer Ayala Falcón · UNAS-FIIS · Arquitectura de Software · Grupo A
+
 > Restricción **Legado y migración de datos** del enunciado. Complementa a [`spec.md`](spec.md); supuestos del sistema antiguo en [`diccionario-legado.md`](diccionario-legado.md).
 
 

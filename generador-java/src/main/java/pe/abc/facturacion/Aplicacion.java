@@ -1,3 +1,4 @@
+// Autor: Gilmer Ayala Falcón · UNAS-FIIS · Arquitectura de Software · Grupo A
 package pe.abc.facturacion;
 
 import java.io.IOException;
@@ -13,12 +14,14 @@ import pe.abc.facturacion.dominio.error.ErrorFacturacionXml;
 import pe.abc.facturacion.infraestructura.entrada.EsquemaEntrada;
 import pe.abc.facturacion.infraestructura.entrada.LectorJson;
 import pe.abc.facturacion.infraestructura.ubl.GeneradorUblJaxbAdapter;
+import pe.abc.facturacion.infraestructura.web.ServidorWeb;
 
 /**
  * Linea de comandos: genera el XML de un comprobante a partir de un JSON.
  *
  * <pre>
  * java -jar facturacion-xml.jar ENTRADA.json SALIDA.xml --correlativo 1 [--regimen-igv GENERAL]
+ * java -jar facturacion-xml.jar --web [puerto]       (formulario web local)
  * </pre>
  *
  * Codigos de salida: 0 correcto, 1 datos invalidos o XML no conforme, 2 uso incorrecto.
@@ -29,7 +32,25 @@ public final class Aplicacion {
     }
 
     public static void main(String[] args) {
+        if (args.length >= 1 && "--web".equals(args[0])) {
+            try {
+                iniciarWeb(args, System.out);
+            } catch (NumberFormatException | IOException e) {
+                System.err.println("ERROR: no se pudo abrir el formulario web: " + e.getMessage());
+                System.exit(2);
+            }
+            return; // el servidor sigue atendiendo hasta que se cierre el proceso (Ctrl+C)
+        }
         System.exit(ejecutar(args, System.out, System.err));
+    }
+
+    /** Abre el formulario web: {@code --web [puerto]} (por defecto 8765; 0 elige un puerto libre). */
+    static ServidorWeb iniciarWeb(String[] args, PrintStream salidaEstandar) throws IOException {
+        int puerto = args.length >= 2 ? Integer.parseInt(args[1]) : 8765;
+        ServidorWeb servidor = new ServidorWeb(puerto);
+        servidor.iniciar();
+        salidaEstandar.println("Formulario web: http://localhost:" + servidor.puerto() + "/  (Ctrl+C para cerrar)");
+        return servidor;
     }
 
     static int ejecutar(String[] args, PrintStream salidaEstandar, PrintStream salidaError) {

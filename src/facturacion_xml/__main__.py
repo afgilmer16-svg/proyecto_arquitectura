@@ -1,3 +1,4 @@
+# Autor: Gilmer Ayala Falcón · UNAS-FIIS · Arquitectura de Software · Grupo A
 """Línea de comandos: genera el XML de un comprobante a partir de un JSON.
 
     python -m facturacion_xml ENTRADA.json SALIDA.xml --correlativo 1 [--regimen-igv GENERAL]

@@ -1,5 +1,7 @@
 # Diccionario del sistema legado (supuestos de trabajo)
 
+**Autor**: Gilmer Ayala Falcón · UNAS-FIIS · Arquitectura de Software · Grupo A
+
 **Estado:** BORRADOR — todo lo de este documento es **supuesto** hasta confirmarlo con una muestra real del sistema antiguo.  
 **Fecha:** 2026-11-07  
 **Fuente:** descripción del caso en `docs/enunciado.md`: el software actual de ABC Software Corp controla *"fichas sencillas con campos como fecha, ingreso, salida, producto y un número de documento interno bastante informal"*.

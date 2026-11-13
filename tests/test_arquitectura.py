@@ -1,3 +1,4 @@
+# Autor: Gilmer Ayala Falcón · UNAS-FIIS · Arquitectura de Software · Grupo A
 """Reglas de arquitectura del generador (equivalente a ArchUnit en Python).
 
 El generador sigue el diseno de la feature 0008 y el ADR-005: un nucleo de reglas sin dependencias

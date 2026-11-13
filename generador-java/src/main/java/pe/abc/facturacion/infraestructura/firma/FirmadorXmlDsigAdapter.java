@@ -1,3 +1,4 @@
+// Autor: Gilmer Ayala Falcón · UNAS-FIIS · Arquitectura de Software · Grupo A
 package pe.abc.facturacion.infraestructura.firma;
 
 import java.io.ByteArrayInputStream;
@@ -142,6 +143,13 @@ public final class FirmadorXmlDsigAdapter implements FirmaDigitalPort {
 
     /** Crea {@code ext:UBLExtensions} como primer hijo (orden de {@code InvoiceType}) y devuelve {@code ExtensionContent}. */
     private static Element crearExtensionContent(Document doc, Element raiz) {
+        for (Node hijo = raiz.getFirstChild(); hijo != null;) {
+            Node siguiente = hijo.getNextSibling();
+            if (hijo.getNodeType() == Node.COMMENT_NODE && hijo.getNodeValue().contains("FIRMAR AQUÍ")) {
+                raiz.removeChild(hijo); // ya no hace falta: el XML queda firmado
+            }
+            hijo = siguiente;
+        }
         Element extensiones = doc.createElementNS(NS_EXT, "ext:UBLExtensions");
         Element extension = doc.createElementNS(NS_EXT, "ext:UBLExtension");
         Element contenido = doc.createElementNS(NS_EXT, "ext:ExtensionContent");

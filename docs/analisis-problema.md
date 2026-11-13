@@ -1,5 +1,7 @@
 # Análisis del Problema
 
+**Autor**: Gilmer Ayala Falcón · UNAS-FIIS · Arquitectura de Software · Grupo A
+
 **Estado**: EN REVISIÓN  
 **Fecha**: 2026-11-11  
 **Fuentes**: RS 097-2012/SUNAT (F-03), RS 234-2006/SUNAT (F-04), Reglamento de Comprobantes de Pago (F-06), UBL 2.1 (F-01)

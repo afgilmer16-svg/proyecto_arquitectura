@@ -3,7 +3,7 @@
 **Feature**: Modelo de Dominio de Facturación Electrónica  
 **ID**: 0002  
 **Estado**: EN REVISIÓN  
-**Autor**: Equipo Grupo A — UNAS-FIIS  
+**Autor**: Gilmer Ayala Falcón (Grupo A, UNAS-FIIS)  
 **Fecha**: 2026-11-11  
 **Fuentes**: F-01, F-02, F-03, F-04
 

@@ -3,7 +3,7 @@
 **Feature**: Migración de Legado  
 **ID**: 0006  
 **Estado**: EN REVISIÓN  
-**Autor**: Equipo Grupo A — UNAS-FIIS  
+**Autor**: Gilmer Ayala Falcón (Grupo A, UNAS-FIIS)  
 **Fecha**: 2026-11-06  
 **Fuentes**: RS 097-2012/SUNAT (F-03), RS 234-2006/SUNAT (F-04), Catálogos SUNAT Anexo 8 (F-02)
 

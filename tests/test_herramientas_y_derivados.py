@@ -1,3 +1,4 @@
+# Autor: Gilmer Ayala Falcón · UNAS-FIIS · Arquitectura de Software · Grupo A
 """Los archivos derivados (.mmd, .csv) deben coincidir con sus fuentes en Markdown.
 
 Si alguien edita un diagrama o la matriz en el .md y olvida regenerar, estas pruebas fallan:

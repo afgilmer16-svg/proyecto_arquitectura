@@ -1,5 +1,7 @@
 # Segundo parcial — Informe de correcciones y verificación
 
+**Autor**: Gilmer Ayala Falcón · UNAS-FIIS · Arquitectura de Software · Grupo A
+
 **Fecha**: 2026-11-11  
 **Base de comparación**: estado del repositorio en GitHub antes de este trabajo (commit `f5b2be4`, "Corrige observaciones del docente…").  
 **Referencias del docente**: observaciones escritas sobre el primer parcial (`gilmer_50.docx`, resumidas en [`docs/retroalimentacion-docente.md`](retroalimentacion-docente.md)) y requisitos del segundo parcial vistos en clase (descripción del caso, generación XML desde el XSD Invoice 2.1, lenguaje del dominio y pruebas unitarias de generación).
@@ -48,6 +50,10 @@
 | E-21 | No había forma de firmar: solo se declaraban los prefijos para que firmara el OSE. | Firmador opcional XMLDSig *enveloped* (C14N 1.0, SHA-256, RSA-SHA256) con certificado `.pfx`, en Python (`firmador.py`, `--firmar`) y en Java (`FirmadorXmlDsigAdapter`, API estándar del JDK). El XML firmado sigue siendo válido contra el XSD. | `tests/test_firmador.py` (23 pruebas), `FirmadorXmlDsigTest`, y Java verifica una firma hecha en Python |
 | E-22 | No existía el caso de negocio de una factura de moto. | Ejemplo `05-factura-moto` (JSON, XML de referencia y pruebas): un ítem de S/ 6779.66 + IGV = S/ 8000.00, con chasis y motor en la descripción. | `tests/test_factura_moto.py`, regresión cruzada Python ↔ Java |
 | E-23 | Las pruebas de propiedades aleatorias usaban fechas de 2026 que, con la regla nueva, serían "futuras". | Esas pruebas fijan `hoy=2030-01-01`. | `test_verificacion_integral.py` |
+| E-24 | El XML sin firma no indicaba dónde entra la firma (lo pidió el ingeniero: «si no está firmado, ponle ahí firmar»). | Observación del ingeniero. | Comentario `FIRMAR AQUÍ` como primer hijo de `Invoice` en ambos generadores; los firmadores lo retiran. Nubefact lo acepta. Pruebas: `test_la_marca_firmar_aqui_es_el_primer_hijo_de_la_raiz`, `test_firmar_no_cambia_el_resto_del_documento`. |
+| E-25 | No había interfaz para registrar una venta desde cero. | Pedido del equipo para la demostración. | Formulario web vacío en Java (`--web`), con vista previa de importes, RUC y serie aleatorios, correlativo del servidor y firma opcional. Pruebas: `ServicioFormularioTest`, `ServidorWebTest`, `GeneradorDatosDePruebaTest`. |
+| E-26 | El XSD no se podía validar con Notepad++ porque importa `../common/…` y la carpeta `docs/referencias/ubl` es plana. | Revisión de lo pedido por el ingeniero. | `tools/preparar_validacion_notepadpp.py` arma `maindoc/` + `common/`; guía en `docs/validacion-con-nubefact-y-notepadpp.md`; prueba `tests/test_validacion_notepadpp.py`. |
+| E-27 | El servidor HTTP del JDK no arrancaba en la máquina de desarrollo (*Unable to establish loopback connection*, fallo de los selectores NIO en Windows). | Pruebas del formulario web. | Servidor propio sobre `ServerSocket` (sin selectores). |
 
 **Decisiones y límites (no se cambiaron):**
 
@@ -72,7 +78,7 @@ Tras comparar el proyecto con otro trabajo del curso se agregaron complementos q
 | M-07 | `redocly.yaml` para el lint del contrato. | `redocly.yaml` |
 | M-08 | **Adaptador principal en Java 21 con JAXB**: las clases se generan desde `UBL-Invoice-2.1.xsd` en cada compilación (≈ 1 240), como recomendó el docente y como pide la continuidad con el primer parcial (backend Java). | `generador-java/`, ADR-0006 |
 | M-09 | **Regresión cruzada**: el XML Java es idéntico al del prototipo Python en 5 ejemplos. | `RegresionCruzadaTest`, `specs/ejemplos/xml-referencia/` |
-| M-10 | **191 pruebas Java** (generación, XSD, dominio, entrada, firma, CLI, arquitectura) con cobertura del 98 % y mínimo del 90 % en el build. | `resultados-pruebas-java.txt` |
+| M-10 | **220 pruebas Java** (generación, XSD, dominio, entrada, firma, CLI, arquitectura) con cobertura del 95 % y mínimo del 90 % en el build. | `resultados-pruebas-java.txt` |
 | M-11 | CI de Java con Maven Wrapper (solo requiere JDK 21). | `.github/workflows/java.yml`, `generador-java/mvnw` |
 
 ## 2. Observaciones del docente atendidas
@@ -142,7 +148,7 @@ Tras comparar el proyecto con otro trabajo del curso se agregaron complementos q
 
 | Ejecución | Resultado |
 |---|---|
-| `pytest -v` (suite completa, con `openapi-spec-validator` 0.9.0 real, Windows 11 / Python 3.12.7) | **512 aprobadas, 0 fallidas**. Salida completa en [`resultados-pruebas-python.txt`](resultados-pruebas-python.txt). |
+| `pytest -v` (suite completa, con `openapi-spec-validator` 0.9.0 real, Windows 11 / Python 3.12.7) | **517 aprobadas, 0 fallidas**. Salida completa en [`resultados-pruebas-python.txt`](resultados-pruebas-python.txt). |
 | `python tests/mutacion.py` | **16 de 16 mutantes detectados**. |
 | CLI con el ejemplo | XML generado y validado: `docs/ejemplos/F001-00000001.xml`. |
 | CLI con correlativo `0` | Rechazado con mensaje claro y código de salida 1. |

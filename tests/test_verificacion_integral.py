@@ -1,3 +1,4 @@
+# Autor: Gilmer Ayala Falcón · UNAS-FIIS · Arquitectura de Software · Grupo A
 """Verificación integral del generador XML (complementa a test_generador_xml.py).
 
 Estas pruebas comprueban el proyecto "desde fuera", con oráculos que no dependen
@@ -245,7 +246,7 @@ def test_cada_elemento_generado_figura_en_la_matriz_0005():
     datos = json.loads((EJEMPLOS / "factura-abarrotes.json").read_text(encoding="utf-8"))
     raiz = etree.fromstring(generar_xml_factura(datos, 1))
     matriz = MATRIZ.read_text(encoding="utf-8")
-    nombres = {etree.QName(e).localname for e in raiz.iter()} - {"Invoice"}
+    nombres = {etree.QName(e).localname for e in raiz.iter(etree.Element)} - {"Invoice"}
     # Elementos estructurales de firma: los documenta la Guía XML (p. 80), no la matriz de datos.
     estructurales = {"Signature", "SignatoryParty", "DigitalSignatureAttachment", "ExternalReference", "URI"}
     faltan = sorted(n for n in nombres - estructurales if n not in matriz)

@@ -1,3 +1,4 @@
+// Autor: Gilmer Ayala Falcón · UNAS-FIIS · Arquitectura de Software · Grupo A
 package pe.abc.facturacion;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -91,5 +92,15 @@ class AplicacionTest {
         Files.write(ansi, "{\"a\": \"ñ\"}".getBytes(java.nio.charset.Charset.forName("windows-1252")));
         assertThat(ejecutar(ansi.toString(), dir.resolve("b.xml").toString(), "--correlativo", "1")).isEqualTo(1);
         assertThat(error()).contains("UTF-8");
+    }
+
+    @Test
+    void elModoWebAbreElFormularioEnElPuertoPedido() throws Exception {
+        try (var servidor = Aplicacion.iniciarWeb(new String[] {"--web", "0"}, new PrintStream(out, true, StandardCharsets.UTF_8))) {
+            assertThat(salida()).contains("http://localhost:" + servidor.puerto());
+            var conexion = (java.net.HttpURLConnection) java.net.URI.create("http://127.0.0.1:" + servidor.puerto() + "/")
+                    .toURL().openConnection();
+            assertThat(conexion.getResponseCode()).isEqualTo(200);
+        }
     }
 }

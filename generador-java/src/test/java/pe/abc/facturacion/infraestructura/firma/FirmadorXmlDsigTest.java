@@ -1,3 +1,4 @@
+// Autor: Gilmer Ayala Falcón · UNAS-FIIS · Arquitectura de Software · Grupo A
 package pe.abc.facturacion.infraestructura.firma;
 
 import static org.assertj.core.api.Assertions.assertThat;

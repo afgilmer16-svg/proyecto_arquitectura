@@ -1,3 +1,4 @@
+# Autor: Gilmer Ayala Falcón · UNAS-FIIS · Arquitectura de Software · Grupo A
 """Importe en letras para la leyenda 1000 del Catálogo 52 (``cbc:Note``).
 
 Ejemplo de la Guía XML SUNAT v1.0 (p. 79): ``CUATROCIENTOS VEINTITRES MIL

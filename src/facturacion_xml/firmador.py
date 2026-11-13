@@ -1,3 +1,4 @@
+# Autor: Gilmer Ayala Falcón · UNAS-FIIS · Arquitectura de Software · Grupo A
 """Firma digital opcional del XML: XMLDSig *enveloped* (RSA-SHA256) en ``ext:UBLExtensions``.
 
 El generador entrega el XML **sin firma** (el XSD de UBL la declara opcional). Este módulo es el
@@ -79,6 +80,9 @@ def _id_de_firma(raiz: etree._Element) -> str:
 
 def _extension_contenido(raiz: etree._Element) -> etree._Element:
     """Crea ``ext:UBLExtensions`` como primer hijo (orden de ``InvoiceType``) y devuelve ``ExtensionContent``."""
+    for marca in raiz.xpath("comment()"):
+        if "FIRMAR AQUÍ" in (marca.text or ""):
+            raiz.remove(marca)  # ya no hace falta: el XML queda firmado
     extensiones = raiz.find(_ext("UBLExtensions"))
     if extensiones is None:
         extensiones = etree.Element(_ext("UBLExtensions"))
